@@ -23,8 +23,9 @@ public class CardNode extends StackPane {
         this.isSelected = false;
 
         setPrefSize(100, 140);
+        getStyleClass().add("card-node");
 
-        // Try loading PNG asset image
+        // Attempt loading individual PNG asset from assets/cards/
         boolean imageLoaded = false;
         try {
             InputStream is = getClass().getClassLoader().getResourceAsStream(card.getAssetPath());
@@ -32,57 +33,52 @@ public class CardNode extends StackPane {
                 ImageView cardImageView = new ImageView(new Image(is));
                 cardImageView.setFitWidth(100);
                 cardImageView.setFitHeight(140);
+                cardImageView.setSmooth(false); // Sharp pixel art rendering
                 getChildren().add(cardImageView);
                 imageLoaded = true;
             }
         } catch (Exception ignored) {}
 
-        // Fallback Inline CSS Card View (If asset PNG isn't in assets/ folder yet)
+        // Fallback Shape/Text View using external CSS classes
         if (!imageLoaded) {
-            String suitColor = (card.getSuit().name().equals("HEARTS") || card.getSuit().name().equals("DIAMONDS")) ? "#e74c3c" : "#2c3e50";
-
-            // Outer Card Frame with Rounded Corners & Shadow Effect
-            setStyle("-fx-background-color: white; " +
-                     "-fx-border-color: #bdc3c7; " +
-                     "-fx-border-width: 2px; " +
-                     "-fx-border-radius: 8px; " +
-                     "-fx-background-radius: 8px; " +
-                     "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 3);");
+            String suitClass = (card.getSuit().name().equals("HEARTS") || card.getSuit().name().equals("DIAMONDS"))
+                    ? "card-red-suit" : "card-black-suit";
 
             Label rankLabel = new Label(card.getRank().getAssetName().toUpperCase());
-            rankLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + suitColor + ";");
+            rankLabel.getStyleClass().addAll("card-rank-text", suitClass);
 
             Label suitLabel = new Label(card.getSuit().getDisplayName());
-            suitLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: " + suitColor + ";");
+            suitLabel.getStyleClass().addAll("card-suit-text", suitClass);
 
-            VBox cardContent = new VBox(5, rankLabel, suitLabel);
+            VBox cardContent = new VBox(4, rankLabel, suitLabel);
             cardContent.setAlignment(Pos.CENTER);
 
-            // Display Enhancement Tag if Card is Buffed
             if (card.getEnhancement() != Enhancement.NONE) {
                 Label enhLabel = new Label("[" + card.getEnhancement().name() + "]");
-                enhLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #27ae60;");
+                enhLabel.getStyleClass().add("card-enhancement-badge");
                 cardContent.getChildren().add(enhLabel);
             }
 
             getChildren().add(cardContent);
         }
 
-        // Click Event: Pop card up/down when clicked
+        // Selection click toggle
         setOnMouseClicked(e -> toggleSelection());
     }
 
     public void toggleSelection() {
         isSelected = !isSelected;
+
+        // Smooth translate animation
         TranslateTransition anim = new TranslateTransition(Duration.millis(150), this);
-        anim.setByY(isSelected ? -25 : 25); // Lift card up 25px when clicked
+        anim.setByY(isSelected ? -25 : 25);
         anim.play();
 
-        // Highlight border when selected
+        // Toggle CSS class for yellow border glow
         if (isSelected) {
-            setStyle(getStyle() + "-fx-border-color: #f1c40f; -fx-border-width: 3px;");
+            getStyleClass().add("card-node-selected");
         } else {
-            setStyle(getStyle().replace("-fx-border-color: #f1c40f; -fx-border-width: 3px;", "-fx-border-color: #bdc3c7; -fx-border-width: 2px;"));
+            getStyleClass().remove("card-node-selected");
         }
     }
 

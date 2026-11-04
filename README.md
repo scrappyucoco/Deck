@@ -171,4 +171,4 @@ When contributing new graphics or custom styles to `assets/`, please follow thes
 1. Pull the latest changes from `main` before starting new feature work (`git pull origin main`).
 2. Do **not** commit compiled `.class` files or the `bin/` folder (already handled by `.gitignore`).
 3. Keep backend logic strictly isolated in `engine/` or `equipment/`, separated from JavaFX UI code in `views/`.
-4. Refer to the project documentation and workflow guidelines via the [Collaboration & Workflow Wiki/Docs](https://www.google.com/search?q=https://github.com/your-username/Deck/wiki) *(Update link as needed)*.
+4. Refer to the project documentation and workflow guidelines via the [Collaboration & Workflow Wiki/Docs](https://docs.google.com/document/d/1JbXFVtgIU0BfoM6Q8dCaDsQ9rexq2SIlM1eUp8O-u2c/edit?usp=sharing).

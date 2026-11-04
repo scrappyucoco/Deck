@@ -30,10 +30,10 @@
 
 The codebase strictly adheres to core Object-Oriented Programming principles to maintain modularity and clean separation of concerns:
 
-* **Encapsulation:** Domain models (`Card`, `GameState`, `ScoringContext`) guard internal state behind strict mutator validations.
-* **Inheritance:** Base superclasses (`Joker`, `Item`, `Occurrence`) establish shared properties while concrete subclasses override unique behavior.
-* **Polymorphism:** The 4-stage evaluation engine calls `evaluate(ScoringContext ctx)` on `Scorable` interfaces without needing to know concrete runtime types.
-* **Decorator & Strategy Patterns:** Socket items wrap around parent Jokers to modify execution count and multipliers dynamically; poker hand parsers apply runtime evaluation strategies.
+- **Encapsulation:** Domain models (`Card`, `GameState`, `ScoringContext`) guard internal state behind strict mutator validations.
+- **Inheritance:** Base superclasses (`Joker`, `Item`, `Occurrence`) establish shared properties while concrete subclasses override unique behavior.
+- **Polymorphism:** The 4-stage evaluation engine calls `evaluate(ScoringContext ctx)` on `Scorable` interfaces without needing to know concrete runtime types.
+- **Decorator & Strategy Patterns:** Socket items wrap around parent Jokers to modify execution count and multipliers dynamically; poker hand parsers apply runtime evaluation strategies.
 
 ---
 
@@ -71,8 +71,8 @@ Deck/
 
 To avoid configuring complex `--module-path` or `--add-modules` VM options, **all developers and reviewers MUST use a JDK that pre-bundles JavaFX**:
 
-* **Option A (Recommended):** [BellSoft Liberica JDK 21 **Full](https://bell-sw.com/pages/downloads/)**. *(Select the **"Full JDK"** download variant)*.
-* **Option B:** [Azul Zulu JDK 21 **with JavaFX](https://www.azul.com/downloads/)**.
+* **Option A (Recommended):** [BellSoft Liberica JDK 21 Full](https://bell-sw.com/pages/downloads/). *(Select the **"Full JDK"** download variant)*.
+* **Option B:** [Azul Zulu JDK 21 with JavaFX](https://www.azul.com/downloads/).
 
 > ⚠️ **Important:** Standard Oracle OpenJDK does **NOT** include JavaFX out of the box. Installing Liberica JDK 21 Full or Zulu FX ensures JavaFX runs natively without manual module configurations.
 
@@ -82,23 +82,31 @@ To avoid configuring complex `--module-path` or `--add-modules` VM options, **al
 
 1. **Clone the Repository**:
 ```bash
-git clone [https://github.com/your-username/Deck.git](https://github.com/your-username/Deck.git)
+cd C:\Users\**YourUsername**\Documents
+git clone https://github.com/scrappyucoco/Deck.git
 
 ```
 
 
 2. **Import into Eclipse**:
 * Open Eclipse $\rightarrow$ **File** $\rightarrow$ **Import...**
-* Select **Existing Projects into Workspace** $\rightarrow$ browse to the cloned `Deck` folder $\rightarrow$ **Finish**.
+* Select **Existing Projects into Workspace** $\rightarrow$ browse to the cloned `Deck` folder(Documents) $\rightarrow$ **Finish**.
 
 
-3. **Set Project JDK**:
+3. **Configure JRE in Eclipse**:
+* Go to Window $\rightarrow$ Preferences (or Eclipse $\rightarrow$ Settings on macOS).
+* Navigate to Java $\rightarrow$ Installed JREs.
+* Click Add... $\rightarrow$ select Standard VM $\rightarrow$ Next.
+* Click Directory... and locate your installed Liberica JDK 21 Full or Zulu JDK 21 FX folder $\rightarrow$ click Finish and check it as default.
+
+
+4. **Set Project JDK**:
 * Right-click the project in Package Explorer $\rightarrow$ **Properties** $\rightarrow$ **Java Build Path**.
 * Under the **Libraries** tab, select **JRE System Library** $\rightarrow$ click **Edit...**.
 * Choose **Alternate JRE** and point it to your installed **Liberica JDK 21 Full** (or Zulu JDK 21 FX).
 
 
-4. **Mark `assets` as a Resource Folder** *(Crucial for CSS and Image loading!)*:
+5. **Mark `assets` as a Resource Folder** *(Crucial for CSS and Image loading!)*:
 * Still in **Java Build Path**, go to the **Source** tab.
 * Click **Add Folder...** on the right $\rightarrow$ check the box for `assets` $\rightarrow$ click **OK**.
 * Click **Apply and Close**.
@@ -163,3 +171,4 @@ When contributing new graphics or custom styles to `assets/`, please follow thes
 1. Pull the latest changes from `main` before starting new feature work (`git pull origin main`).
 2. Do **not** commit compiled `.class` files or the `bin/` folder (already handled by `.gitignore`).
 3. Keep backend logic strictly isolated in `engine/` or `equipment/`, separated from JavaFX UI code in `views/`.
+4. Refer to the project documentation and workflow guidelines via the [Collaboration & Workflow Wiki/Docs](https://www.google.com/search?q=https://github.com/your-username/Deck/wiki) *(Update link as needed)*.

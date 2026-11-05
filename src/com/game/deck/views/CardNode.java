@@ -1,87 +1,121 @@
 package com.game.deck.views;
 
 import com.game.deck.model.Card;
-import com.game.deck.model.Enhancement;
+import com.game.deck.model.Enchantment;
 
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Objects;
 
 public class CardNode extends StackPane {
     private final Card card;
-    private boolean isSelected;
+    private boolean selected;
 
     public CardNode(Card card) {
-        this.card = card;
-        this.isSelected = false;
+        this(card, card.getAssetPath());
+    }
 
-        setPrefSize(100, 140);
+    public CardNode(Card card, String imagePath) {
+        this.card = Objects.requireNonNull(card, "card");
+        Objects.requireNonNull(imagePath, "imagePath");
+        setPrefSize(90, 130);
         getStyleClass().add("card-node");
 
-        // Attempt loading individual PNG asset from assets/cards/
-        boolean imageLoaded = false;
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream(card.getAssetPath());
-            if (is != null) {
-                ImageView cardImageView = new ImageView(new Image(is));
-                cardImageView.setFitWidth(100);
-                cardImageView.setFitHeight(140);
-                cardImageView.setSmooth(false); // Sharp pixel art rendering
-                getChildren().add(cardImageView);
-                imageLoaded = true;
-            }
-        } catch (Exception ignored) {}
-
-        // Fallback Shape/Text View using external CSS classes
-        if (!imageLoaded) {
-            String suitClass = (card.getSuit().name().equals("HEARTS") || card.getSuit().name().equals("DIAMONDS"))
-                    ? "card-red-suit" : "card-black-suit";
-
-            Label rankLabel = new Label(card.getRank().getAssetName().toUpperCase());
+        Image image = loadImage(imagePath);
+        if (image != null) {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(getPrefWidth());
+            imageView.setFitHeight(getPrefHeight());
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(false);
+            getChildren().add(imageView);
+        } else {
+            String suitClass = card.getSuit().isRed() ? "card-red-suit" : "card-black-suit";
+            Label rankLabel = new Label(card.getRank().getAssetName());
             rankLabel.getStyleClass().addAll("card-rank-text", suitClass);
-
-            Label suitLabel = new Label(card.getSuit().getDisplayName());
+            Label suitLabel = new Label(card.getSuit().getSymbol());
             suitLabel.getStyleClass().addAll("card-suit-text", suitClass);
-
-            VBox cardContent = new VBox(4, rankLabel, suitLabel);
-            cardContent.setAlignment(Pos.CENTER);
-
-            if (card.getEnhancement() != Enhancement.NONE) {
-                Label enhLabel = new Label("[" + card.getEnhancement().name() + "]");
-                enhLabel.getStyleClass().add("card-enhancement-badge");
-                cardContent.getChildren().add(enhLabel);
-            }
-
-            getChildren().add(cardContent);
+            VBox fallback = new VBox(2, rankLabel, suitLabel);
+            fallback.setAlignment(Pos.CENTER);
+            getChildren().add(fallback);
         }
 
-        // Selection click toggle
-        setOnMouseClicked(e -> toggleSelection());
+        if (card.getEnchantment() != null && card.getEnchantment() != Enchantment.NONE) {
+            Label badge = new Label("[" + card.getEnchantment().name() + "]");
+            badge.getStyleClass().add("card-enhancement-badge");
+            VBox overlay = new VBox(badge);
+            overlay.setAlignment(Pos.BOTTOM_CENTER);
+            overlay.setMouseTransparent(true);
+            getChildren().add(overlay);
+        }
+
+        setOnMouseClicked(event -> toggleSelection());
+    }
+
+    private Image loadImage(String relativePath) {
+        String withSlash = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+        String withoutSlash = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+        try {
+            URL url = getClass().getResource(withSlash);
+            if (url != null) {
+                return new Image(url.toExternalForm());
+            }
+            try (InputStream stream = getClass().getClassLoader().getResourceAsStream(withoutSlash)) {
+                if (stream != null) {
+                    return new Image(stream);
+                }
+            }
+            File rootFile = new File(withoutSlash);
+            if (rootFile.isFile()) {
+                return new Image(rootFile.toURI().toString());
+            }
+            File sourceFile = new File("src", withoutSlash);
+            if (sourceFile.isFile()) {
+                return new Image(sourceFile.toURI().toString());
+            }
+        } catch (Exception exception) {
+            System.err.println("[WARNING] Could not load card image " + relativePath + ": " + exception.getMessage());
+        }
+        return null;
     }
 
     public void toggleSelection() {
-        isSelected = !isSelected;
+        setSelected(!selected);
+    }
 
-        // Smooth translate animation
-        TranslateTransition anim = new TranslateTransition(Duration.millis(150), this);
-        anim.setByY(isSelected ? -25 : 25);
-        anim.play();
-
-        // Toggle CSS class for yellow border glow
-        if (isSelected) {
-            getStyleClass().add("card-node-selected");
+    public void setSelected(boolean selected) {
+        if (this.selected == selected) {
+            return;
+        }
+        this.selected = selected;
+        if (selected) {
+            if (!getStyleClass().contains("card-node-selected")) {
+                getStyleClass().add("card-node-selected");
+            }
         } else {
             getStyleClass().remove("card-node-selected");
         }
+        System.out.printf("[CARD] %s | rankValue=%d | baseChips=%d | chipValue=%d | selected=%s%n",
+                card,
+                card.getRank().getValue(),
+                card.getRank().getBaseChips(),
+                card.getChipValue(),
+                selected);
     }
 
-    public Card getCard() { return card; }
-    public boolean isSelected() { return isSelected; }
+    public Card getCard() {
+        return card;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
 }

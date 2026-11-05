@@ -12,6 +12,10 @@ public class ScoringEngine {
             List<Joker> activeJokers,
             GameState gameState
     ) {
+        if (playedCards == null || playedCards.isEmpty()) {
+            System.out.println("[SCORE] No cards were played; score is 0.");
+            return 0;
+        }
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
         ScoringContext ctx = new ScoringContext(handType.getChips(), handType.getMult());
 
@@ -30,16 +34,16 @@ public class ScoringEngine {
                 ctx.addChips(rankChips);
                 System.out.println("  -> Scored: " + card + " (+" + rankChips + " Rank Chips)");
 
-                // Apply Card Enhancements
-                if (card.getEnhancement() == Enhancement.BONUS) {
+                // Apply Card Enchantments
+                if (card.getEnchantment() == Enchantment.BONUS) {
                     ctx.addChips(30);
-                    System.out.println("     [ENHANCEMENT] Bonus Card -> +30 Chips");
-                } else if (card.getEnhancement() == Enhancement.MULT) {
+                    System.out.println("     [Enchantment] Bonus Card -> +30 Chips");
+                } else if (card.getEnchantment() == Enchantment.MULT) {
                     ctx.addMult(4);
-                    System.out.println("     [ENHANCEMENT] Mult Card -> +4 Mult");
-                } else if (card.getEnhancement() == Enhancement.GLASS) {
+                    System.out.println("     [Enchantment] Mult Card -> +4 Mult");
+                } else if (card.getEnchantment() == Enchantment.GLASS) {
                     ctx.multiplyMult(2.0);
-                    System.out.println("     [ENHANCEMENT] Glass Card -> x2 Mult");
+                    System.out.println("     [Enchantment] Glass Card -> x2 Mult");
                 }
             }
         }
@@ -47,10 +51,10 @@ public class ScoringEngine {
         // Stage 3: Held-in-Hand Effects
         System.out.println("[STAGE 3] Evaluating Held Cards in Hand...");
         for (Card card : heldInHand) {
-            if (card.getEnhancement() == Enhancement.STEEL) {
+            if (card.getEnchantment() == Enchantment.STEEL) {
                 ctx.multiplyMult(1.5);
                 System.out.println("  -> Held Steel Card: " + card + " -> x1.5 Mult");
-            } else if (card.getEnhancement() == Enhancement.GOLD) {
+            } else if (card.getEnchantment() == Enchantment.GOLD) {
                 gameState.addCash(3);
                 System.out.println("  -> Held Gold Card: " + card + " -> +$3 End-of-Round Gold");
             }

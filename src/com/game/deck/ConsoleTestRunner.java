@@ -27,15 +27,15 @@ public class ConsoleTestRunner {
 
         // 3. Select 5 Cards to Form a Flush
         List<Card> playedHand = new ArrayList<>();
-        playedHand.add(new Card(Rank.ACE, Suit.SPADES, Enhancement.BONUS));
+        playedHand.add(new Card(Rank.ACE, Suit.SPADES, Enchantment.BONUS));
         playedHand.add(new Card(Rank.KING, Suit.SPADES));
         playedHand.add(new Card(Rank.QUEEN, Suit.SPADES));
         playedHand.add(new Card(Rank.JACK, Suit.SPADES));
-        playedHand.add(new Card(Rank.TEN, Suit.SPADES, Enhancement.GLASS));
+        playedHand.add(new Card(Rank.TEN, Suit.SPADES, Enchantment.GLASS));
 
         List<Card> heldInHand = new ArrayList<>();
-        heldInHand.add(new Card(Rank.EIGHT, Suit.HEARTS, Enhancement.STEEL));
-        heldInHand.add(new Card(Rank.SEVEN, Suit.DIAMONDS, Enhancement.GOLD));
+        heldInHand.add(new Card(Rank.EIGHT, Suit.HEARTS, Enchantment.STEEL));
+        heldInHand.add(new Card(Rank.SEVEN, Suit.DIAMONDS, Enchantment.GOLD));
 
         // 4. Create Jokers and Socket Items
         List<Joker> activeJokers = new ArrayList<>();
@@ -47,7 +47,7 @@ public class ConsoleTestRunner {
             }
         };
         flatJoker.socketItem(new PolishedGem()); // Socket Slot 1
-        flatJoker.socketItem(new ShatteredMirror()); // Socket Slot 2 (Consumable)
+        flatJoker.socketItem(new ShatteredTablet()); // Socket Slot 2 (Consumable)
 
         Joker xJoker = new Joker("Void Prism", "x1.5 Mult", "joker_xmult") {
             @Override

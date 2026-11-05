@@ -4,7 +4,7 @@ import com.game.deck.engine.ScoringContext;
 
 public class EgoRelic extends Item {
     public EgoRelic() {
-        super("Ego Relic", "Permanent +3 Mult per Enhanced Played Card", ItemRarity.GOLD, false, "relic_ego");
+        super("Ego Relic", "Permanent +3 Mult per Enchanted Played Card", ItemRarity.GOLD, false, "relic_ego");
     }
 
     @Override

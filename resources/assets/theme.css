@@ -1,0 +1,138 @@
+/* Poker Table Felt Background */
+.poker-table {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #2c533f, #0f1f16);
+    -fx-padding: 35px;
+}
+
+/* Header & Subtitle Typography */
+.header-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1c40f;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 2);
+}
+
+.header-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #ecf0f1;
+}
+
+/* Round status and score preview */
+.status-bar {
+    -fx-background-color: rgba(0, 0, 0, 0.22);
+    -fx-background-radius: 8px;
+}
+
+.header-stat {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+.hand-type-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+.hand-score-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #e0e0e0;
+}
+
+.section-title,
+.shop-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f1c40f;
+}
+
+.shop-panel {
+    -fx-padding: 10px 18px;
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(241, 196, 15, 0.45);
+    -fx-border-radius: 8px;
+}
+
+.shop-message,
+.empty-jokers {
+    -fx-text-fill: #ecf0f1;
+    -fx-font-size: 12px;
+}
+
+/* Hand Container Box */
+.hand-container {
+    -fx-padding: 30px;
+    -fx-alignment: center;
+}
+
+/* Primary Action Button */
+.btn-primary {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 6, 0, 0, 2);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2ecc71;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #1e8449;
+}
+
+.btn-secondary {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-color: #566573;
+    -fx-text-fill: white;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #718096;
+}
+
+.joker-node {
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-border-color: #7f8c8d;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.joker-placeholder {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.joker-name {
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(0, 0, 0, 0.65);
+    -fx-padding: 2px 4px;
+}
+
+.btn-sell {
+    -fx-font-size: 10px;
+    -fx-padding: 3px 6px;
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}

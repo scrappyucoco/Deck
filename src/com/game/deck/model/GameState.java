@@ -1,20 +1,106 @@
 package com.game.deck.model;
 
+import com.game.deck.equipment.Joker;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class GameState {
     private int ante;
-    private int cash;
+    private long targetScore;
+    private long currentScore;
     private int handsRemaining;
     private int discardsRemaining;
-    private long currentBlindTarget;
+    private int maxHandSize;
+    private int cash;
     private boolean inSpecialChallenge;
+    private boolean roundActive;
+
+    private final Deck deck;
+    private final List<Card> hand;
+    private final List<Joker> ownedJokers;
+    private static final int MAX_JOKERS = 2;
 
     public GameState() {
+        this.deck = new Deck();
+        this.hand = new ArrayList<>();
+        this.ownedJokers = new ArrayList<>();
+        this.maxHandSize = 8;
+        startNewRun();
+    }
+
+    public void startNewRun() {
         this.ante = 1;
         this.cash = 4;
-        this.handsRemaining = 4;
-        this.discardsRemaining = 3;
-        this.currentBlindTarget = 300;
         this.inSpecialChallenge = false;
+        this.roundActive = false;
+        this.currentScore = 0;
+        this.targetScore = 300;
+        this.hand.clear();
+        deck.resetFullDeck();
+        System.out.println("[STATE] New run ready. Shop is open before the first round.");
+    }
+
+    public void startRound(long targetScore, int hands, int discards) {
+        if (targetScore < 0 || hands < 0 || discards < 0) {
+            throw new IllegalArgumentException("Round values cannot be negative");
+        }
+        this.targetScore = targetScore;
+        this.currentScore = 0;
+        this.handsRemaining = hands;
+        this.discardsRemaining = discards;
+        this.roundActive = true;
+        hand.clear();
+        deck.resetFullDeck();
+        refillHand();
+        System.out.println("[STATE] Round started: ante=" + ante + ", target=" + targetScore
+                + ", hands=" + hands + ", discards=" + discards);
+    }
+
+    public void startNextRound() {
+        if (roundActive) {
+            throw new IllegalStateException("Cannot start another round while the current round is active");
+        }
+        ante++;
+        startRound(300L * ante, 4, 3);
+    }
+
+    public void endRound() {
+        roundActive = false;
+        System.out.println("[STATE] Round ended. Shop is now available.");
+    }
+
+    public void refillHand() {
+        int needed = maxHandSize - hand.size();
+        if (needed > 0) {
+            hand.addAll(deck.draw(needed));
+        }
+    }
+
+    public void playSelectedCards(List<Card> selected) {
+        List<Card> cardsToPlay = validCardsFromHand(selected);
+        if (!roundActive || cardsToPlay.isEmpty() || cardsToPlay.size() > 5 || handsRemaining <= 0) {
+            System.out.println("[STATE] Play rejected: round inactive, invalid hand, or no hands remaining.");
+            return;
+        }
+        hand.removeAll(cardsToPlay);
+        deck.discard(cardsToPlay);
+        handsRemaining--;
+        System.out.println("[STATE] Played " + cardsToPlay.size() + " cards. Hands remaining=" + handsRemaining);
+    }
+
+    public void discardSelectedCards(List<Card> selected) {
+        List<Card> cardsToDiscard = validCardsFromHand(selected);
+        if (!roundActive || cardsToDiscard.isEmpty() || cardsToDiscard.size() > 5 || discardsRemaining <= 0) {
+            System.out.println("[STATE] Discard rejected: round inactive, invalid hand, or no discards remaining.");
+            return;
+        }
+        hand.removeAll(cardsToDiscard);
+        deck.discard(cardsToDiscard);
+        discardsRemaining--;
+        refillHand();
+        System.out.println("[STATE] Discarded " + cardsToDiscard.size() + " cards. Discards remaining=" + discardsRemaining);
     }
 
     public void addCash(int amount) {
@@ -36,14 +122,93 @@ public class GameState {
     public void setAnte(int ante) { this.ante = ante; }
     public int getCash() { return cash; }
     public int getHandsRemaining() { return handsRemaining; }
-    public void useHand() { this.handsRemaining--; }
+    public void useHand() { if (handsRemaining > 0) handsRemaining--; }
     public void resetHands() { this.handsRemaining = 4; }
     public int getDiscardsRemaining() { return discardsRemaining; }
-    public void useDiscard() { this.discardsRemaining--; }
+    public void useDiscard() { if (discardsRemaining > 0) discardsRemaining--; }
     public void resetDiscards() { this.discardsRemaining = 3; }
     public void addExtraDiscard(int count) { this.discardsRemaining += count; }
-    public long getCurrentBlindTarget() { return currentBlindTarget; }
-    public void setCurrentBlindTarget(long target) { this.currentBlindTarget = target; }
+    public long getTargetScore() { return targetScore; }
+    public long getCurrentScore() { return currentScore; }
+    public int getMaxHandSize() { return maxHandSize; }
+    public void setMaxHandSize(int maxHandSize) {
+        if (maxHandSize < 1) {
+            throw new IllegalArgumentException("Hand size must be positive");
+        }
+        this.maxHandSize = maxHandSize;
+        refillHand();
+    }
+    public void addScore(long points) {
+        if (points < 0) {
+            throw new IllegalArgumentException("Score cannot be negative");
+        }
+        long previousScore = currentScore;
+        this.currentScore += points;
+        System.out.println("[STATE] Score changed: " + previousScore + " -> " + currentScore
+                + " (+" + points + ")");
+    }
+    public boolean isRoundWon() { return currentScore >= targetScore; }
+    public boolean isGameOver() { return handsRemaining <= 0 && !isRoundWon(); }
+    public long getCurrentBlindTarget() { return targetScore; }
+    public void setCurrentBlindTarget(long target) {
+        if (target < 0) {
+            throw new IllegalArgumentException("Target cannot be negative");
+        }
+        this.targetScore = target;
+    }
+    public List<Card> getHand() { return hand; }
+    public Deck getDeck() { return deck; }
+    public boolean isRoundActive() { return roundActive; }
+    public boolean isShopAccessible() { return !roundActive; }
+    public int getMaxJokers() { return MAX_JOKERS; }
+    public List<Joker> getOwnedJokers() {
+        return Collections.unmodifiableList(ownedJokers);
+    }
+
+    public boolean addJoker(Joker joker) {
+        if (joker == null || ownedJokers.size() >= MAX_JOKERS) {
+            return false;
+        }
+        ownedJokers.add(joker);
+        System.out.println("[JOKER] Added " + joker.getName() + " to slot " + ownedJokers.size() + "/" + MAX_JOKERS);
+        return true;
+    }
+
+    public boolean sellJoker(Joker joker, int sellValue) {
+        if (joker == null || sellValue < 0 || !ownedJokers.remove(joker)) {
+            return false;
+        }
+        addCash(sellValue);
+        System.out.println("[JOKER] Sold " + joker.getName() + " for $" + sellValue + ".");
+        return true;
+    }
+
+    public void moveJoker(Joker joker, int targetIndex) {
+        int sourceIndex = ownedJokers.indexOf(joker);
+        if (sourceIndex < 0) {
+            return;
+        }
+        int boundedIndex = Math.max(0, Math.min(targetIndex, ownedJokers.size() - 1));
+        if (sourceIndex == boundedIndex) {
+            return;
+        }
+        ownedJokers.remove(sourceIndex);
+        ownedJokers.add(boundedIndex, joker);
+        System.out.println("[JOKER] Reordered " + joker.getName() + " to slot " + (boundedIndex + 1));
+    }
     public boolean isInSpecialChallenge() { return inSpecialChallenge; }
     public void setInSpecialChallenge(boolean active) { this.inSpecialChallenge = active; }
+
+    private List<Card> validCardsFromHand(List<Card> selected) {
+        if (selected == null || selected.isEmpty()) {
+            return List.of();
+        }
+        List<Card> validCards = new ArrayList<>();
+        for (Card card : selected) {
+            if (card != null && hand.contains(card) && !validCards.contains(card)) {
+                validCards.add(card);
+            }
+        }
+        return validCards;
+    }
 }

@@ -12,7 +12,7 @@ public class PokerEvaluator {
         Map<Suit, Integer> suitCounts = new HashMap<>();
 
         for (Card card : playedCards) {
-            if (card.getEnhancement() != Enhancement.STONE) {
+            if (card.getEnchantment() != Enchantment.STONE) {
                 rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
                 suitCounts.put(card.getSuit(), suitCounts.getOrDefault(card.getSuit(), 0) + 1);
             }
@@ -51,7 +51,7 @@ public class PokerEvaluator {
         if (cards.size() < 5) return false;
         List<Integer> values = new ArrayList<>();
         for (Card c : cards) {
-            if (c.getEnhancement() != Enhancement.STONE) {
+            if (c.getEnchantment() != Enchantment.STONE) {
                 if (!values.contains(c.getRank().getValue())) values.add(c.getRank().getValue());
             }
         }

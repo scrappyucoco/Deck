@@ -45,6 +45,14 @@ public abstract class Joker {
         sockets.removeIf(Item::isConsumable);
     }
 
+    /**
+     * Applies only the joker's own effect for a non-mutating score preview.
+     * Socket effects and consumable removal belong exclusively to evaluate().
+     */
+    public void preview(ScoringContext ctx) {
+        applyBaseEffect(ctx);
+    }
+
     protected abstract void applyBaseEffect(ScoringContext ctx);
 
     public String getName() { return name; }

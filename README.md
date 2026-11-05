@@ -154,6 +154,39 @@ java -jar Deck.jar
 
 ```
 
+#### Packaging `Deck.jar` as a Windows `.exe`
+
+To package the runnable `Deck.jar` as a Windows installer, install **Liberica JDK 21 Full** or **Liberica JDK 21 FX**. These distributions include JavaFX, and the JDK includes the `jpackage` tool used below. Run the command from the project directory:
+
+```powershell
+# Create an input directory containing the runnable JAR
+New-Item -ItemType Directory -Force dist | Out-Null
+Copy-Item Deck.jar dist/
+
+# Build the Windows installer and place it in output/
+jpackage --type exe `
+  --name DeckGame `
+  --input dist `
+  --main-jar Deck.jar `
+  --main-class com.game.deck.AppLauncher `
+  --dest output
+```
+
+The generated installer will be placed in `output/`. If JavaFX is not included in the JAR, add the JavaFX modules and the `lib` directory from the Liberica JDK installation:
+
+```powershell
+jpackage --type exe `
+  --name DeckGame `
+  --input dist `
+  --main-jar Deck.jar `
+  --main-class com.game.deck.AppLauncher `
+  --module-path "$env:JAVA_HOME\lib" `
+  --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media `
+  --dest output
+```
+
+Use the first command when the JAR already contains the application's dependencies. Use the second command when JavaFX is available as separate modules in the Liberica JDK installation.
+
 ---
 
 ## Asset Naming Conventions

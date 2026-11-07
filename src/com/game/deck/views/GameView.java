@@ -112,6 +112,8 @@ public class GameView extends BorderPane {
 
         playButton.getStyleClass().add("btn-primary");
         discardButton.getStyleClass().add("btn-secondary");
+        sortRankButton.getStyleClass().add("btn-secondary");
+        sortSuitButton.getStyleClass().add("btn-secondary");
         playButton.setOnAction(event -> handlePlayHand());
         discardButton.setOnAction(event -> handleDiscard());
 

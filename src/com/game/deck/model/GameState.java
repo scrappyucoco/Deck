@@ -7,6 +7,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class GameState {
+    private static final long[] ANTE_TARGET_SCORES = {
+            300, 
+            500, 
+            850, 
+            1200, 
+            2000, 
+            3000, 
+            4500, 
+            6000
+    };
+
     private int ante;
     private long targetScore;
     private long currentScore;
@@ -36,7 +47,7 @@ public class GameState {
         this.inSpecialChallenge = false;
         this.roundActive = false;
         this.currentScore = 0;
-        this.targetScore = 300;
+        this.targetScore = getTargetScoreForAnte(ante);
         this.hand.clear();
         deck.resetFullDeck();
         System.out.println("[STATE] New run ready. Shop is open before the first round.");
@@ -63,7 +74,7 @@ public class GameState {
             throw new IllegalStateException("Cannot start another round while the current round is active");
         }
         ante++;
-        startRound(300L * ante, 4, 3);
+        startRound(getTargetScoreForAnte(ante), 4, 3);
     }
 
     public void endRound() {
@@ -155,6 +166,14 @@ public class GameState {
             throw new IllegalArgumentException("Target cannot be negative");
         }
         this.targetScore = target;
+    }
+
+    public static long getTargetScoreForAnte(int ante) {
+        if (ante < 1) {
+            throw new IllegalArgumentException("Ante must be at least 1");
+        }
+        int index = Math.min(ante - 1, ANTE_TARGET_SCORES.length - 1);
+        return ANTE_TARGET_SCORES[index];
     }
     public List<Card> getHand() { return hand; }
     public Deck getDeck() { return deck; }

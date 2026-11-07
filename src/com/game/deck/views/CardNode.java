@@ -3,6 +3,7 @@ package com.game.deck.views;
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
 
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -16,6 +17,10 @@ import java.net.URL;
 import java.util.Objects;
 
 public class CardNode extends StackPane {
+    private static final double CARD_WIDTH = 90;
+    private static final double CARD_HEIGHT = 130;
+    private static final Rectangle2D CARD_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
+
     private final Card card;
     private boolean selected;
 
@@ -26,14 +31,17 @@ public class CardNode extends StackPane {
     public CardNode(Card card, String imagePath) {
         this.card = Objects.requireNonNull(card, "card");
         Objects.requireNonNull(imagePath, "imagePath");
-        setPrefSize(90, 130);
+        setMinSize(CARD_WIDTH, CARD_HEIGHT);
+        setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+        setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         getStyleClass().add("card-node");
 
         Image image = loadImage(imagePath);
         if (image != null) {
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(getPrefWidth());
-            imageView.setFitHeight(getPrefHeight());
+            imageView.setViewport(CARD_VIEWPORT);
+            imageView.setFitWidth(CARD_WIDTH);
+            imageView.setFitHeight(CARD_HEIGHT);
             imageView.setPreserveRatio(true);
             imageView.setSmooth(false);
             getChildren().add(imageView);

@@ -4,6 +4,11 @@ import com.game.deck.equipment.Joker;
 import com.game.deck.model.*;
 import java.util.List;
 
+/*
+ * ScoringEngine is the authoritative Engine implementation of the four-stage
+ * score pipeline. It coordinates model cards/GameState with equipment.Joker
+ * effects and equipment.Item sockets, preserving left-to-right trigger order.
+ */
 public class ScoringEngine {
 
     public static long calculateScore(
@@ -23,10 +28,12 @@ public class ScoringEngine {
         System.out.println("[PARSER LOG] Hand Evaluated: " + handType.getDisplayName() +
                            " (Lvl " + handType.getLevel() + ") | Base Chips: " + ctx.getChips() + " | Base Mult: " + ctx.getMult());
 
-        // Stage 1: Pre-Scoring Phase
+        // --- STAGE 1: PRE-SCORING ---
+        // [CONFIG: TWEAK SCORE VALUES HERE]
+        // PokerHand owns base values; change its enum entries or level scaling.
         System.out.println("[STAGE 1] Executing Pre-Scoring Triggers...");
 
-        // Stage 2: Scored Played Cards
+        // --- STAGE 2: PLAYED CARDS ---
         System.out.println("[STAGE 2] Scoring Played Cards (Left-to-Right)...");
         for (Card card : playedCards) {
             if (!card.isDebuffed()) {
@@ -34,7 +41,9 @@ public class ScoringEngine {
                 ctx.addChips(rankChips);
                 System.out.println("  -> Scored: " + card + " (+" + rankChips + " Rank Chips)");
 
-                // Apply Card Enchantments
+                // [EXTENSION: CARD ENCHANTMENTS]
+                // Add a new Enchantment branch here using ctx.addChips/addMult/
+                // multiplyMult, then mirror it in BasePokerEngine for previews.
                 if (card.getEnchantment() == Enchantment.BONUS) {
                     ctx.addChips(30);
                     System.out.println("     [Enchantment] Bonus Card -> +30 Chips");
@@ -48,7 +57,7 @@ public class ScoringEngine {
             }
         }
 
-        // Stage 3: Held-in-Hand Effects
+        // --- STAGE 3: HELD-IN-HAND EFFECTS ---
         System.out.println("[STAGE 3] Evaluating Held Cards in Hand...");
         for (Card card : heldInHand) {
             if (card.getEnchantment() == Enchantment.STEEL) {
@@ -60,7 +69,10 @@ public class ScoringEngine {
             }
         }
 
-        // Stage 4: Joker & Socketed Item Pipeline
+        // --- STAGE 4: JOKERS AND SOCKETS ---
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Add concrete Joker instances to activeJokers before this loop; each
+        // subclass implements applyBaseEffect(ScoringContext).
         System.out.println("[STAGE 4] Executing Jokers & Socketed Items (Left-to-Right)...");
         for (int i = 0; i < activeJokers.size(); i++) {
             Joker joker = activeJokers.get(i);
@@ -68,6 +80,9 @@ public class ScoringEngine {
             joker.evaluate(ctx);
         }
 
+        // [HOOK: ADD CUSTOM OCCURRENCES/EVENTS]
+        // Trigger post-score Occurrence logic after calculateTotal() in a
+        // controller, passing the same GameState to Occurrence.execute(state).
         long finalScore = ctx.calculateTotal();
         System.out.println("[SCORE TRACE SUMMARY] Final Chips: " + ctx.getChips() + " | Final Mult: " + String.format("%.2f", ctx.getMult()) + " = TOTAL SCORE: " + finalScore);
         System.out.println("------------------------------------------------------------\n");

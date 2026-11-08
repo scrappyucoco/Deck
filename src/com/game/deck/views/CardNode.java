@@ -16,6 +16,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
 
+/*
+ * CardNode is the View representation of one model Card.
+ * It loads the card asset, crops transparent texture padding, renders fallback
+ * text/enchantment state, and exposes selection state to GameView controllers.
+ */
 public class CardNode extends StackPane {
     private static final double CARD_WIDTH = 90;
     private static final double CARD_HEIGHT = 130;
@@ -29,6 +34,7 @@ public class CardNode extends StackPane {
     }
 
     public CardNode(Card card, String imagePath) {
+        // --- CARD VISUAL CONSTRUCTION ---
         this.card = Objects.requireNonNull(card, "card");
         Objects.requireNonNull(imagePath, "imagePath");
         setMinSize(CARD_WIDTH, CARD_HEIGHT);
@@ -69,6 +75,7 @@ public class CardNode extends StackPane {
     }
 
     private Image loadImage(String relativePath) {
+        // Use the shared four-tier asset strategy for IDE, classpath, and JAR runs.
         String withSlash = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
         String withoutSlash = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
         try {
@@ -100,6 +107,7 @@ public class CardNode extends StackPane {
     }
 
     public void setSelected(boolean selected) {
+        // --- SELECTION STATE ---
         if (this.selected == selected) {
             return;
         }

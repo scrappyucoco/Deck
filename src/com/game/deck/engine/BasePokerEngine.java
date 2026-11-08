@@ -8,10 +8,20 @@ import com.game.deck.model.PokerHand;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * BasePokerEngine is the lightweight Engine scorer used by UI previews.
+ * It evaluates played cards without mutating consumable Joker/Item state;
+ * ScoringEngine is the authoritative full four-stage execution path.
+ */
 public final class BasePokerEngine {
     private BasePokerEngine() {
     }
 
+    /*
+     * ScoreResult is an immutable Engine snapshot used by preview labels.
+     * It separates hand-base chips from played-card chips so the View can
+     * explain score composition without reaching into ScoringContext.
+     */
     public static final class ScoreResult {
         public final PokerHand handType;
         public final long baseChips;
@@ -35,6 +45,7 @@ public final class BasePokerEngine {
     }
 
     public static ScoreResult evaluateAndScore(List<Card> playedCards, List<Joker> activeJokers) {
+        // --- INPUT NORMALIZATION ---
         if (playedCards == null || playedCards.isEmpty()) {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
@@ -57,6 +68,9 @@ public final class BasePokerEngine {
             }
             long rankChips = card.getChipValue();
             context.addChips(rankChips);
+            // [EXTENSION: CARD ENCHANTMENTS]
+            // Add preview-only handling here for a new Enchantment enum value;
+            // mirror the authoritative behavior in ScoringEngine afterward.
             if (card.getEnchantment() == Enchantment.BONUS) {
                 context.addChips(30);
             } else if (card.getEnchantment() == Enchantment.MULT) {
@@ -65,6 +79,9 @@ public final class BasePokerEngine {
                 context.multiplyMult(2.0);
             }
         }
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Preview registered Joker instances with joker.preview(context); do not
+        // call evaluate() here because previews must not consume socket items.
         if (activeJokers != null) {
             for (Joker joker : activeJokers) {
                 if (joker != null) {

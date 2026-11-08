@@ -6,7 +6,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/*
+ * GameState is the central Model aggregate for a run and its active round.
+ * It owns the deck, hand, score resources, ante progression, and owned Jokers.
+ * GameView invokes these domain methods; Shop and occurrences use the same
+ * validated API without depending on JavaFX classes.
+ */
 public class GameState {
+    // ==========================================
+    // [CONFIG: TWEAK SCORE VALUES HERE]
+    // Each array element is the target for one ante; add a value to extend the
+    // table, or change getTargetScoreForAnte() for a different late-run policy.
     private static final long[] ANTE_TARGET_SCORES = {
             300, 
             500, 
@@ -34,6 +44,7 @@ public class GameState {
     private static final int MAX_JOKERS = 2;
 
     public GameState() {
+        // --- RUN INITIALIZATION ---
         this.deck = new Deck();
         this.hand = new ArrayList<>();
         this.ownedJokers = new ArrayList<>();
@@ -54,6 +65,7 @@ public class GameState {
     }
 
     public void startRound(long targetScore, int hands, int discards) {
+        // --- ROUND LIFECYCLE ---
         if (targetScore < 0 || hands < 0 || discards < 0) {
             throw new IllegalArgumentException("Round values cannot be negative");
         }
@@ -90,6 +102,7 @@ public class GameState {
     }
 
     public void playSelectedCards(List<Card> selected) {
+        // --- PLAYER ACTIONS ---
         List<Card> cardsToPlay = validCardsFromHand(selected);
         if (!roundActive || cardsToPlay.isEmpty() || cardsToPlay.size() > 5 || handsRemaining <= 0) {
             System.out.println("[STATE] Play rejected: round inactive, invalid hand, or no hands remaining.");
@@ -115,6 +128,7 @@ public class GameState {
     }
 
     public void addCash(int amount) {
+        // --- ECONOMY ---
         this.cash += amount;
         System.out.println("[STATE] Cash updated: +$" + amount + " | Current Balance: $" + this.cash);
     }
@@ -150,6 +164,7 @@ public class GameState {
         refillHand();
     }
     public void addScore(long points) {
+        // --- SCORE STATE ---
         if (points < 0) {
             throw new IllegalArgumentException("Score cannot be negative");
         }
@@ -185,6 +200,9 @@ public class GameState {
     }
 
     public boolean addJoker(Joker joker) {
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Register a concrete Joker instance with addJoker(new MyJoker()) from
+        // Shop or another controller; ownedJokers is the active slot list.
         if (joker == null || ownedJokers.size() >= MAX_JOKERS) {
             return false;
         }
@@ -203,6 +221,7 @@ public class GameState {
     }
 
     public void moveJoker(Joker joker, int targetIndex) {
+        // Reordering changes left-to-right Stage 4 trigger order.
         int sourceIndex = ownedJokers.indexOf(joker);
         if (sourceIndex < 0) {
             return;

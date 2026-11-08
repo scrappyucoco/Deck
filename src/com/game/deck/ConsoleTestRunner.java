@@ -9,9 +9,15 @@ import com.game.deck.occurrences.MonologueTrial;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * ConsoleTestRunner is a command-line integration harness, not a game layer.
+ * It assembles model cards, engine scoring, equipment, and occurrences to
+ * verify that the non-UI architecture remains executable end-to-end.
+ */
 public class ConsoleTestRunner {
 
     public static void main(String[] args) {
+        // --- ENGINE INTEGRATION SCENARIO ---
         System.out.println("============================================================");
         System.out.println("      PHILOSOPHICAL DECKBUILDER ENGINE TEST HARNESS         ");
         System.out.println("============================================================\n");

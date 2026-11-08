@@ -1,6 +1,13 @@
 package com.game.deck.model;
 
+/*
+ * Rank is the model registry for ordering, display labels, chip values, and
+ * asset suffixes. Card, Deck, PokerEvaluator, and CardNode all consume it.
+ */
 public enum Rank {
+    // [CONFIG: TWEAK SCORE VALUES HERE]
+    // Use NAME("display", sort value, base chips, asset suffix); face-card
+    // assets must keep the J/Q/K/A naming convention used by resources/assets.
     TWO("2", 2, 2, "2"),
     THREE("3", 3, 3, "3"),
     FOUR("4", 4, 4, "4"),

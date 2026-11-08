@@ -2,6 +2,12 @@ package com.game.deck.model;
 
 import java.util.Objects;
 
+/*
+ * Card is the model entity for one playable card.
+ * It owns immutable rank/suit identity plus mutable enchantment/debuff state.
+ * The engine package reads its chip and modifier values, while views.CardNode
+ * uses getAssetPath() and the display accessors to render the card.
+ */
 public class Card implements Comparable<Card> {
     private final Rank rank;
     private final Suit suit;
@@ -20,6 +26,7 @@ public class Card implements Comparable<Card> {
     }
 
     public int getChipValue() {
+        // Debuffs suppress scoring; Stone replaces the normal rank chip value.
         if (isDebuffed) return 0;
         if (enchantment == Enchantment.STONE) return 50;
         return rank.getBaseChips();
@@ -40,6 +47,7 @@ public class Card implements Comparable<Card> {
 
     @Override
     public int compareTo(Card other) {
+        // Sort high-to-low by rank, then use enum order for a stable suit order.
         Objects.requireNonNull(other, "other");
         int rankComparison = Integer.compare(other.rank.getValue(), rank.getValue());
         return rankComparison != 0 ? rankComparison : suit.compareTo(other.suit);

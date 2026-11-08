@@ -10,9 +10,15 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
 
+/*
+ * AppLauncher is the JavaFX application entry point and composition root.
+ * It connects the GameState model to the GameView, then attaches resource CSS;
+ * domain rules remain in model/engine/equipment packages rather than here.
+ */
 public class AppLauncher extends Application {
     @Override
     public void start(Stage primaryStage) {
+        // --- APPLICATION COMPOSITION ---
         primaryStage.setTitle("Deck - Philosophical Balatro Deckbuilder");
 
         Scene scene = new Scene(new GameView(new GameState()), 900, 600);
@@ -24,6 +30,7 @@ public class AppLauncher extends Application {
     }
 
     private void attachStylesheet(Scene scene, String relativePath) {
+        // Resolve classpath resources first, then support Eclipse/loose-folder runs.
         String withSlash = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
         String withoutSlash = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
 

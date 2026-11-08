@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/*
+ * Suit is the model registry for display symbols, resource prefixes, and color.
+ * Card uses assetName for paths; PokerEvaluator uses the enum as a flush key;
+ * CardNode uses isRed()/getSymbol() for fallback rendering.
+ */
 public enum Suit {
     SPADES("Spades", "♠", "spade", false),
     HEARTS("Hearts", "♥", "heart", true),

@@ -1,6 +1,12 @@
 package com.game.deck.equipment;
 
+/*
+ * ItemRarity is the equipment value tier used by shop pricing and item UI.
+ * Item stores this enum; Shop or future inventory views can read its price.
+ */
 public enum ItemRarity {
+    // [CONFIG: TWEAK SCORE VALUES HERE]
+    // These are economy values, not score multipliers: adjust basePrice per tier.
     COMMON("Common", 4),
     RARE("Rare", 7),
     GOLD("Gold", 12);

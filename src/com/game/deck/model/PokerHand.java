@@ -1,6 +1,15 @@
 package com.game.deck.model;
 
+/*
+ * PokerHand is the model catalog of recognized poker combinations.
+ * PokerEvaluator selects an entry; scoring engines read its base chips/mult;
+ * the level field provides a future Planet/Tome progression hook.
+ */
 public enum PokerHand {
+    // ==========================================
+    // [CONFIG: TWEAK SCORE VALUES HERE]
+    // Each entry is NAME("display name", base chips, base multiplier); level
+    // scaling is implemented by getChips() and getMult() below.
     HIGH_CARD("High Card", 3, 1),
     PAIR("Pair", 4, 2),
     TWO_PAIR("Two Pair", 5, 2),
@@ -26,6 +35,8 @@ public enum PokerHand {
         this.level = 1;
     }
 
+    // [CONFIG: TWEAK SCORE VALUES HERE]
+    // Change the per-level chip/multiplier increments here to tune progression.
     public int getChips() { return baseChips + ((level - 1) * 15); }
     public int getMult() { return baseMult + ((level - 1) * 2); }
     public void levelUp() { this.level++; }

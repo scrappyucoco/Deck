@@ -16,6 +16,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
+/*
+ * JokerNode is the View representation of an owned or shop-offered Joker.
+ * It renders the asset/name, exposes a click-to-sell control for owned Jokers,
+ * and participates in JavaFX drag-and-drop ordering managed by GameView.
+ */
 public class JokerNode extends StackPane {
     private final Joker joker;
     private final Button sellButton;
@@ -25,6 +30,7 @@ public class JokerNode extends StackPane {
     }
 
     public JokerNode(Joker joker, Runnable sellAction) {
+        // --- JOKER VISUAL CONSTRUCTION ---
         this.joker = joker;
         setPrefSize(100, 130);
         getStyleClass().add("joker-node");
@@ -69,6 +75,7 @@ public class JokerNode extends StackPane {
         getChildren().add(sellButton);
 
         setOnMouseClicked(event -> {
+            // Owned nodes expose sell controls; shop offers pass a null action.
             if (sellAction != null) {
                 sellButton.setVisible(!sellButton.isVisible());
                 sellButton.setManaged(sellButton.isVisible());
@@ -78,6 +85,7 @@ public class JokerNode extends StackPane {
         });
 
         setOnDragDetected(event -> {
+            // Drag payload is the Joker name; GameView resolves the source node.
             if (sellAction == null) {
                 return;
             }

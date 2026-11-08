@@ -22,6 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/*
+ * GameView is the primary JavaFX View/controller surface for one run.
+ * It binds GameState model data to CardNode/JokerNode controls, delegates
+ * scoring to engine.ScoringEngine, and delegates purchases to equipment.Shop.
+ */
 public class GameView extends BorderPane {
     private final GameState gameState;
     private final List<CardNode> activeCardNodes = new ArrayList<>();
@@ -49,6 +54,7 @@ public class GameView extends BorderPane {
     private final Button sortSuitButton = new Button("Sort Suit");
 
     public GameView(GameState gameState) {
+        // --- VIEW INITIALIZATION ---
         this.gameState = Objects.requireNonNull(gameState, "gameState");
         getStyleClass().add("poker-table");
         setPadding(new Insets(15));
@@ -60,6 +66,7 @@ public class GameView extends BorderPane {
     }
 
     private void buildTopBar() {
+        // --- STATUS BAR ---
         shopButton.getStyleClass().add("btn-secondary");
         shopButton.setOnAction(event -> toggleShop());
 
@@ -71,6 +78,7 @@ public class GameView extends BorderPane {
     }
 
     private void buildCenterArea() {
+        // --- CENTER PLAY AREA ---
         Label jokerTitle = new Label("Jokers (drag to reorder)");
         jokerTitle.getStyleClass().add("section-title");
         ownedJokersContainer.setAlignment(Pos.CENTER);
@@ -93,6 +101,10 @@ public class GameView extends BorderPane {
     }
 
     private void buildShopPanel() {
+        // --- SHOP OFFER REGISTRATION ---
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Add another JokerNode(new MyJoker()) and a matching purchase handler
+        // to expose a new concrete Joker in the shop UI.
         Label title = new Label("SHOP");
         title.getStyleClass().add("shop-title");
         shopMessageLabel.getStyleClass().add("shop-message");
@@ -107,6 +119,7 @@ public class GameView extends BorderPane {
     }
 
     private void buildBottomArea() {
+        // --- ACTION BAR ---
         HBox stats = new HBox(20, handsLabel, discardsLabel);
         stats.setAlignment(Pos.CENTER);
 
@@ -144,6 +157,7 @@ public class GameView extends BorderPane {
     }
 
     private void handleCardSelection(CardNode node) {
+        // Enforce the poker hand maximum before toggling a new selection on.
         if (!node.isSelected() && getSelectedCards().size() >= 5) {
             System.out.println("[UI] Selection rejected: maximum of 5 cards is already selected.");
             return;
@@ -156,6 +170,7 @@ public class GameView extends BorderPane {
     }
 
     private void handlePlayHand() {
+        // --- PLAY HAND EVENT ---
         List<Card> selected = getSelectedCards();
         if (!gameState.isRoundActive() || selected.isEmpty() || selected.size() > 5) {
             System.out.println("[UI] Play rejected: select between 1 and 5 cards during a round.");
@@ -177,6 +192,8 @@ public class GameView extends BorderPane {
 
         if (gameState.isRoundWon() || gameState.isGameOver()) {
             gameState.endRound();
+            // [HOOK: ADD CUSTOM OCCURRENCES/EVENTS]
+            // Invoke new Occurrence implementations here after endRound().
         }
         refreshUI();
     }
@@ -193,6 +210,7 @@ public class GameView extends BorderPane {
     }
 
     private void updateHandPreview() {
+        // Preview uses BasePokerEngine so UI inspection never consumes sockets.
         List<Card> selected = getSelectedCards();
         if (selected.isEmpty()) {
             handTypeLabel.setText(gameState.isRoundActive() ? "Select 1 to 5 cards" : "Start a round to play");
@@ -219,6 +237,7 @@ public class GameView extends BorderPane {
     }
 
     public void refreshUI() {
+        // --- VIEW STATE SYNCHRONIZATION ---
         anteLabel.setText("Ante: " + gameState.getAnte());
         targetLabel.setText("Target: " + gameState.getTargetScore());
         scoreLabel.setText("Score: " + gameState.getCurrentScore());
@@ -233,6 +252,7 @@ public class GameView extends BorderPane {
     }
 
     private void renderHand() {
+        // Recreate nodes so the rendered order mirrors the model hand order.
         handContainer.getChildren().clear();
         activeCardNodes.clear();
         for (Card card : gameState.getHand()) {
@@ -244,6 +264,7 @@ public class GameView extends BorderPane {
     }
 
     private void renderJokers() {
+        // --- OWNED JOKER SLOT RENDERING ---
         ownedJokersContainer.getChildren().clear();
         if (gameState.getOwnedJokers().isEmpty()) {
             Label empty = new Label("No active jokers. Buy one in the shop.");
@@ -288,6 +309,7 @@ public class GameView extends BorderPane {
     }
 
     private void startRound() {
+        // --- ROUND LIFECYCLE EVENTS ---
         if (gameState.isRoundActive()) {
             return;
         }
@@ -313,6 +335,7 @@ public class GameView extends BorderPane {
     }
 
     private void updateShop() {
+        // Shop visibility is gated by model round state, not just a UI toggle.
         boolean accessible = gameState.isShopAccessible();
         shopPanel.setVisible(accessible && shopOpen);
         shopPanel.setManaged(accessible && shopOpen);

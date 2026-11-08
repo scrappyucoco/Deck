@@ -1,6 +1,14 @@
 package com.game.deck.model;
 
+/*
+ * Enchantment is the model registry of card modifiers and their UI metadata.
+ * ScoringEngine interprets these values during the four-stage score pipeline,
+ * while CardNode displays the selected enchantment badge.
+ */
 public enum Enchantment {
+    // [EXTENSION: CARD ENCHANTMENTS]
+    // Add entries as NAME("description", "assets/enchantment/file.png"), then
+    // handle their scoring behavior in ScoringEngine and BasePokerEngine.
     NONE("Standard Card", null),
     BONUS("+30 Bonus Chips", "assets/enchantment/bonus_shield.png"),
     MULT("+4 Flat Mult", "assets/enchantment/mult_fire.png"),

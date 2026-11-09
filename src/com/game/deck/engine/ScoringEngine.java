@@ -3,6 +3,7 @@ package com.game.deck.engine;
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.*;
 import java.util.List;
+import java.util.ArrayList;
 
 /*
  * ScoringEngine is the authoritative Engine implementation of the four-stage
@@ -10,7 +11,8 @@ import java.util.List;
  * effects and equipment.Item sockets, preserving left-to-right trigger order.
  */
 public class ScoringEngine {
-
+    public static List<Card> PlayedCards = new ArrayList<Card>();
+    
     public static long calculateScore(
             List<Card> playedCards,
             List<Card> heldInHand,
@@ -21,6 +23,7 @@ public class ScoringEngine {
             System.out.println("[SCORE] No cards were played; score is 0.");
             return 0;
         }
+        PlayedCards = playedCards;
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
         ScoringContext ctx = new ScoringContext(
                 handType.getChips(), handType.getMult(), handType, gameState, false);

@@ -220,6 +220,10 @@ public class GameState {
         return true;
     }
 
+    public boolean sellJoker(Joker joker) {
+        return joker != null && sellJoker(joker, joker.getSellValue());
+    }
+
     public void moveJoker(Joker joker, int targetIndex) {
         // Reordering changes left-to-right Stage 4 trigger order.
         int sourceIndex = ownedJokers.indexOf(joker);

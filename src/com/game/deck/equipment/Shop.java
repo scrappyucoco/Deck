@@ -4,37 +4,41 @@ import com.game.deck.model.GameState;
 
 /*
  * Shop is the economy service for purchasing and pricing equipment.
- * It belongs to the Equipment layer, validates GameState shop access/cash,
- * and registers concrete Jokers without depending on JavaFX views.
+ * It belongs to the Equipment layer and validates GameState shop access/cash.
+ * Each Joker supplies its own purchase and resale values; this class does not
+ * maintain a separate price table.
  */
 public final class Shop {
-    // [CONFIG: TWEAK SCORE VALUES HERE]
-    // These constants configure shop economy; purchase/sell methods use them.
-    public static final int RATIONALIST_JOKER_COST = 4;
-    public static final int JOKER_SELL_VALUE = 3;
-
     private Shop() {
     }
 
-    public static boolean purchaseRationalist(GameState state) {
+    public static boolean purchaseJoker(GameState state, Joker joker) {
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-        // Add another purchase method that constructs new MyJoker() and passes
-        // it to state.addJoker() after applying the same access/cash checks.
+        // Pass any registered Joker instance; getShopCost() supplies its price.
         if (state == null || !state.isShopAccessible()) {
             System.out.println("[SHOP] Purchase rejected: shop is unavailable.");
             return false;
         }
+        if (joker == null) {
+            System.out.println("[SHOP] Purchase rejected: invalid Joker.");
+            return false;
+        }
+        int cost = joker.getShopCost();
         if (state.getOwnedJokers().size() >= state.getMaxJokers()) {
             System.out.println("[SHOP] Purchase rejected: joker slots are full.");
             return false;
         }
-        if (!state.deductCash(RATIONALIST_JOKER_COST)) {
+        if (!state.deductCash(cost)) {
             System.out.println("[SHOP] Purchase rejected: insufficient cash.");
             return false;
         }
 
-        state.addJoker(new RationalistJoker());
-        System.out.println("[SHOP] Purchased The Rationalist for $" + RATIONALIST_JOKER_COST + ".");
+        if (!state.addJoker(joker)) {
+            state.addCash(cost);
+            System.out.println("[SHOP] Purchase rejected: Joker could not be added.");
+            return false;
+        }
+        System.out.println("[SHOP] Purchased " + joker.getName() + " for $" + cost + ".");
         return true;
     }
 }

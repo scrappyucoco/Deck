@@ -22,7 +22,8 @@ public class ScoringEngine {
             return 0;
         }
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
-        ScoringContext ctx = new ScoringContext(handType.getChips(), handType.getMult());
+        ScoringContext ctx = new ScoringContext(
+                handType.getChips(), handType.getMult(), handType, gameState, false);
 
         System.out.println("\n------------------------------------------------------------");
         System.out.println("[PARSER LOG] Hand Evaluated: " + handType.getDisplayName() +
@@ -32,6 +33,13 @@ public class ScoringEngine {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         // PokerHand owns base values; change its enum entries or level scaling.
         System.out.println("[STAGE 1] Executing Pre-Scoring Triggers...");
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Override Joker.modifyHand() to change this hand's base chips/mult.
+        for (Joker joker : activeJokers) {
+            if (joker != null) {
+                joker.modifyHand(ctx);
+            }
+        }
 
         // --- STAGE 2: PLAYED CARDS ---
         System.out.println("[STAGE 2] Scoring Played Cards (Left-to-Right)...");

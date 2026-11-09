@@ -61,7 +61,17 @@ public final class BasePokerEngine {
         }
 
         PokerHand handType = PokerEvaluator.evaluate(validCards);
-        ScoringContext context = new ScoringContext(handType.getChips(), handType.getMult());
+        ScoringContext context = new ScoringContext(
+                handType.getChips(), handType.getMult(), handType, null, true);
+        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
+        // Preview the same hand-base hook used by the authoritative scorer.
+        if (activeJokers != null) {
+            for (Joker joker : activeJokers) {
+                if (joker != null) {
+                    joker.modifyHand(context);
+                }
+            }
+        }
         for (Card card : validCards) {
             if (card.isDebuffed()) {
                 continue;
@@ -92,8 +102,8 @@ public final class BasePokerEngine {
 
         return new ScoreResult(
                 handType,
-                handType.getChips(),
-                context.getChips() - handType.getChips(),
+                context.getBaseChips(),
+                context.getChips() - context.getBaseChips(),
                 context.getMult()
         );
     }

@@ -1,7 +1,6 @@
 package com.game.deck.views;
 
 import com.game.deck.equipment.Joker;
-import com.game.deck.equipment.RationalistJoker;
 import com.game.deck.equipment.Shop;
 import com.game.deck.engine.BasePokerEngine;
 import com.game.deck.engine.ScoringEngine;
@@ -15,6 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class GameView extends BorderPane {
     private final List<CardNode> activeCardNodes = new ArrayList<>();
     private boolean firstRoundStarted;
     private boolean shopOpen = true;
+    private Joker shopOffer;
 
     private final Label scoreLabel = createHeaderLabel("");
     private final Label targetLabel = createHeaderLabel("");
@@ -44,6 +46,7 @@ public class GameView extends BorderPane {
     private final Label shopMessageLabel = new Label();
     private final HBox handContainer = new HBox(10);
     private final HBox ownedJokersContainer = new HBox(15);
+    private final HBox shopOfferContainer = new HBox(12);
     private final VBox shopPanel = new VBox(8);
     private final Button shopButton = new Button("Shop");
     private final Button startRoundButton = new Button("Start Round");
@@ -56,6 +59,7 @@ public class GameView extends BorderPane {
     public GameView(GameState gameState) {
         // --- VIEW INITIALIZATION ---
         this.gameState = Objects.requireNonNull(gameState, "gameState");
+        this.shopOffer = Joker.createRandomJoker();
         getStyleClass().add("poker-table");
         setPadding(new Insets(15));
 
@@ -95,27 +99,29 @@ public class GameView extends BorderPane {
         shopPanel.getStyleClass().add("shop-panel");
         buildShopPanel();
 
-        VBox center = new VBox(10, jokerTitle, ownedJokersContainer, preview, handContainer, shopPanel);
-        center.setAlignment(Pos.CENTER);
-        setCenter(center);
+        VBox playArea = new VBox(10, jokerTitle, ownedJokersContainer, preview, handContainer);
+        playArea.setAlignment(Pos.CENTER);
+
+        StackPane centerLayer = new StackPane(playArea, shopPanel);
+        centerLayer.setAlignment(Pos.CENTER);
+        shopPanel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        setCenter(centerLayer);
     }
 
     private void buildShopPanel() {
         // --- SHOP OFFER REGISTRATION ---
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-        // Add another JokerNode(new MyJoker()) and a matching purchase handler
-        // to expose a new concrete Joker in the shop UI.
+        // Add a MyJoker::new factory to Joker's in-memory pool; this panel
+        // renders whichever fresh instance createRandomJoker() selects.
         Label title = new Label("SHOP");
         title.getStyleClass().add("shop-title");
         shopMessageLabel.getStyleClass().add("shop-message");
 
-        JokerNode offer = new JokerNode(new RationalistJoker());
         buyJokerButton.getStyleClass().add("btn-primary");
-        buyJokerButton.setOnAction(event -> buyRationalist());
-
-        HBox offerRow = new HBox(12, offer, buyJokerButton);
-        offerRow.setAlignment(Pos.CENTER);
-        shopPanel.getChildren().addAll(title, shopMessageLabel, offerRow);
+        buyJokerButton.setOnAction(event -> buyShopOffer());
+        shopOfferContainer.setAlignment(Pos.CENTER);
+        renderShopOffer();
+        shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer);
     }
 
     private void buildBottomArea() {
@@ -337,27 +343,37 @@ public class GameView extends BorderPane {
     private void updateShop() {
         // Shop visibility is gated by model round state, not just a UI toggle.
         boolean accessible = gameState.isShopAccessible();
-        shopPanel.setVisible(accessible && shopOpen);
-        shopPanel.setManaged(accessible && shopOpen);
+        boolean visible = accessible && shopOpen;
+        shopPanel.setVisible(visible);
+        shopPanel.setManaged(visible);
         shopButton.setDisable(!accessible);
-        buyJokerButton.setText("Buy The Rationalist ($" + Shop.RATIONALIST_JOKER_COST + ")");
+        int offerCost = shopOffer.getShopCost();
+        buyJokerButton.setText("Buy " + shopOffer.getName() + " ($" + offerCost + ")");
         buyJokerButton.setDisable(
                 !accessible
-                        || gameState.getCash() < Shop.RATIONALIST_JOKER_COST
+                        || gameState.getCash() < offerCost
                         || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
-        shopMessageLabel.setText("The Rationalist: +4 Mult per played hand | "
+        shopMessageLabel.setText(shopOffer.getName() + ": " + shopOffer.getDescription() + " | "
                 + gameState.getOwnedJokers().size() + "/" + gameState.getMaxJokers() + " slots used");
     }
 
-    private void buyRationalist() {
-        System.out.println("[UI] Buy The Rationalist clicked.");
-        if (Shop.purchaseRationalist(gameState)) {
+    private void renderShopOffer() {
+        // Rebuild only the offer area so the purchased instance is never reused.
+        shopOfferContainer.getChildren().clear();
+        shopOfferContainer.getChildren().addAll(new JokerNode(shopOffer), buyJokerButton);
+    }
+
+    private void buyShopOffer() {
+        System.out.println("[UI] Buy " + shopOffer.getName() + " clicked.");
+        if (Shop.purchaseJoker(gameState, shopOffer)) {
+            shopOffer = Joker.createRandomJoker();
+            renderShopOffer();
             refreshUI();
         }
     }
 
     private void sellJoker(Joker joker) {
-        if (gameState.sellJoker(joker, Shop.JOKER_SELL_VALUE)) {
+        if (gameState.sellJoker(joker)) {
             refreshUI();
         }
     }

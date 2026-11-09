@@ -18,7 +18,8 @@ public abstract class Joker {
     // Register each concrete class as MyJoker::new; the class's constructor
     // supplies its name, description, asset, purchase price, and sell value.
     private static final List<Supplier<? extends Joker>> AVAILABLE_JOKER_FACTORIES = List.of(
-            RationalistJoker::new
+            RationalistJoker::new,
+            GreedyJoker::new
     );
     private static final Random SHOP_RANDOM = new Random();
 

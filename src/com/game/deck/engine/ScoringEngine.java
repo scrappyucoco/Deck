@@ -23,7 +23,6 @@ public class ScoringEngine {
             System.out.println("[SCORE] No cards were played; score is 0.");
             return 0;
         }
-        PlayedCards = playedCards;
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
         ScoringContext ctx = new ScoringContext(
                 handType.getChips(), handType.getMult(), handType, gameState, false);

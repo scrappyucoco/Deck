@@ -311,6 +311,7 @@ public class GameView extends BorderPane {
                 selected.add(node.getCard());
             }
         }
+        ScoringEngine.PlayedCards = selected;
         return selected;
     }
 

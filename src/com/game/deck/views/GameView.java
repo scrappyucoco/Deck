@@ -20,7 +20,9 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /*
@@ -29,11 +31,14 @@ import java.util.Objects;
  * scoring to engine.ScoringEngine, and delegates purchases to equipment.Shop.
  */
 public class GameView extends BorderPane {
+    private static final int MAX_SHOP_OFFERS = 3;
+
     private final GameState gameState;
     private final List<CardNode> activeCardNodes = new ArrayList<>();
+    private final List<Joker> shopOffers = new ArrayList<>();
+    private final Map<Joker, Button> shopBuyButtons = new LinkedHashMap<>();
     private boolean firstRoundStarted;
     private boolean shopOpen = true;
-    private Joker shopOffer;
 
     private final Label scoreLabel = createHeaderLabel("");
     private final Label targetLabel = createHeaderLabel("");
@@ -50,7 +55,6 @@ public class GameView extends BorderPane {
     private final VBox shopPanel = new VBox(8);
     private final Button shopButton = new Button("Shop");
     private final Button startRoundButton = new Button("Start Round");
-    private final Button buyJokerButton = new Button();
     private final Button playButton = new Button("Play Hand");
     private final Button discardButton = new Button("Discard");
     private final Button sortRankButton = new Button("Sort Rank");
@@ -59,7 +63,6 @@ public class GameView extends BorderPane {
     public GameView(GameState gameState) {
         // --- VIEW INITIALIZATION ---
         this.gameState = Objects.requireNonNull(gameState, "gameState");
-        this.shopOffer = Joker.createRandomJoker();
         getStyleClass().add("poker-table");
         setPadding(new Insets(15));
 
@@ -109,18 +112,16 @@ public class GameView extends BorderPane {
     }
 
     private void buildShopPanel() {
-        // --- SHOP OFFER REGISTRATION ---
+        // --- SHOP OFFER RENDERING ---
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-        // Add a MyJoker::new factory to Joker's in-memory pool; this panel
-        // renders whichever fresh instance createRandomJoker() selects.
+        // Register each concrete Joker as MyJoker::new in Joker.java; this
+        // panel renders up to three instances selected from that full list.
         Label title = new Label("SHOP");
         title.getStyleClass().add("shop-title");
         shopMessageLabel.getStyleClass().add("shop-message");
 
-        buyJokerButton.getStyleClass().add("btn-primary");
-        buyJokerButton.setOnAction(event -> buyShopOffer());
         shopOfferContainer.setAlignment(Pos.CENTER);
-        renderShopOffer();
+        rerollShopOffers();
         shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer);
     }
 
@@ -347,27 +348,52 @@ public class GameView extends BorderPane {
         shopPanel.setVisible(visible);
         shopPanel.setManaged(visible);
         shopButton.setDisable(!accessible);
-        int offerCost = shopOffer.getShopCost();
-        buyJokerButton.setText("Buy " + shopOffer.getName() + " ($" + offerCost + ")");
-        buyJokerButton.setDisable(
-                !accessible
-                        || gameState.getCash() < offerCost
-                        || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
-        shopMessageLabel.setText(shopOffer.getName() + ": " + shopOffer.getDescription() + " | "
+        for (Map.Entry<Joker, Button> entry : shopBuyButtons.entrySet()) {
+            Joker offer = entry.getKey();
+            int offerCost = offer.getShopCost();
+            Button buyButton = entry.getValue();
+            buyButton.setText("Buy " + offer.getName() + " ($" + offerCost + ")");
+            buyButton.setDisable(
+                    !accessible
+                            || gameState.getCash() < offerCost
+                            || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
+        }
+        shopMessageLabel.setText("Choose an offer | "
                 + gameState.getOwnedJokers().size() + "/" + gameState.getMaxJokers() + " slots used");
     }
 
-    private void renderShopOffer() {
-        // Rebuild only the offer area so the purchased instance is never reused.
-        shopOfferContainer.getChildren().clear();
-        shopOfferContainer.getChildren().addAll(new JokerNode(shopOffer), buyJokerButton);
+    private void rerollShopOffers() {
+        shopOffers.clear();
+        shopOffers.addAll(Joker.createShopOffers(MAX_SHOP_OFFERS));
+        renderShopOffers();
     }
 
-    private void buyShopOffer() {
-        System.out.println("[UI] Buy " + shopOffer.getName() + " clicked.");
-        if (Shop.purchaseJoker(gameState, shopOffer)) {
-            shopOffer = Joker.createRandomJoker();
-            renderShopOffer();
+    private void renderShopOffers() {
+        // Rebuild the offer cards so every label is generated from Joker data.
+        shopOfferContainer.getChildren().clear();
+        shopBuyButtons.clear();
+        for (Joker offer : shopOffers) {
+            Label description = new Label(offer.getDescription());
+            description.getStyleClass().add("shop-message");
+            description.setWrapText(true);
+            description.setMaxWidth(150);
+
+            Button buyButton = new Button();
+            buyButton.getStyleClass().add("btn-primary");
+            buyButton.setOnAction(event -> buyShopOffer(offer));
+            shopBuyButtons.put(offer, buyButton);
+
+            VBox offerCard = new VBox(6, new JokerNode(offer), description, buyButton);
+            offerCard.getStyleClass().add("shop-offer");
+            offerCard.setAlignment(Pos.CENTER);
+            shopOfferContainer.getChildren().add(offerCard);
+        }
+    }
+
+    private void buyShopOffer(Joker offer) {
+        System.out.println("[UI] Buy " + offer.getName() + " clicked.");
+        if (Shop.purchaseJoker(gameState, offer)) {
+            rerollShopOffers();
             refreshUI();
         }
     }

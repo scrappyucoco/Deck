@@ -10,8 +10,8 @@ import com.game.deck.engine.ScoringContext;
 public class RationalistJoker extends Joker {
     public RationalistJoker() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
-        //(name, description, assetName, shopCost, sellValue)
-        super("The Rationalist", "+4 Mult when a hand is played", "joker_1", 4, 3);
+        // (name, description, assetName, shopCost, sellValue).
+        super("The Rational", "+4 Mult when a hand is played", "joker_1", 4, 3);
     }
 
     //[JOKER ABILITIES HERE]

@@ -1,7 +1,12 @@
 package com.game.deck.engine;
 
+import com.game.deck.model.Card;
 import com.game.deck.model.GameState;
 import com.game.deck.model.PokerHand;
+import com.game.deck.model.Rank;
+import com.game.deck.model.Suit;
+
+import java.util.List;
 
 /*
  * ScoringContext is the mutable Engine accumulator for one hand score.
@@ -19,9 +24,10 @@ public class ScoringContext {
     private final PokerHand handType;
     private final GameState gameState;
     private final boolean preview;
+    private final List<Card> playedCards;
 
     public ScoringContext(long baseChips, double baseMult) {
-        this(baseChips, baseMult, null, null, false);
+        this(baseChips, baseMult, null, null, false, List.of());
     }
 
     public ScoringContext(
@@ -30,6 +36,17 @@ public class ScoringContext {
             PokerHand handType,
             GameState gameState,
             boolean preview
+    ) {
+        this(baseChips, baseMult, handType, gameState, preview, List.of());
+    }
+
+    public ScoringContext(
+            long baseChips,
+            double baseMult,
+            PokerHand handType,
+            GameState gameState,
+            boolean preview,
+            List<Card> playedCards
     ) {
         this.originalBaseChips = baseChips;
         this.originalBaseMult = baseMult;
@@ -40,6 +57,7 @@ public class ScoringContext {
         this.handType = handType;
         this.gameState = gameState;
         this.preview = preview;
+        this.playedCards = playedCards == null ? List.of() : List.copyOf(playedCards);
     }
 
     public void addChips(long amount) {
@@ -133,6 +151,50 @@ public class ScoringContext {
 
     public boolean isPreview() { return preview; }
     public PokerHand getHandType() { return handType; }
+    public List<Card> getPlayedCards() { return playedCards; }
+
+    public int countPlayedCards(Suit suit) {
+        if (suit == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Card card : playedCards) {
+            if (card != null && card.getSuit() == suit) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean hasPlayedSuit(Suit suit) {
+        return countPlayedCards(suit) > 0;
+    }
+
+    public boolean allPlayedCards(Suit suit) {
+        return !playedCards.isEmpty() && countPlayedCards(suit) == playedCards.size();
+    }
+
+    public int countPlayedCards(Rank rank) {
+        if (rank == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Card card : playedCards) {
+            if (card != null && card.getRank() == rank) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean hasPlayedRank(Rank rank) {
+        return countPlayedCards(rank) > 0;
+    }
+
+    public boolean allPlayedCards(Rank rank) {
+        return !playedCards.isEmpty() && countPlayedCards(rank) == playedCards.size();
+    }
+
     public long getBaseChips() { return baseChips; }
     public double getBaseMult() { return baseMult; }
     public long getOriginalBaseChips() { return originalBaseChips; }

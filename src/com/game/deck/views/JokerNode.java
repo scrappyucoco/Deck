@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URISyntaxException;
 
 /*
  * JokerNode is the View representation of an owned or shop-offered Joker.
@@ -37,7 +38,7 @@ public class JokerNode extends StackPane {
 
         Image image = loadImage(joker.getAssetPath());
         if (image == null) {
-            image = loadImage("assets/cards/joker_1.png");
+            image = loadImage(Joker.DEFAULT_ASSET_PATH);
         }
         if (image != null) {
             ImageView imageView = new ImageView(image);
@@ -102,28 +103,75 @@ public class JokerNode extends StackPane {
         String withSlash = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
         String withoutSlash = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
         try {
+            // --- CLASSPATH/JAR RESOLUTION ---
             URL url = getClass().getResource(withSlash);
             if (url != null) {
-                return new Image(url.toExternalForm());
+                Image image = new Image(url.toExternalForm());
+                if (!image.isError()) {
+                    return image;
+                }
             }
             try (InputStream stream = getClass().getClassLoader().getResourceAsStream(withoutSlash)) {
                 if (stream != null) {
-                    return new Image(stream);
+                    Image image = new Image(stream);
+                    if (!image.isError()) {
+                        return image;
+                    }
                 }
             }
-            File rootFile = new File(withoutSlash);
-            if (rootFile.isFile()) {
-                return new Image(rootFile.toURI().toString());
+
+            // --- IDE/LOOSE RESOURCE RESOLUTION ---
+            // Eclipse may leave resources under resources/ instead of copying
+            // them into bin/, so check project and application layouts.
+            File applicationDirectory = getApplicationDirectory();
+            File[] projectCandidates = {
+                    new File(withoutSlash),
+                    new File("resources", withoutSlash),
+                    new File("src", withoutSlash),
+                    new File("src", "resources/" + withoutSlash)
+            };
+            for (File candidate : projectCandidates) {
+                if (candidate.isFile()) {
+                    Image image = new Image(candidate.toURI().toString());
+                    if (!image.isError()) {
+                        System.out.println("[ASSET] Loaded Joker image: " + candidate.getPath());
+                        return image;
+                    }
+                }
             }
-            File sourceFile = new File("src", withoutSlash);
-            if (sourceFile.isFile()) {
-                return new Image(sourceFile.toURI().toString());
+
+            if (applicationDirectory != null) {
+                File[] applicationCandidates = {
+                        new File(applicationDirectory, withoutSlash),
+                        new File(applicationDirectory, "resources/" + withoutSlash)
+                };
+                for (File candidate : applicationCandidates) {
+                    if (candidate.isFile()) {
+                        Image image = new Image(candidate.toURI().toString());
+                        if (!image.isError()) {
+                            System.out.println("[ASSET] Loaded Joker image: " + candidate.getPath());
+                            return image;
+                        }
+                    }
+                }
             }
         } catch (Exception exception) {
             System.err.println("[WARNING] Could not load joker image " + relativePath
                     + ": " + exception.getMessage());
         }
         return null;
+    }
+
+    private File getApplicationDirectory() {
+        try {
+            URL codeSource = getClass().getProtectionDomain().getCodeSource().getLocation();
+            File location = new File(codeSource.toURI());
+            return location.isFile() ? location.getParentFile() : location;
+        } catch (URISyntaxException | SecurityException | NullPointerException exception) {
+            System.err.println("[WARNING] Could not resolve application asset directory: "
+                    + exception.getMessage());
+            return null;
+        }
     }
 
     public Joker getJoker() {

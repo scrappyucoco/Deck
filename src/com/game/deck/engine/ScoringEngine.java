@@ -23,7 +23,7 @@ public class ScoringEngine {
         }
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
         ScoringContext ctx = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, gameState, false);
+                handType.getChips(), handType.getMult(), handType, gameState, false, playedCards);
 
         System.out.println("\n------------------------------------------------------------");
         System.out.println("[PARSER LOG] Hand Evaluated: " + handType.getDisplayName() +

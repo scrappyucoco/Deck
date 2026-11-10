@@ -86,6 +86,7 @@ public class GameState {
             throw new IllegalStateException("Cannot start another round while the current round is active");
         }
         ante++;
+        cash++;
         startRound(getTargetScoreForAnte(ante), 4, 3);
     }
 

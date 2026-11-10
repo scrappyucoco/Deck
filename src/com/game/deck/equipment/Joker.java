@@ -13,12 +13,17 @@ import java.util.function.Supplier;
  * ScoringEngine invokes evaluate() in their current left-to-right order.
  */
 public abstract class Joker {
+    public static final String ASSET_DIRECTORY = "assets/jokers/";
+    private static final String DEFAULT_ASSET_NAME = "joker_1";
+    public static final String DEFAULT_ASSET_PATH = ASSET_DIRECTORY + DEFAULT_ASSET_NAME + ".png";
+
     // ==========================================
     // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-    // Register each concrete class as MyJoker::new; the class's constructor
-    // supplies its name, description, asset, purchase price, and sell value.
+    // Register every shop Joker exactly once as MyJoker::new. The shop samples
+    // this complete hardcoded list without replacement, so every offer is equal.
     private static final List<Supplier<? extends Joker>> AVAILABLE_JOKER_FACTORIES = List.of(
-            RationalistJoker::new
+            RationalistJoker::new,
+            GreedyJoker::new
     );
     private static final Random SHOP_RANDOM = new Random();
 
@@ -27,6 +32,8 @@ public abstract class Joker {
     private final List<Item> sockets;
     private static final int MAX_SOCKETS = 2;
     private final String assetPath;
+    private final int baseShopCost;
+    private final int baseSellValue;
     private int shopCost;
     private int sellValue;
 
@@ -40,15 +47,22 @@ public abstract class Joker {
 
     /**
      * Defines the display metadata and individual economy values for a Joker.
+     * assetName is the filename stem under resources/assets/jokers/, such as
+     * "joker_1" for resources/assets/jokers/joker_1.png.
      */
     protected Joker(String name, String description, String assetName, int shopCost, int sellValue) {
+        if (assetName == null || assetName.isBlank()) {
+            throw new IllegalArgumentException("Joker asset name cannot be blank");
+        }
         if (shopCost < 0 || sellValue < 0) {
             throw new IllegalArgumentException("Joker prices cannot be negative");
         }
         this.name = name;
         this.description = description;
         this.sockets = new ArrayList<>();
-        this.assetPath = "assets/jokers/" + assetName + ".png";
+        this.assetPath = ASSET_DIRECTORY + assetName + ".png";
+        this.baseShopCost = shopCost;
+        this.baseSellValue = sellValue;
         this.shopCost = shopCost;
         this.sellValue = sellValue;
     }
@@ -108,19 +122,37 @@ public abstract class Joker {
     }
 
     /**
-     * Selects and constructs one available Joker for the current shop offer.
-     * The random index is still generated when the pool contains only one entry.
+     * Creates up to maxOffers distinct shop instances from the registered pool.
+     * Shuffling the complete pool gives every registered factory equal odds.
      */
-    public static Joker createRandomJoker() {
+    public static List<Joker> createShopOffers(int maxOffers) {
         if (AVAILABLE_JOKER_FACTORIES.isEmpty()) {
             throw new IllegalStateException("The Joker shop pool cannot be empty.");
         }
+        if (maxOffers < 1) {
+            throw new IllegalArgumentException("The shop must request at least one offer.");
+        }
 
-        int selectedIndex = SHOP_RANDOM.nextInt(AVAILABLE_JOKER_FACTORIES.size());
-        Joker selectedJoker = AVAILABLE_JOKER_FACTORIES.get(selectedIndex).get();
-        System.out.println("[SHOP] RNG selected Joker " + (selectedIndex + 1) + "/"
-                + AVAILABLE_JOKER_FACTORIES.size() + ": " + selectedJoker.getName());
-        return selectedJoker;
+        List<Supplier<? extends Joker>> shuffledFactories =
+                new ArrayList<>(AVAILABLE_JOKER_FACTORIES);
+        Collections.shuffle(shuffledFactories, SHOP_RANDOM);
+
+        int offerCount = Math.min(maxOffers, shuffledFactories.size());
+        List<Joker> offers = new ArrayList<>(offerCount);
+        for (int i = 0; i < offerCount; i++) {
+            Joker offer = shuffledFactories.get(i).get();
+            offers.add(offer);
+            System.out.println("[SHOP] RNG offer " + (i + 1) + "/" + offerCount
+                    + ": " + offer.getName());
+        }
+        return List.copyOf(offers);
+    }
+
+    /**
+     * Compatibility helper for callers that need one random registered Joker.
+     */
+    public static Joker createRandomJoker() {
+        return createShopOffers(1).get(0);
     }
 
     /**
@@ -141,14 +173,14 @@ public abstract class Joker {
      * Returns the immutable constructor price for custom price calculations.
      */
     protected final int getBaseShopCost() {
-        return shopCost;
+        return baseShopCost;
     }
 
     /**
      * Returns the immutable constructor resale value for custom calculations.
      */
     protected final int getBaseSellValue() {
-        return sellValue;
+        return baseSellValue;
     }
 
     /**

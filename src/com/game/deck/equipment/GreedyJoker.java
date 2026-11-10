@@ -12,7 +12,7 @@ public class GreedyJoker extends Joker {
     public GreedyJoker() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         //(name, description, assetName, shopCost, sellValue)
-        super("The Greedy", "+3 Mult when all played cards are Diamonds", "joker_2", 3, 2);
+        super("The Greedy", "+5 Mult when a Diamond Suit is played", "joker_2", 4, 3);
     }
 
     //[JOKER ABILITIES HERE]
@@ -20,8 +20,8 @@ public class GreedyJoker extends Joker {
     protected void applyBaseEffect(ScoringContext ctx) {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         // Change 4.0 to tune this Joker's additive multiplier effect.
-        if (ctx.allPlayedCards(Suit.DIAMONDS)) {
-            ctx.addMult(3.0);
+        if (ctx.hasPlayedSuit(Suit.DIAMONDS)) {
+            ctx.addMult(5.0);
         }
     }
 }

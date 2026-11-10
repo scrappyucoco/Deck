@@ -5,6 +5,7 @@ import com.game.deck.model.GameState;
 import com.game.deck.model.PokerHand;
 import com.game.deck.model.Rank;
 import com.game.deck.model.Suit;
+import com.game.deck.equipment.Joker;
 
 import java.util.List;
 
@@ -153,6 +154,10 @@ public class ScoringContext {
     public boolean isPreview() { return preview; }
     public PokerHand getHandType() { return handType; }
     public List<Card> getPlayedCards() { return playedCards; }
+
+    public List<Joker> getJokers(){
+        return gameState.getOwnedJokers();
+    }
 
     public int countPlayedCards(Suit suit) {
         if (suit == null) {

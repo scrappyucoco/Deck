@@ -232,7 +232,7 @@ public class GameView extends BorderPane {
         }
 
         BasePokerEngine.ScoreResult result =
-                BasePokerEngine.evaluateAndScore(selected, gameState.getOwnedJokers());
+                BasePokerEngine.evaluateAndScore(selected, gameState);
         handTypeLabel.setText(result.handType.getDisplayName());
         handScorePreviewLabel.setText(String.format(
                 "[ %d Chips  x  %.1f Mult = %d ]",

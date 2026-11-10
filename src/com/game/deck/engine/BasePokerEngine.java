@@ -3,6 +3,7 @@ package com.game.deck.engine;
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
+import com.game.deck.model.GameState;
 import com.game.deck.model.PokerHand;
 
 import java.util.ArrayList;
@@ -41,15 +42,15 @@ public final class BasePokerEngine {
     }
 
     public static ScoreResult evaluateAndScore(List<Card> playedCards) {
-        return evaluateAndScore(playedCards, List.of());
+        return evaluateAndScore(playedCards, null);
     }
 
-    public static ScoreResult evaluateAndScore(List<Card> playedCards, List<Joker> activeJokers) {
+    public static ScoreResult evaluateAndScore(List<Card> playedCards, GameState gameState) {
         // --- INPUT NORMALIZATION ---
         if (playedCards == null || playedCards.isEmpty()) {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
-
+        List<Joker> activeJokers = (gameState == null) ? List.of() : gameState.getOwnedJokers();
         List<Card> validCards = new ArrayList<>();
         for (Card card : playedCards) {
             if (card != null) {
@@ -62,7 +63,7 @@ public final class BasePokerEngine {
 
         PokerHand handType = PokerEvaluator.evaluate(validCards);
         ScoringContext context = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, null, true, validCards);
+                handType.getChips(), handType.getMult(), handType, gameState, true, validCards);
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Preview the same hand-base hook used by the authoritative scorer.
         if (activeJokers != null) {

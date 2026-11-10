@@ -149,6 +149,7 @@ public class ScoringContext {
         return gameState.deductCash(amount);
     }
 
+    //Getters
     public boolean isPreview() { return preview; }
     public PokerHand getHandType() { return handType; }
     public List<Card> getPlayedCards() { return playedCards; }

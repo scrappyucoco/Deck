@@ -11,7 +11,7 @@ public class RationalistJoker extends Joker {
     public RationalistJoker() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         // (name, description, assetName, shopCost, sellValue).
-        super("The Rational", "+4 Mult when a hand is played", "joker_1", 4, 3);
+        super("The Rational", "+4 Mult when a hand is played", "joker_2", 4, 3);
     }
 
     //[JOKER ABILITIES HERE]

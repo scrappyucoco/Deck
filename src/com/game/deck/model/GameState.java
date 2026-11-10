@@ -79,6 +79,10 @@ public class GameState {
         refillHand();
         System.out.println("[STATE] Round started: ante=" + ante + ", target=" + targetScore
                 + ", hands=" + hands + ", discards=" + discards);
+
+
+
+                
     }
 
     public void startNextRound() {
@@ -86,7 +90,7 @@ public class GameState {
             throw new IllegalStateException("Cannot start another round while the current round is active");
         }
         ante++;
-        cash++;
+        cash += 3; // [CONFIG: TWEAK CASH REWARD HERE]
         startRound(getTargetScoreForAnte(ante), 4, 3);
     }
 

@@ -55,12 +55,31 @@ public class TarotNode extends VBox {
         }
         getChildren().add(artwork);
 
-        if (useAction != null) {
-            Button useButton = new Button("Use");
-            useButton.getStyleClass().add("btn-primary");
-            useButton.setOnAction(event -> useAction.run());
-            getChildren().add(useButton);
-        }
+        Label nameLabel = new Label(tarotCard.getName());
+        nameLabel.getStyleClass().add("tarot-card-name");
+        nameLabel.setMouseTransparent(true);
+        VBox details = new VBox(nameLabel);
+        details.setAlignment(Pos.BOTTOM_CENTER);
+        details.setMouseTransparent(true);
+        getChildren().add(details);
+
+        Button useButton = new Button("Use");
+        useButton.getStyleClass().add("btn-use");
+        useButton.setVisible(false);
+        useButton.setManaged(false);
+        useButton.setOnAction(event -> useAction.run());
+        StackPane.setAlignment(useButton, Pos.BOTTOM_CENTER);
+        artwork.getChildren().add(useButton);
+
+        setOnMouseClicked(event -> {
+            // Owned nodes expose sell controls; shop offers pass a null action.
+            if (useAction != null) {
+                useButton.setVisible(!useButton.isVisible());
+                useButton.setManaged(useButton.isVisible());
+                System.out.println("[UI] Joker selected: " + tarotCard.getName()
+                        + " | sellButtonVisible=" + useButton.isVisible());
+            }
+        });
     }
 
     public TarotCards getTarotCard() {

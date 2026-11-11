@@ -8,7 +8,7 @@ import java.util.List;
 public class Star extends TarotCards{
     private final int MAX_NUMBER_CARDS = 3;
     public Star(){
-        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 5, 4);
+        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 0, 4);
     }
 
     @Override 

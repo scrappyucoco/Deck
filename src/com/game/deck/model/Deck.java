@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the Deck source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,12 +18,18 @@ public class Deck {
     private final List<Card> cards;
     private final List<Card> discardPile;
 
+    /**
+     * Performs the deck operation.
+     */
     public Deck() {
         this.cards = new ArrayList<>();
         this.discardPile = new ArrayList<>();
         resetToStandardDeck();
     }
 
+    /**
+     * Performs the rese\1 \2\1 \2tandar\1 \2eck operation.
+     */
     public final void resetToStandardDeck() {
         // Rebuild every suit/rank combination so a new round starts cleanly.
         cards.clear();
@@ -31,14 +42,23 @@ public class Deck {
         shuffle();
     }
 
+    /**
+     * Performs the rese\1 \2ul\1 \2eck operation.
+     */
     public final void resetFullDeck() {
         resetToStandardDeck();
     }
 
+    /**
+     * Performs the shuffle operation.
+     */
     public void shuffle() {
         Collections.shuffle(cards);
     }
 
+    /**
+     * Performs the draw operation.
+     */
     public List<Card> draw(int count) {
         // Recycle discarded cards only when the draw pile is exhausted.
         List<Card> drawn = new ArrayList<>();
@@ -58,6 +78,9 @@ public class Deck {
         return drawn;
     }
 
+    /**
+     * Performs the discard operation.
+     */
     public void discard(List<Card> discardedCards) {
         if (discardedCards == null) {
             return;
@@ -65,8 +88,17 @@ public class Deck {
         discardPile.addAll(discardedCards);
     }
 
+    /**
+     * Performs the remainin\1 \2ards operation.
+     */
     public int remainingCards() { return cards.size(); }
+    /**
+     * Performs the discarde\1 \2ard\1 \2ount operation.
+     */
     public int discardedCardsCount() { return discardPile.size(); }
+    /**
+     * Performs the ge\1 \2ards operation.
+     */
     public List<Card> getCards() { return Collections.unmodifiableList(cards); }
 
     private void recycleDiscards() {

@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the GameState source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.TarotCards;
 
@@ -44,9 +49,12 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
-    private static final int MAX_JOKERS = 2;
+    private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
 
+    /**
+     * Performs the gam\1 \2tate operation.
+     */
     public GameState() {
         // --- RUN INITIALIZATION ---
         this.deck = new Deck();
@@ -57,9 +65,12 @@ public class GameState {
         startNewRun();
     }
 
+    /**
+     * Performs the star\1 \2e\1 \2un operation.
+     */
     public void startNewRun() {
         this.ante = 1;
-        this.cash = 4;
+        this.cash = 20;
         this.inSpecialChallenge = false;
         this.roundActive = false;
         this.currentScore = 0;
@@ -70,6 +81,9 @@ public class GameState {
         System.out.println("[STATE] New run ready. Shop is open before the first round.");
     }
 
+    /**
+     * Performs the star\1 \2ound operation.
+     */
     public void startRound(long targetScore, int hands, int discards) {
         // --- ROUND LIFECYCLE ---
         if (targetScore < 0 || hands < 0 || discards < 0) {
@@ -87,6 +101,9 @@ public class GameState {
                 + ", hands=" + hands + ", discards=" + discards);                
     }
 
+    /**
+     * Performs the star\1 \2ex\1 \2ound operation.
+     */
     public void startNextRound() {
         if (roundActive) {
             throw new IllegalStateException("Cannot start another round while the current round is active");
@@ -95,6 +112,9 @@ public class GameState {
         startRound(getTargetScoreForAnte(ante), 4, 3);
     }
     
+    /**
+     * Performs the en\1 \2ound operation.
+     */
     public void endRound() {
         // --- ROUND END ---
         int earned = 3 + handsRemaining;
@@ -104,6 +124,9 @@ public class GameState {
         System.out.println("[STATE] Round ended. Shop is now available.");
     }
 
+    /**
+     * Performs the refil\1 \2and operation.
+     */
     public void refillHand() {
         int needed = maxHandSize - hand.size();
         if (needed > 0) {
@@ -111,6 +134,9 @@ public class GameState {
         }
     }
 
+    /**
+     * Performs the pla\1 \2electe\1 \2ards operation.
+     */
     public void playSelectedCards(List<Card> selected) {
         // --- PLAYER ACTIONS ---
         List<Card> cardsToPlay = validCardsFromHand(selected);
@@ -124,6 +150,9 @@ public class GameState {
         System.out.println("[STATE] Played " + cardsToPlay.size() + " cards. Hands remaining=" + handsRemaining);
     }
 
+    /**
+     * Performs the discar\1 \2electe\1 \2ards operation.
+     */
     public void discardSelectedCards(List<Card> selected) {
         List<Card> cardsToDiscard = validCardsFromHand(selected);
         if (!roundActive || cardsToDiscard.isEmpty() || cardsToDiscard.size() > 5 || discardsRemaining <= 0) {
@@ -137,12 +166,18 @@ public class GameState {
         System.out.println("[STATE] Discarded " + cardsToDiscard.size() + " cards. Discards remaining=" + discardsRemaining);
     }
 
+    /**
+     * Performs the ad\1 \2ash operation.
+     */
     public void addCash(int amount) {
         // --- ECONOMY ---
         this.cash += amount;
         System.out.println("[STATE] Cash updated: +$" + amount + " | Current Balance: $" + this.cash);
     }
 
+    /**
+     * Performs the deduc\1 \2ash operation.
+     */
     public boolean deductCash(int amount) {
         if (this.cash >= amount) {
             this.cash -= amount;
@@ -153,19 +188,77 @@ public class GameState {
         return false;
     }
 
+    /** Removes cash without allowing the run balance to become negative. */
+    public void loseCash(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Cash loss cannot be negative");
+        }
+        deductCash(Math.min(amount, cash));
+    }
+
+    /**
+     * Performs the ge\1 \2nte operation.
+     */
     public int getAnte() { return ante; }
+    /**
+     * Performs the se\1 \2nte operation.
+     */
     public void setAnte(int ante) { this.ante = ante; }
+    /**
+     * Performs the ge\1 \2ash operation.
+     */
     public int getCash() { return cash; }
+    /**
+     * Performs the ge\1 \2and\1 \2emaining operation.
+     */
     public int getHandsRemaining() { return handsRemaining; }
+    /**
+     * Performs the us\1 \2and operation.
+     */
     public void useHand() { if (handsRemaining > 0) handsRemaining--; }
+    /**
+     * Performs the rese\1 \2ands operation.
+     */
     public void resetHands() { this.handsRemaining = 4; }
+    /**
+     * Performs the ge\1 \2iscard\1 \2emaining operation.
+     */
     public int getDiscardsRemaining() { return discardsRemaining; }
+    /**
+     * Performs the us\1 \2iscard operation.
+     */
     public void useDiscard() { if (discardsRemaining > 0) discardsRemaining--; }
+    /**
+     * Performs the rese\1 \2iscards operation.
+     */
     public void resetDiscards() { this.discardsRemaining = 3; }
+    /**
+     * Performs the ad\1 \2xtr\1 \2iscard operation.
+     */
     public void addExtraDiscard(int count) { this.discardsRemaining += count; }
+    /** Adds or removes available discards, clamped at zero. */
+    public void changeDiscards(int amount) {
+        discardsRemaining = Math.max(0, discardsRemaining + amount);
+    }
+    /** Adds or removes available hands, clamped at zero. */
+    public void changeHands(int amount) {
+        handsRemaining = Math.max(0, handsRemaining + amount);
+    }
+    /**
+     * Performs the ge\1 \2arge\1 \2core operation.
+     */
     public long getTargetScore() { return targetScore; }
+    /**
+     * Performs the ge\1 \2urren\1 \2core operation.
+     */
     public long getCurrentScore() { return currentScore; }
+    /**
+     * Performs the ge\1 \2a\1 \2an\1 \2ize operation.
+     */
     public int getMaxHandSize() { return maxHandSize; }
+    /**
+     * Performs the se\1 \2a\1 \2an\1 \2ize operation.
+     */
     public void setMaxHandSize(int maxHandSize) {
         if (maxHandSize < 1) {
             throw new IllegalArgumentException("Hand size must be positive");
@@ -173,6 +266,9 @@ public class GameState {
         this.maxHandSize = maxHandSize;
         refillHand();
     }
+    /**
+     * Performs the ad\1 \2core operation.
+     */
     public void addScore(long points) {
         // --- SCORE STATE ---
         if (points < 0) {
@@ -183,9 +279,29 @@ public class GameState {
         System.out.println("[STATE] Score changed: " + previousScore + " -> " + currentScore
                 + " (+" + points + ")");
     }
+
+    /** Removes score, clamped at zero, for negative occurrence outcomes. */
+    public void loseScore(long points) {
+        if (points < 0) {
+            throw new IllegalArgumentException("Score loss cannot be negative");
+        }
+        currentScore = Math.max(0, currentScore - points);
+    }
+    /**
+     * Performs the i\1 \2oun\1 \2on operation.
+     */
     public boolean isRoundWon() { return currentScore >= targetScore; }
+    /**
+     * Performs the i\1 \2am\1 \2ver operation.
+     */
     public boolean isGameOver() { return handsRemaining <= 0 && !isRoundWon(); }
+    /**
+     * Performs the ge\1 \2urren\1 \2lin\1 \2arget operation.
+     */
     public long getCurrentBlindTarget() { return targetScore; }
+    /**
+     * Performs the se\1 \2urren\1 \2lin\1 \2arget operation.
+     */
     public void setCurrentBlindTarget(long target) {
         if (target < 0) {
             throw new IllegalArgumentException("Target cannot be negative");
@@ -193,6 +309,9 @@ public class GameState {
         this.targetScore = target;
     }
 
+    /**
+     * Performs the ge\1 \2arge\1 \2cor\1 \2o\1 \2nte operation.
+     */
     public static long getTargetScoreForAnte(int ante) {
         if (ante < 1) {
             throw new IllegalArgumentException("Ante must be at least 1");
@@ -200,20 +319,47 @@ public class GameState {
         int index = Math.min(ante - 1, ANTE_TARGET_SCORES.length - 1);
         return ANTE_TARGET_SCORES[index];
     }
+    /**
+     * Performs the ge\1 \2and operation.
+     */
     public List<Card> getHand() { return hand; }
+    /**
+     * Performs the ge\1 \2eck operation.
+     */
     public Deck getDeck() { return deck; }
+    /**
+     * Performs the i\1 \2oun\1 \2ctive operation.
+     */
     public boolean isRoundActive() { return roundActive; }
+    /**
+     * Performs the i\1 \2ho\1 \2ccessible operation.
+     */
     public boolean isShopAccessible() { return !roundActive; }
+    /**
+     * Performs the ge\1 \2a\1 \2okers operation.
+     */
     public int getMaxJokers() { return MAX_JOKERS; }
+    /**
+     * Performs the ge\1 \2a\1 \2aro\1 \2ards operation.
+     */
     public int getMaxTarotCards() { return MAX_TAROT_CARDS; }
+    /**
+     * Performs the ge\1 \2wne\1 \2okers operation.
+     */
     public List<Joker> getOwnedJokers() {
         return Collections.unmodifiableList(ownedJokers);
     }
 
+    /**
+     * Performs the ge\1 \2wne\1 \2aro\1 \2ards operation.
+     */
     public List<TarotCards> getOwnedTarotCards() {
         return Collections.unmodifiableList(ownedTarotCards);
     }
 
+    /**
+     * Performs the ad\1 \2aro\1 \2ard operation.
+     */
     public boolean addTarotCard(TarotCards tarotCard) {
         if (tarotCard == null || ownedTarotCards.size() >= MAX_TAROT_CARDS) {
             return false;
@@ -224,6 +370,9 @@ public class GameState {
         return true;
     }
 
+    /**
+     * Performs the us\1 \2aro\1 \2ard operation.
+     */
     public boolean useTarotCard(TarotCards tarotCard, List<Card> selectedCards) {
         if (tarotCard == null || !ownedTarotCards.contains(tarotCard)) {
             return false;
@@ -234,6 +383,9 @@ public class GameState {
         return true;
     }
 
+    /**
+     * Performs the ad\1 \2oker operation.
+     */
     public boolean addJoker(Joker joker) {
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Register a concrete Joker instance with addJoker(new MyJoker()) from
@@ -246,6 +398,9 @@ public class GameState {
         return true;
     }
 
+    /**
+     * Performs the sel\1 \2oker operation.
+     */
     public boolean sellJoker(Joker joker, int sellValue) {
         if (joker == null || sellValue < 0 || !ownedJokers.remove(joker)) {
             return false;
@@ -255,10 +410,16 @@ public class GameState {
         return true;
     }
 
+    /**
+     * Performs the sel\1 \2oker operation.
+     */
     public boolean sellJoker(Joker joker) {
         return joker != null && sellJoker(joker, joker.getSellValue());
     }
 
+    /**
+     * Performs the mov\1 \2oker operation.
+     */
     public void moveJoker(Joker joker, int targetIndex) {
         // Reordering changes left-to-right Stage 4 trigger order.
         int sourceIndex = ownedJokers.indexOf(joker);
@@ -273,7 +434,13 @@ public class GameState {
         ownedJokers.add(boundedIndex, joker);
         System.out.println("[JOKER] Reordered " + joker.getName() + " to slot " + (boundedIndex + 1));
     }
+    /**
+     * Performs the i\1 \2\1 \2pecia\1 \2hallenge operation.
+     */
     public boolean isInSpecialChallenge() { return inSpecialChallenge; }
+    /**
+     * Performs the se\1 \2\1 \2pecia\1 \2hallenge operation.
+     */
     public void setInSpecialChallenge(boolean active) { this.inSpecialChallenge = active; }
 
     private List<Card> validCardsFromHand(List<Card> selected) {

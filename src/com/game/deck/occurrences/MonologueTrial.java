@@ -1,5 +1,10 @@
 package com.game.deck.occurrences;
 
+/**
+ * Contains the MonologueTrial source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,6 +27,9 @@ public class MonologueTrial extends Occurrence {
     private final String targetAlignedPattern;
     private final boolean isHighRiskDire;
 
+    /**
+     * Performs the monologu\1 \2rial operation.
+     */
     public MonologueTrial() {
         this(
                 "When probability fails, how do you respond?",
@@ -31,6 +39,9 @@ public class MonologueTrial extends Occurrence {
         );
     }
 
+    /**
+     * Performs the monologu\1 \2rial operation.
+     */
     public MonologueTrial(String prompt, List<String> fragments, String targetPattern, boolean isHighRisk) {
         super("Inner Monologue Trial", "Debate identity and probability to earn rewards.");
         this.promptQuestion = prompt;
@@ -40,6 +51,9 @@ public class MonologueTrial extends Occurrence {
     }
 
     @Override
+    /**
+     * Performs the execute operation.
+     */
     public void execute(GameState state) {
         // --- EVENT PRESENTATION ---
         System.out.println("\n=== [POST-ROUND OCCURRENCE: MONOLOGUE TRIAL] ===");
@@ -48,9 +62,15 @@ public class MonologueTrial extends Occurrence {
     }
 
     @Override
+    /**
+     * Performs the i\1 \2nteractive operation.
+     */
     public boolean isInteractive() { return true; }
 
     @Override
+    /**
+     * Performs the creat\1 \2iew operation.
+     */
     public Node createView(GameState state, Runnable onComplete) {
         VBox root = new VBox(12);
         root.setAlignment(Pos.CENTER);
@@ -89,6 +109,9 @@ public class MonologueTrial extends Occurrence {
         return root;
     }
 
+    /**
+     * Performs the submi\1 \2entence operation.
+     */
     public boolean submitSentence(List<String> selectedFragments, GameState state) {
         // Join fragments in player order before comparing against the target.
         String builtSentence = String.join(" ", selectedFragments);
@@ -106,12 +129,18 @@ public class MonologueTrial extends Occurrence {
     }
 
     @Override
+    /**
+     * Performs the o\1 \2ass operation.
+     */
     public void onPass(GameState state) {
         state.addCash(15);
         System.out.println("[REWARD] Passed Monologue Trial! Awarded +$15 Cash.");
     }
 
     @Override
+    /**
+     * Performs the o\1 \2ail operation.
+     */
     public void onFail(GameState state) {
         if (isHighRiskDire) {
             state.deductCash(10);
@@ -121,6 +150,12 @@ public class MonologueTrial extends Occurrence {
         }
     }
 
+    /**
+     * Performs the ge\1 \2romp\1 \2uestion operation.
+     */
     public String getPromptQuestion() { return promptQuestion; }
+    /**
+     * Performs the ge\1 \2vailabl\1 \2ragments operation.
+     */
     public List<String> getAvailableFragments() { return availableFragments; }
 }

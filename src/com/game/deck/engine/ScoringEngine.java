@@ -1,5 +1,10 @@
 package com.game.deck.engine;
 
+/**
+ * Contains the ScoringEngine source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.*;
 import java.util.List;
@@ -11,6 +16,9 @@ import java.util.List;
  */
 public class ScoringEngine {
 
+    /**
+     * Performs the calculat\1 \2core operation.
+     */
     public static long calculateScore(
             List<Card> playedCards,
             List<Card> heldInHand,

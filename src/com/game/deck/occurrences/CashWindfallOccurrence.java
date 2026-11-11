@@ -1,5 +1,10 @@
 package com.game.deck.occurrences;
 
+/**
+ * Contains the CashWindfallOccurrence source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,17 +14,29 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents the cash windfall occurrence in the game's model, engine, equipment, occurrence, or view layer.
+ */
 public class CashWindfallOccurrence extends Occurrence {
+    /**
+     * Performs the cas\1 \2indfal\1 \2ccurrence operation.
+     */
     public CashWindfallOccurrence() {
         super("Cash Windfall", "Receive a random immediate reward of $5-$15.");
     }
 
     @Override
+    /**
+     * Performs the i\1 \2nteractive operation.
+     */
     public boolean isInteractive() {
         return true;
     }
 
     @Override
+    /**
+     * Performs the execute operation.
+     */
     public void execute(GameState state) {
         int reward = ThreadLocalRandom.current().nextInt(5, 16);
         state.addCash(reward);
@@ -27,6 +44,9 @@ public class CashWindfallOccurrence extends Occurrence {
     }
 
     @Override
+    /**
+     * Performs the creat\1 \2iew operation.
+     */
     public Node createView(GameState state, Runnable onComplete) {
         int reward = ThreadLocalRandom.current().nextInt(5, 16);
         state.addCash(reward);

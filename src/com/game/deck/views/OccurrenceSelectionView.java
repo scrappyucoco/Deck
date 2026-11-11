@@ -1,5 +1,10 @@
 package com.game.deck.views;
 
+/**
+ * Contains the OccurrenceSelectionView source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 import com.game.deck.occurrences.Occurrence;
 import javafx.geometry.Insets;
@@ -12,11 +17,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
 
+/**
+ * Represents the occurrence selection view in the game's model, engine, equipment, occurrence, or view layer.
+ */
 public final class OccurrenceSelectionView extends StackPane {
     private final GameState gameState;
     private final Runnable onComplete;
     private final VBox content = new VBox(16);
 
+    /**
+     * Performs the occurrenc\1 \2electio\1 \2iew operation.
+     */
     public OccurrenceSelectionView(GameState gameState, Runnable onComplete) {
         this.gameState = gameState;
         this.onComplete = onComplete;
@@ -31,7 +42,7 @@ public final class OccurrenceSelectionView extends StackPane {
     private void showOffers() {
         Label title = new Label("PRE-ROUND OCCURRENCE");
         title.getStyleClass().add("occurrence-title");
-        Label subtitle = new Label("Choose one free event before starting the round.");
+        Label subtitle = new Label("Choose one event before starting the round.");
         subtitle.getStyleClass().add("occurrence-subtitle");
         HBox cards = new HBox(18);
         cards.setAlignment(Pos.CENTER);
@@ -45,7 +56,7 @@ public final class OccurrenceSelectionView extends StackPane {
             Label description = new Label(occurrence.getDescription());
             description.setWrapText(true);
             description.getStyleClass().add("occurrence-description");
-            Button choose = new Button("Choose (Free)");
+            Button choose = new Button("Choose");
             choose.getStyleClass().add("btn-primary");
             choose.setOnAction(event -> select(occurrence));
             card.getChildren().addAll(name, description, choose);

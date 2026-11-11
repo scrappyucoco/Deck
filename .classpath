@@ -6,6 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="resources" output="bin" including="assets/**"/>
+	<classpathentry including="assets/**" kind="src" output="bin" path="resources"/>
+	<classpathentry kind="lib" path="/home/lancebervinono/Documents/Eclipse/Deck/lib/scenicview-17.0.2-javadoc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

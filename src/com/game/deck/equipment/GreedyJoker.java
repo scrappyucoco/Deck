@@ -1,5 +1,10 @@
 package com.game.deck.equipment;
 
+/**
+ * Contains the GreedyJoker source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.engine.ScoringContext;
 import com.game.deck.model.Suit;
 
@@ -9,6 +14,9 @@ import com.game.deck.model.Suit;
  * constructor metadata, and implement applyBaseEffect(ScoringContext).
  */
 public class GreedyJoker extends Joker {
+    /**
+     * Performs the greed\1 \2oker operation.
+     */
     public GreedyJoker() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         //(name, description, assetName, shopCost, sellValue)
@@ -17,6 +25,9 @@ public class GreedyJoker extends Joker {
 
     //[JOKER ABILITIES HERE]
     @Override
+    /**
+     * Performs the appl\1 \2as\1 \2ffect operation.
+     */
     protected void applyBaseEffect(ScoringContext ctx) {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         // Change 4.0 to tune this Joker's additive multiplier effect.

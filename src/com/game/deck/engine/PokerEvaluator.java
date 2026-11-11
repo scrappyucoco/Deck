@@ -1,5 +1,10 @@
 package com.game.deck.engine;
 
+/**
+ * Contains the PokerEvaluator source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.*;
 import java.util.*;
 
@@ -10,6 +15,9 @@ import java.util.*;
  */
 public class PokerEvaluator {
 
+    /**
+     * Performs the evaluate operation.
+     */
     public static PokerHand evaluate(List<Card> playedCards) {
         // --- HAND CLASSIFICATION ---
         if (playedCards == null || playedCards.isEmpty()) return PokerHand.HIGH_CARD;

@@ -19,7 +19,7 @@ public class Star extends TarotCards{
      * Performs the star operation.
      */
     public Star(){
-        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 5, 4);
+        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 0, 4);
     }
 
     @Override 

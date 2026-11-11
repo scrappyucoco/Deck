@@ -145,7 +145,19 @@
     -fx-alignment: center;
 }
 
-.joker-name {
+.btn-use {
+    -fx-font-size: 10px;
+    -fx-padding: 3px 10px;
+    -fx-margin-bottom:30px;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+
+.equipment-name {
     -fx-text-fill: white;
     -fx-font-size: 11px;
     -fx-font-weight: bold;

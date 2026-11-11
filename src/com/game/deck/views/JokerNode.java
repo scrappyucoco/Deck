@@ -55,7 +55,7 @@ public class JokerNode extends StackPane {
         }
 
         Label nameLabel = new Label(joker.getName());
-        nameLabel.getStyleClass().add("joker-name");
+        nameLabel.getStyleClass().add("equipment-name");
         nameLabel.setMouseTransparent(true);
         VBox details = new VBox(nameLabel);
         details.setAlignment(Pos.BOTTOM_CENTER);

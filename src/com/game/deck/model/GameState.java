@@ -44,7 +44,7 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
-    private static final int MAX_JOKERS = 2;
+    private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
 
     public GameState() {
@@ -96,12 +96,12 @@ public class GameState {
             throw new IllegalStateException("Cannot start another round while the current round is active");
         }
         ante++;
-        cash += 3; // [CONFIG: TWEAK CASH REWARD HERE]
         startRound(getTargetScoreForAnte(ante), 4, 3);
     }
 
     public void endRound() {
         roundActive = false;
+        cash += 3; // [CONFIG: TWEAK CASH REWARD HERE]
         System.out.println("[STATE] Round ended. Shop is now available.");
     }
 
@@ -258,6 +258,19 @@ public class GameState {
 
     public boolean sellJoker(Joker joker) {
         return joker != null && sellJoker(joker, joker.getSellValue());
+    }
+
+    public boolean sellTarotCard(TarotCards tarotCards, int sellValue) {
+        if (tarotCards == null || sellValue < 0 || !ownedTarotCards.remove(tarotCards)) {
+            return false;
+        }
+        addCash(sellValue);
+        System.out.println("[JOKER] Sold " + tarotCards.getName() + " for $" + sellValue + ".");
+        return true;
+    }
+
+    public boolean sellTarotCard(TarotCards tarotCards) {
+        return tarotCards != null && sellTarotCard(tarotCards, tarotCards.getSellValue());
     }
 
     public void moveJoker(Joker joker, int targetIndex) {

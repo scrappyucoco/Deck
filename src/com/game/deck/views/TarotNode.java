@@ -21,12 +21,13 @@ import java.util.Objects;
  */
 public class TarotNode extends VBox {
     private final TarotCards tarotCard;
+    private final Button sellButton;
 
     public TarotNode(TarotCards tarotCard) {
-        this(tarotCard, null);
+        this(tarotCard, null, null);
     }
 
-    public TarotNode(TarotCards tarotCard, Runnable useAction) {
+    public TarotNode(TarotCards tarotCard, Runnable useAction, Runnable sellAction) {
         this.tarotCard = Objects.requireNonNull(tarotCard, "tarotCard");
         setAlignment(Pos.CENTER);
         setSpacing(5);
@@ -55,12 +56,46 @@ public class TarotNode extends VBox {
         }
         getChildren().add(artwork);
 
-        if (useAction != null) {
-            Button useButton = new Button("Use");
-            useButton.getStyleClass().add("btn-primary");
-            useButton.setOnAction(event -> useAction.run());
-            getChildren().add(useButton);
-        }
+        Label nameLabel = new Label(tarotCard.getName());
+        nameLabel.getStyleClass().add("equipment-name");
+        nameLabel.setMouseTransparent(true);
+        VBox details = new VBox(nameLabel);
+        details.setAlignment(Pos.BOTTOM_CENTER);
+        details.setMouseTransparent(true);
+        artwork.getChildren().add(details);
+
+        Button useButton = new Button("Use");
+        useButton.getStyleClass().add("btn-use");
+        useButton.setVisible(false);
+        useButton.setManaged(false);
+        useButton.setOnAction(event -> useAction.run());
+        StackPane.setAlignment(useButton, Pos.CENTER);
+        artwork.getChildren().add(useButton);
+
+        sellButton = new Button("Sell");
+        sellButton.getStyleClass().add("btn-sell");
+        sellButton.setVisible(false);
+        sellButton.setManaged(false);
+        sellButton.setOnAction(event -> {
+            System.out.println("[UI] Sell clicked for " + tarotCard.getName());
+            if (sellAction != null) {
+                sellAction.run();
+            }
+        });
+        StackPane.setAlignment(sellButton, Pos.TOP_RIGHT);
+        artwork.getChildren().add(sellButton);
+
+        setOnMouseClicked(event -> {
+            // Owned nodes expose sell controls; shop offers pass a null action.
+            if (useAction != null) {
+                useButton.setVisible(!useButton.isVisible());
+                useButton.setManaged(useButton.isVisible());
+                sellButton.setVisible(!sellButton.isVisible());
+                sellButton.setManaged(sellButton.isVisible());
+                System.out.println("[UI] Joker selected: " + tarotCard.getName()
+                        + " | sellButtonVisible=" + useButton.isVisible());
+            }
+        });
     }
 
     public TarotCards getTarotCard() {

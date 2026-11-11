@@ -145,14 +145,6 @@
     -fx-alignment: center;
 }
 
-.tarot-card-name {
-    -fx-text-fill: white;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-background-color: transparent;
-    -fx-padding: 2px 4px;
-}
-
 .btn-use {
     -fx-font-size: 10px;
     -fx-padding: 3px 10px;
@@ -165,7 +157,7 @@
 }
 
 
-.joker-name {
+.equipment-name {
     -fx-text-fill: white;
     -fx-font-size: 11px;
     -fx-font-weight: bold;

@@ -44,7 +44,7 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
-    private static final int MAX_JOKERS = 2;
+    private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
 
     public GameState() {

@@ -1,6 +1,14 @@
 package com.game.deck.occurrences;
 
 import com.game.deck.model.GameState;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -13,6 +21,15 @@ public class MonologueTrial extends Occurrence {
     private final List<String> availableFragments;
     private final String targetAlignedPattern;
     private final boolean isHighRiskDire;
+
+    public MonologueTrial() {
+        this(
+                "When probability fails, how do you respond?",
+                List.of("I adapt my hand", "through calculated discards", "I accept defeat"),
+                "I adapt my hand through calculated discards",
+                false
+        );
+    }
 
     public MonologueTrial(String prompt, List<String> fragments, String targetPattern, boolean isHighRisk) {
         super("Inner Monologue Trial", "Debate identity and probability to earn rewards.");
@@ -28,6 +45,48 @@ public class MonologueTrial extends Occurrence {
         System.out.println("\n=== [POST-ROUND OCCURRENCE: MONOLOGUE TRIAL] ===");
         System.out.println("PROMPT: \"" + promptQuestion + "\"");
         System.out.println("Available Sentence Fragments: " + availableFragments);
+    }
+
+    @Override
+    public boolean isInteractive() { return true; }
+
+    @Override
+    public Node createView(GameState state, Runnable onComplete) {
+        VBox root = new VBox(12);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+        root.getStyleClass().add("occurrence-trial");
+        Label prompt = new Label(promptQuestion);
+        prompt.getStyleClass().add("occurrence-prompt");
+        prompt.setWrapText(true);
+        Label sentence = new Label("Select fragments in order.");
+        sentence.getStyleClass().add("occurrence-result");
+        List<String> selected = new ArrayList<>();
+        FlowPane fragments = new FlowPane(8, 8);
+        fragments.setAlignment(Pos.CENTER);
+        for (String fragment : availableFragments) {
+            Button button = new Button(fragment);
+            button.getStyleClass().add("occurrence-fragment");
+            button.setOnAction(event -> {
+                selected.add(fragment);
+                button.setDisable(true);
+                sentence.setText(String.join(" ", selected));
+            });
+            fragments.getChildren().add(button);
+        }
+        Button submit = new Button("Submit Trial");
+        submit.getStyleClass().add("btn-primary");
+        submit.setOnAction(event -> {
+            boolean passed = submitSentence(selected, state);
+            sentence.setText(passed ? "Trial passed. Reward granted." : "Trial failed.");
+            submit.setDisable(true);
+            Button continueButton = new Button("Continue to Round");
+            continueButton.getStyleClass().add("btn-primary");
+            continueButton.setOnAction(ignored -> onComplete.run());
+            root.getChildren().add(continueButton);
+        });
+        root.getChildren().addAll(prompt, sentence, fragments, submit);
+        return root;
     }
 
     public boolean submitSentence(List<String> selectedFragments, GameState state) {

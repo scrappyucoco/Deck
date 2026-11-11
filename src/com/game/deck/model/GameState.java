@@ -84,11 +84,7 @@ public class GameState {
         deck.resetFullDeck();
         refillHand();
         System.out.println("[STATE] Round started: ante=" + ante + ", target=" + targetScore
-                + ", hands=" + hands + ", discards=" + discards);
-
-
-
-                
+                + ", hands=" + hands + ", discards=" + discards);                
     }
 
     public void startNextRound() {
@@ -96,12 +92,15 @@ public class GameState {
             throw new IllegalStateException("Cannot start another round while the current round is active");
         }
         ante++;
-        cash += 3; // [CONFIG: TWEAK CASH REWARD HERE]
         startRound(getTargetScoreForAnte(ante), 4, 3);
     }
-
+    
     public void endRound() {
+        // --- ROUND END ---
+        int earned = 3 + handsRemaining;
+        cash += earned;
         roundActive = false;
+        System.out.println("[STATE] Earned $" + earned + " (3 base + " + handsRemaining + " hands remaining).");
         System.out.println("[STATE] Round ended. Shop is now available.");
     }
 

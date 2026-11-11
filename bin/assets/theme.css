@@ -1,6 +1,6 @@
 /* Poker Table Felt Background */
 .poker-table {
-    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #2c533f, #0f1f16);
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #1e3a8a, #0f172a);
     -fx-padding: 35px;
 }
 
@@ -86,7 +86,7 @@
 .btn-primary {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-color: #27ae60;
+    -fx-background-color: #1d4ed8;
     -fx-text-fill: white;
     -fx-padding: 10px 24px;
     -fx-background-radius: 6px;
@@ -95,17 +95,17 @@
 }
 
 .btn-primary:hover {
-    -fx-background-color: #2ecc71;
+    -fx-background-color: #2563eb;
 }
 
 .btn-primary:pressed {
-    -fx-background-color: #1e8449;
+    -fx-background-color: #1e40af;
 }
 
 .btn-secondary {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-color: #566573;
+    -fx-background-color: #334155;
     -fx-text-fill: white;
     -fx-padding: 10px 24px;
     -fx-background-radius: 6px;
@@ -113,7 +113,81 @@
 }
 
 .btn-secondary:hover {
-    -fx-background-color: #718096;
+    -fx-background-color: #475569;
+}
+
+.occurrence-modal-backdrop {
+    -fx-background-color: rgba(15, 23, 42, 0.88);
+    -fx-padding: 30px;
+}
+
+.occurrence-modal {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #1d4ed8;
+    -fx-border-width: 2px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 24, 0.3, 0, 8);
+}
+
+.occurrence-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #bfdbfe;
+}
+
+.occurrence-subtitle,
+.occurrence-description {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+}
+
+.occurrence-card {
+    -fx-padding: 18px;
+    -fx-background-color: #172554;
+    -fx-border-color: #334155;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.occurrence-card:hover {
+    -fx-background-color: #1e3a8a;
+    -fx-border-color: #60a5fa;
+}
+
+.occurrence-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #dbeafe;
+}
+
+.occurrence-trial {
+    -fx-background-color: #172554;
+    -fx-border-color: #3b82f6;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.occurrence-prompt {
+    -fx-font-size: 16px;
+    -fx-font-style: italic;
+    -fx-text-fill: #dbeafe;
+}
+
+.occurrence-result {
+    -fx-text-fill: #93c5fd;
+    -fx-font-weight: bold;
+}
+
+.occurrence-fragment {
+    -fx-background-color: #1e40af;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+
+.occurrence-fragment:hover {
+    -fx-background-color: #2563eb;
 }
 
 .joker-node {

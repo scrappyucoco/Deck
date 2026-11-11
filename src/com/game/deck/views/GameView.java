@@ -42,6 +42,7 @@ public class GameView extends BorderPane {
     private final Map<TarotCards, Button> tarotBuyButtons = new LinkedHashMap<>();
     private boolean firstRoundStarted;
     private boolean shopOpen = true;
+    private StackPane centerLayer;
 
     private final Label scoreLabel = createHeaderLabel("");
     private final Label targetLabel = createHeaderLabel("");
@@ -117,7 +118,7 @@ public class GameView extends BorderPane {
                 ownedTarotCardsContainer, preview, handContainer);
         playArea.setAlignment(Pos.CENTER);
 
-        StackPane centerLayer = new StackPane(playArea, shopPanel);
+        centerLayer = new StackPane(playArea, shopPanel);
         centerLayer.setAlignment(Pos.CENTER);
         shopPanel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         setCenter(centerLayer);
@@ -351,6 +352,22 @@ public class GameView extends BorderPane {
         if (gameState.isRoundActive()) {
             return;
         }
+        if (centerLayer.getChildren().stream().anyMatch(node -> node instanceof OccurrenceSelectionView)) {
+            return;
+        }
+        OccurrenceSelectionView occurrenceView = new OccurrenceSelectionView(gameState, () -> {
+            centerLayer.getChildren().removeIf(node -> node instanceof OccurrenceSelectionView);
+            beginRoundAfterOccurrence();
+        });
+        centerLayer.getChildren().add(occurrenceView);
+        occurrenceView.toFront();
+        startRoundButton.setDisable(true);
+        shopPanel.setVisible(false);
+        shopPanel.setManaged(false);
+        System.out.println("[UI] Pre-round occurrence selection opened.");
+    }
+
+    private void beginRoundAfterOccurrence() {
         if (!firstRoundStarted) {
             gameState.startRound(300, 4, 3);
             firstRoundStarted = true;
@@ -358,7 +375,8 @@ public class GameView extends BorderPane {
             gameState.startNextRound();
         }
         shopOpen = false;
-        System.out.println("[UI] Start Round clicked.");
+        startRoundButton.setDisable(false);
+        System.out.println("[UI] Start Round clicked after occurrence.");
         refreshUI();
     }
 

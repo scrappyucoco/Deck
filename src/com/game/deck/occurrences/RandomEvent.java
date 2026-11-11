@@ -2,6 +2,11 @@ package com.game.deck.occurrences;
 
 import com.game.deck.model.GameState;
 
+/*
+ * RandomEvent is a concrete Occurrence that applies one of two economy effects.
+ * It demonstrates a lightweight event implementation over the Occurrence base
+ * contract and can be registered by a future event/occurrence controller.
+ */
 public class RandomEvent extends Occurrence {
     public RandomEvent() {
         super("Chance Encounter", "A mysterious event alters your upcoming round.");
@@ -9,6 +14,7 @@ public class RandomEvent extends Occurrence {
 
     @Override
     public void execute(GameState state) {
+        // --- EVENT RESOLUTION ---
         double roll = Math.random();
         System.out.println("\n=== [POST-ROUND OCCURRENCE: RANDOM EVENT] ===");
         if (roll > 0.5) {

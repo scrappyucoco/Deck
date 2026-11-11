@@ -1,43 +1,67 @@
 package com.game.deck.model;
 
-public class Card {
-    private final Rank rank;
-    private final Suit suit;
-    private Enhancement enhancement;
+import java.util.Objects;
+
+/*
+ * Card is the model entity for one playable card.
+ * It owns immutable rank/suit identity plus mutable enchantment/debuff state.
+ * The engine package reads its chip and modifier values, while views.CardNode
+ * uses getAssetPath() and the display accessors to render the card.
+ */
+public class Card implements Comparable<Card> {
+    private Rank rank;
+    private Suit suit;
+    private Enchantment enchantment;
     private boolean isDebuffed;
 
     public Card(Rank rank, Suit suit) {
-        this(rank, suit, Enhancement.NONE);
+        this(rank, suit, Enchantment.NONE);
     }
 
-    public Card(Rank rank, Suit suit, Enhancement enhancement) {
-        this.rank = rank;
-        this.suit = suit;
-        this.enhancement = enhancement;
+    public Card(Rank rank, Suit suit, Enchantment enchantment) {
+        this.rank = Objects.requireNonNull(rank, "rank");
+        this.suit = Objects.requireNonNull(suit, "suit");
+        this.enchantment = Objects.requireNonNull(enchantment, "enchantment");
         this.isDebuffed = false;
     }
 
     public int getChipValue() {
+        // Debuffs suppress scoring; Stone replaces the normal rank chip value.
         if (isDebuffed) return 0;
-        if (enhancement == Enhancement.STONE) return 50;
+        if (enchantment == Enchantment.STONE) return 50;
         return rank.getBaseChips();
     }
 
-    // Asset Path Wiring: assets/cards/spade_ace.png
     public String getAssetPath() {
-        return "assets/cards/" + suit.getAssetPrefix() + "_" + rank.getAssetName() + ".png";
+        return "assets/cards/" + suit.getAssetName() + "_" + rank.getAssetName() + ".png";
     }
 
     public Rank getRank() { return rank; }
     public Suit getSuit() { return suit; }
-    public Enhancement getEnhancement() { return enhancement; }
-    public void setEnhancement(Enhancement enhancement) { this.enhancement = enhancement; }
+    public Enchantment getEnchantment() { return enchantment; }
+    public void setEnchantment(Enchantment enchantment) {
+        this.enchantment = Objects.requireNonNull(enchantment, "enchantment");
+    }
+    public void setSuit(Suit suit){
+        this.suit = suit;
+    }
+    public void setRank(Rank rank){
+        this.rank = rank;
+    }
     public boolean isDebuffed() { return isDebuffed; }
     public void setDebuffed(boolean debuffed) { isDebuffed = debuffed; }
 
     @Override
+    public int compareTo(Card other) {
+        // Sort high-to-low by rank, then use enum order for a stable suit order.
+        Objects.requireNonNull(other, "other");
+        int rankComparison = Integer.compare(other.rank.getValue(), rank.getValue());
+        return rankComparison != 0 ? rankComparison : suit.compareTo(other.suit);
+    }
+
+    @Override
     public String toString() {
-        String enhStr = (enhancement != Enhancement.NONE) ? " [" + enhancement.name() + "]" : "";
-        return rank.name() + " of " + suit.name() + enhStr;
+        String enhancement = enchantment != Enchantment.NONE ? " [" + enchantment.name() + "]" : "";
+        return rank.getDisplayName() + " of " + suit.getDisplayName() + enhancement;
     }
 }

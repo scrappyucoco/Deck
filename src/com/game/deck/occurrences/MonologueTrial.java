@@ -3,6 +3,11 @@ package com.game.deck.occurrences;
 import com.game.deck.model.GameState;
 import java.util.List;
 
+/*
+ * MonologueTrial is a concrete Occurrence mini-game that validates a sentence.
+ * It reads fragments from the event model and rewards or penalizes GameState;
+ * the current console/UI controllers decide when to display or submit it.
+ */
 public class MonologueTrial extends Occurrence {
     private final String promptQuestion;
     private final List<String> availableFragments;
@@ -19,12 +24,14 @@ public class MonologueTrial extends Occurrence {
 
     @Override
     public void execute(GameState state) {
+        // --- EVENT PRESENTATION ---
         System.out.println("\n=== [POST-ROUND OCCURRENCE: MONOLOGUE TRIAL] ===");
         System.out.println("PROMPT: \"" + promptQuestion + "\"");
         System.out.println("Available Sentence Fragments: " + availableFragments);
     }
 
     public boolean submitSentence(List<String> selectedFragments, GameState state) {
+        // Join fragments in player order before comparing against the target.
         String builtSentence = String.join(" ", selectedFragments);
         System.out.println("[MONOLOGUE] Built Sentence: \"" + builtSentence + "\"");
 

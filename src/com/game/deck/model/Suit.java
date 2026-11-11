@@ -1,19 +1,46 @@
 package com.game.deck.model;
 
+/*
+ * Suit is the model registry for display symbols, resource prefixes, and color.
+ * Card uses assetName for paths; PokerEvaluator uses the enum as a flush key;
+ * CardNode uses isRed()/getSymbol() for fallback rendering.
+ */
 public enum Suit {
-    CLUBS("Clubs", "clubs"),
-    DIAMONDS("Diamonds", "diamonds"),
-    HEARTS("Hearts", "hearts"),
-    SPADES("Spades", "spades");
+    SPADES("Spades", "♠", "spade", false),
+    HEARTS("Hearts", "♥", "heart", true),
+    DIAMONDS("Diamonds", "♦", "diamond", true),
+    CLUBS("Clubs", "♣", "club", false);
 
     private final String displayName;
-    private final String assetPrefix;
+    private final String symbol;
+    private final String assetName;
+    private final boolean red;
 
-    Suit(String displayName, String assetPrefix) {
+    Suit(String displayName, String symbol, String assetName, boolean red) {
         this.displayName = displayName;
-        this.assetPrefix = assetPrefix;
+        this.symbol = symbol;
+        this.assetName = assetName;
+        this.red = red;
     }
 
-    public String getDisplayName() { return displayName; }
-    public String getAssetPrefix() { return assetPrefix; }
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public String getAssetName() {
+        return assetName;
+    }
+
+    public boolean isRed() {
+        return red;
+    }
+
+    /** Compatibility alias for the original equipment and UI code. */
+    public String getAssetPrefix() {
+        return assetName;
+    }
 }

@@ -3,16 +3,23 @@ package com.game.deck.engine;
 import com.game.deck.model.*;
 import java.util.*;
 
+/*
+ * PokerEvaluator is the pure Engine classifier for played cards.
+ * It reads model Card/Rank/Suit/Enchantment data and returns a PokerHand;
+ * ScoringEngine then applies chips, multipliers, held effects, and Jokers.
+ */
 public class PokerEvaluator {
 
     public static PokerHand evaluate(List<Card> playedCards) {
+        // --- HAND CLASSIFICATION ---
         if (playedCards == null || playedCards.isEmpty()) return PokerHand.HIGH_CARD;
 
         Map<Rank, Integer> rankCounts = new HashMap<>();
         Map<Suit, Integer> suitCounts = new HashMap<>();
 
         for (Card card : playedCards) {
-            if (card.getEnhancement() != Enhancement.STONE) {
+            // Stone cards contribute chips but do not participate in hand identity.
+            if (card.getEnchantment() != Enchantment.STONE) {
                 rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
                 suitCounts.put(card.getSuit(), suitCounts.getOrDefault(card.getSuit(), 0) + 1);
             }
@@ -48,10 +55,11 @@ public class PokerEvaluator {
     }
 
     private static boolean isStraight(List<Card> cards) {
+        // Deduplicate ranks before testing consecutive values, including A-2-3-4-5.
         if (cards.size() < 5) return false;
         List<Integer> values = new ArrayList<>();
         for (Card c : cards) {
-            if (c.getEnhancement() != Enhancement.STONE) {
+            if (c.getEnchantment() != Enchantment.STONE) {
                 if (!values.contains(c.getRank().getValue())) values.add(c.getRank().getValue());
             }
         }

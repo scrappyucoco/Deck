@@ -2,6 +2,11 @@ package com.game.deck.equipment;
 
 import com.game.deck.engine.ScoringContext;
 
+/*
+ * Item is the equipment extension base for Joker socket effects.
+ * Joker owns and triggers Items; concrete Items mutate ScoringContext through
+ * onJokerTrigger(), keeping equipment behavior separate from model entities.
+ */
 public abstract class Item {
     private final String name;
     private final String description;
@@ -17,6 +22,9 @@ public abstract class Item {
         this.assetPath = "assets/items/" + assetName + ".png";
     }
 
+    // --- ITEM EXTENSION CONTRACT ---
+    // Socket a concrete Item with joker.socketItem(new MyItem()); implement
+    // onJokerTrigger(ScoringContext) to define its effect.
     public abstract void onJokerTrigger(ScoringContext ctx);
     public int getTriggerMultiplier() { return 1; }
 

@@ -1,0 +1,95 @@
+package com.game.deck.equipment;
+
+import com.game.deck.model.GameState;
+import com.game.deck.model.Card;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Supplier;
+
+/**
+ * Base contract for Balatro-inspired Tarot consumables.
+ * Concrete cards provide their own effect against the active run state.
+ */
+public abstract class TarotCards {
+    public static final String ASSET_DIRECTORY = "assets/tarotCards/";
+    private static final List<Supplier<? extends TarotCards>> AVAILABLE_TAROT_FACTORIES = List.of(
+        Star::new
+            // Register concrete Tarot cards here, for example: MyTarot::new
+    );
+    private static final Random SHOP_RANDOM = new Random();
+    public static final int DEFAULT_SHOP_COST = 3;
+    public static final int DEFAULT_SELL_VALUE = 1;
+
+    private final String name;
+    private final String description;
+    private final String assetPath;
+    private final int baseShopCost;
+    private final int baseSellValue;
+    private int shopCost;
+    private int sellValue;
+
+    /**
+     * Defines the display metadata shared by all Tarot cards.
+     * assetName is the filename stem under resources/assets/tarotCards/.
+     */
+    protected TarotCards(String name, String description, String assetName) {
+        this(name, description, assetName, DEFAULT_SHOP_COST, DEFAULT_SELL_VALUE);
+    }
+
+    protected TarotCards(String name, String description, String assetName, int shopCost, int sellValue) {
+        this.name = name;
+        this.description = description;
+        this.assetPath = ASSET_DIRECTORY + assetName + ".png";
+        if (shopCost < 0 || sellValue < 0) {
+            throw new IllegalArgumentException("Tarot card prices cannot be negative");
+        }
+        this.baseShopCost = shopCost;
+        this.baseSellValue = sellValue;
+        this.shopCost = shopCost;
+        this.sellValue = sellValue;
+    }
+
+    /**
+     * Applies this Tarot card's effect to the active run.
+     */
+    public final void use(GameState state, List<Card> selecteCards) {
+        applyEffect(state, selecteCards);
+    }
+
+    protected abstract void applyEffect(GameState state, List<Card> selecteCards);
+
+    /**
+     * Creates up to maxOffers distinct instances from the registered Tarot pool.
+     * An empty pool is valid until concrete Tarot cards are registered.
+     */
+    public static List<TarotCards> createShopOffers(int maxOffers) {
+        if (maxOffers < 1) {
+            throw new IllegalArgumentException("The shop must request at least one offer.");
+        }
+        if (AVAILABLE_TAROT_FACTORIES.isEmpty()) {
+            return List.of();
+        }
+
+        List<Supplier<? extends TarotCards>> shuffledFactories =
+                new ArrayList<>(AVAILABLE_TAROT_FACTORIES);
+        Collections.shuffle(shuffledFactories, SHOP_RANDOM);
+
+        int offerCount = Math.min(maxOffers, shuffledFactories.size());
+        List<TarotCards> offers = new ArrayList<>(offerCount);
+        for (int i = 0; i < offerCount; i++) {
+            offers.add(shuffledFactories.get(i).get());
+        }
+        return List.copyOf(offers);
+    }
+
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public String getAssetPath() { return assetPath; }
+    public int getShopCost() { return shopCost; }
+    public int getSellValue() { return sellValue; }
+    protected final int getBaseShopCost() { return baseShopCost; }
+    protected final int getBaseSellValue() { return baseSellValue; }
+}

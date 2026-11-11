@@ -2,6 +2,7 @@ package com.game.deck.views;
 
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.Shop;
+import com.game.deck.equipment.TarotCards;
 import com.game.deck.engine.BasePokerEngine;
 import com.game.deck.engine.ScoringEngine;
 import com.game.deck.model.Card;
@@ -36,7 +37,9 @@ public class GameView extends BorderPane {
     private final GameState gameState;
     private final List<CardNode> activeCardNodes = new ArrayList<>();
     private final List<Joker> shopOffers = new ArrayList<>();
+    private final List<TarotCards> tarotShopOffers = new ArrayList<>();
     private final Map<Joker, Button> shopBuyButtons = new LinkedHashMap<>();
+    private final Map<TarotCards, Button> tarotBuyButtons = new LinkedHashMap<>();
     private boolean firstRoundStarted;
     private boolean shopOpen = true;
 
@@ -49,9 +52,12 @@ public class GameView extends BorderPane {
     private final Label handTypeLabel = new Label();
     private final Label handScorePreviewLabel = new Label();
     private final Label shopMessageLabel = new Label();
+    private final Label tarotShopMessageLabel = new Label();
     private final HBox handContainer = new HBox(10);
     private final HBox ownedJokersContainer = new HBox(15);
+    private final HBox ownedTarotCardsContainer = new HBox(12);
     private final HBox shopOfferContainer = new HBox(12);
+    private final HBox tarotShopOfferContainer = new HBox(12);
     private final VBox shopPanel = new VBox(8);
     private final Button shopButton = new Button("Shop");
     private final Button startRoundButton = new Button("Start Round");
@@ -91,6 +97,11 @@ public class GameView extends BorderPane {
         ownedJokersContainer.setAlignment(Pos.CENTER);
         ownedJokersContainer.setMinHeight(135);
 
+        Label tarotTitle = new Label("Tarot Consumables");
+        tarotTitle.getStyleClass().add("section-title");
+        ownedTarotCardsContainer.setAlignment(Pos.CENTER);
+        ownedTarotCardsContainer.setMinHeight(145);
+
         handTypeLabel.getStyleClass().add("hand-type-label");
         handScorePreviewLabel.getStyleClass().add("hand-score-label");
         VBox preview = new VBox(6, handTypeLabel, handScorePreviewLabel);
@@ -102,7 +113,8 @@ public class GameView extends BorderPane {
         shopPanel.getStyleClass().add("shop-panel");
         buildShopPanel();
 
-        VBox playArea = new VBox(10, jokerTitle, ownedJokersContainer, preview, handContainer);
+        VBox playArea = new VBox(8, jokerTitle, ownedJokersContainer, tarotTitle,
+                ownedTarotCardsContainer, preview, handContainer);
         playArea.setAlignment(Pos.CENTER);
 
         StackPane centerLayer = new StackPane(playArea, shopPanel);
@@ -113,16 +125,18 @@ public class GameView extends BorderPane {
 
     private void buildShopPanel() {
         // --- SHOP OFFER RENDERING ---
-        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-        // Register each concrete Joker as MyJoker::new in Joker.java; this
-        // panel renders up to three instances selected from that full list.
         Label title = new Label("SHOP");
         title.getStyleClass().add("shop-title");
         shopMessageLabel.getStyleClass().add("shop-message");
+        Label tarotTitle = new Label("TAROT CONSUMABLES");
+        tarotTitle.getStyleClass().add("shop-title");
+        tarotShopMessageLabel.getStyleClass().add("shop-message");
 
         shopOfferContainer.setAlignment(Pos.CENTER);
+        tarotShopOfferContainer.setAlignment(Pos.CENTER);
         rerollShopOffers();
-        shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer);
+        shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer,
+                tarotTitle, tarotShopMessageLabel, tarotShopOfferContainer);
     }
 
     private void buildBottomArea() {
@@ -253,6 +267,7 @@ public class GameView extends BorderPane {
         discardsLabel.setText("Discards: " + gameState.getDiscardsRemaining());
         renderHand();
         renderJokers();
+        renderTarotCards();
         updateHandPreview();
         updateShop();
         updateRoundState();
@@ -302,6 +317,22 @@ public class GameView extends BorderPane {
                 event.consume();
             });
             ownedJokersContainer.getChildren().add(node);
+        }
+    }
+
+    private void renderTarotCards() {
+        ownedTarotCardsContainer.getChildren().clear();
+        if (gameState.getOwnedTarotCards().isEmpty()) {
+            Label empty = new Label("No Tarot cards | "
+                    + gameState.getOwnedTarotCards().size() + "/" + gameState.getMaxTarotCards() + " slots");
+            empty.getStyleClass().add("empty-jokers");
+            ownedTarotCardsContainer.getChildren().add(empty);
+            return;
+        }
+
+        for (TarotCards tarotCard : gameState.getOwnedTarotCards()) {
+            ownedTarotCardsContainer.getChildren().add(
+                    new TarotNode(tarotCard, () -> useTarotCard(tarotCard)));
         }
     }
 
@@ -358,18 +389,34 @@ public class GameView extends BorderPane {
                             || gameState.getCash() < offerCost
                             || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
         }
+        for (Map.Entry<TarotCards, Button> entry : tarotBuyButtons.entrySet()) {
+            TarotCards offer = entry.getKey();
+            int offerCost = offer.getShopCost();
+            Button buyButton = entry.getValue();
+            buyButton.setText("Buy " + offer.getName() + " ($" + offerCost + ")");
+            buyButton.setDisable(
+                    !accessible
+                            || gameState.getCash() < offerCost
+                            || gameState.getOwnedTarotCards().size() >= gameState.getMaxTarotCards());
+        }
         shopMessageLabel.setText("Choose an offer | "
                 + gameState.getOwnedJokers().size() + "/" + gameState.getMaxJokers() + " slots used");
+        tarotShopMessageLabel.setText(tarotShopOffers.isEmpty()
+                ? "No Tarot cards are registered yet."
+                : "Choose an offer | " + gameState.getOwnedTarotCards().size()
+                        + "/" + gameState.getMaxTarotCards() + " slots used");
     }
 
     private void rerollShopOffers() {
         shopOffers.clear();
         shopOffers.addAll(Joker.createShopOffers(MAX_SHOP_OFFERS));
+        tarotShopOffers.clear();
+        tarotShopOffers.addAll(TarotCards.createShopOffers(MAX_SHOP_OFFERS));
         renderShopOffers();
     }
 
     private void renderShopOffers() {
-        // Rebuild the offer cards so every label is generated from Joker data.
+        // Rebuild the offer cards from the registered equipment data.
         shopOfferContainer.getChildren().clear();
         shopBuyButtons.clear();
         for (Joker offer : shopOffers) {
@@ -388,12 +435,46 @@ public class GameView extends BorderPane {
             offerCard.setAlignment(Pos.CENTER);
             shopOfferContainer.getChildren().add(offerCard);
         }
+
+        tarotShopOfferContainer.getChildren().clear();
+        tarotBuyButtons.clear();
+        for (TarotCards offer : tarotShopOffers) {
+            Label description = new Label(offer.getDescription());
+            description.getStyleClass().add("shop-message");
+            description.setWrapText(true);
+            description.setMaxWidth(150);
+
+            Button buyButton = new Button();
+            buyButton.getStyleClass().add("btn-primary");
+            buyButton.setOnAction(event -> buyTarotOffer(offer));
+            tarotBuyButtons.put(offer, buyButton);
+
+            VBox offerCard = new VBox(6, new TarotNode(offer), description, buyButton);
+            offerCard.getStyleClass().add("shop-offer");
+            offerCard.setAlignment(Pos.CENTER);
+            tarotShopOfferContainer.getChildren().add(offerCard);
+        }
     }
 
     private void buyShopOffer(Joker offer) {
         System.out.println("[UI] Buy " + offer.getName() + " clicked.");
         if (Shop.purchaseJoker(gameState, offer)) {
             rerollShopOffers();
+            refreshUI();
+        }
+    }
+
+    private void buyTarotOffer(TarotCards offer) {
+        System.out.println("[UI] Buy Tarot " + offer.getName() + " clicked.");
+        if (Shop.purchaseTarotCard(gameState, offer)) {
+            rerollShopOffers();
+            refreshUI();
+        }
+    }
+
+    private void useTarotCard(TarotCards tarotCard) {
+        System.out.println("[UI] Use Tarot " + tarotCard.getName() + " clicked.");
+        if (gameState.useTarotCard(tarotCard)) {
             refreshUI();
         }
     }

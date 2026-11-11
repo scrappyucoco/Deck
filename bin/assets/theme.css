@@ -130,6 +130,21 @@
     -fx-font-size: 11px;
 }
 
+.tarot-node {
+    -fx-background-color: rgba(65, 36, 90, 0.75);
+    -fx-border-color: #b084cc;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.tarot-placeholder {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+}
+
 .joker-name {
     -fx-text-fill: white;
     -fx-font-size: 11px;

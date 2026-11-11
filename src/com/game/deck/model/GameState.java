@@ -260,6 +260,19 @@ public class GameState {
         return joker != null && sellJoker(joker, joker.getSellValue());
     }
 
+    public boolean sellTarotCard(TarotCards tarotCards, int sellValue) {
+        if (tarotCards == null || sellValue < 0 || !ownedTarotCards.remove(tarotCards)) {
+            return false;
+        }
+        addCash(sellValue);
+        System.out.println("[JOKER] Sold " + tarotCards.getName() + " for $" + sellValue + ".");
+        return true;
+    }
+
+    public boolean sellTarotCard(TarotCards tarotCards) {
+        return tarotCards != null && sellTarotCard(tarotCards, tarotCards.getSellValue());
+    }
+
     public void moveJoker(Joker joker, int targetIndex) {
         // Reordering changes left-to-right Stage 4 trigger order.
         int sourceIndex = ownedJokers.indexOf(joker);

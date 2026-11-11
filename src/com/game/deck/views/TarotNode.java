@@ -21,12 +21,13 @@ import java.util.Objects;
  */
 public class TarotNode extends VBox {
     private final TarotCards tarotCard;
+    private final Button sellButton;
 
     public TarotNode(TarotCards tarotCard) {
-        this(tarotCard, null);
+        this(tarotCard, null, null);
     }
 
-    public TarotNode(TarotCards tarotCard, Runnable useAction) {
+    public TarotNode(TarotCards tarotCard, Runnable useAction, Runnable sellAction) {
         this.tarotCard = Objects.requireNonNull(tarotCard, "tarotCard");
         setAlignment(Pos.CENTER);
         setSpacing(5);
@@ -71,11 +72,26 @@ public class TarotNode extends VBox {
         StackPane.setAlignment(useButton, Pos.BOTTOM_CENTER);
         artwork.getChildren().add(useButton);
 
+        sellButton = new Button("Sell");
+        sellButton.getStyleClass().add("btn-sell");
+        sellButton.setVisible(false);
+        sellButton.setManaged(false);
+        sellButton.setOnAction(event -> {
+            System.out.println("[UI] Sell clicked for " + tarotCard.getName());
+            if (sellAction != null) {
+                sellAction.run();
+            }
+        });
+        StackPane.setAlignment(sellButton, Pos.TOP_RIGHT);
+        artwork.getChildren().add(sellButton);
+
         setOnMouseClicked(event -> {
             // Owned nodes expose sell controls; shop offers pass a null action.
             if (useAction != null) {
                 useButton.setVisible(!useButton.isVisible());
                 useButton.setManaged(useButton.isVisible());
+                sellButton.setVisible(!sellButton.isVisible());
+                sellButton.setManaged(sellButton.isVisible());
                 System.out.println("[UI] Joker selected: " + tarotCard.getName()
                         + " | sellButtonVisible=" + useButton.isVisible());
             }

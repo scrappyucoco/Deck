@@ -9,8 +9,8 @@ import java.util.Objects;
  * uses getAssetPath() and the display accessors to render the card.
  */
 public class Card implements Comparable<Card> {
-    private final Rank rank;
-    private final Suit suit;
+    private Rank rank;
+    private Suit suit;
     private Enchantment enchantment;
     private boolean isDebuffed;
 
@@ -41,6 +41,12 @@ public class Card implements Comparable<Card> {
     public Enchantment getEnchantment() { return enchantment; }
     public void setEnchantment(Enchantment enchantment) {
         this.enchantment = Objects.requireNonNull(enchantment, "enchantment");
+    }
+    public void setSuit(Suit suit){
+        this.suit = suit;
+    }
+    public void setRank(Rank rank){
+        this.rank = rank;
     }
     public boolean isDebuffed() { return isDebuffed; }
     public void setDebuffed(boolean debuffed) { isDebuffed = debuffed; }

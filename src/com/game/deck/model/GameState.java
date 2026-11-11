@@ -225,11 +225,11 @@ public class GameState {
         return true;
     }
 
-    public boolean useTarotCard(TarotCards tarotCard) {
+    public boolean useTarotCard(TarotCards tarotCard, List<Card> selectedCards) {
         if (tarotCard == null || !ownedTarotCards.contains(tarotCard)) {
             return false;
         }
-        tarotCard.use(this);
+        tarotCard.use(this, selectedCards);
         ownedTarotCards.remove(tarotCard);
         System.out.println("[TAROT] Used " + tarotCard.getName() + ".");
         return true;

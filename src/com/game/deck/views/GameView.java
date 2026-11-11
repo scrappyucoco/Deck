@@ -474,7 +474,7 @@ public class GameView extends BorderPane {
 
     private void useTarotCard(TarotCards tarotCard) {
         System.out.println("[UI] Use Tarot " + tarotCard.getName() + " clicked.");
-        if (gameState.useTarotCard(tarotCard)) {
+        if (gameState.useTarotCard(tarotCard, getSelectedCards())) {
             refreshUI();
         }
     }

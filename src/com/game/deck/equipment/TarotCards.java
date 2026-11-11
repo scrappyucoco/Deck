@@ -1,6 +1,7 @@
 package com.game.deck.equipment;
 
 import com.game.deck.model.GameState;
+import com.game.deck.model.Card;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
 public abstract class TarotCards {
     public static final String ASSET_DIRECTORY = "assets/tarotCards/";
     private static final List<Supplier<? extends TarotCards>> AVAILABLE_TAROT_FACTORIES = List.of(
+        Star::new
             // Register concrete Tarot cards here, for example: MyTarot::new
     );
     private static final Random SHOP_RANDOM = new Random();
@@ -53,11 +55,11 @@ public abstract class TarotCards {
     /**
      * Applies this Tarot card's effect to the active run.
      */
-    public final void use(GameState state) {
-        applyEffect(state);
+    public final void use(GameState state, List<Card> selecteCards) {
+        applyEffect(state, selecteCards);
     }
 
-    protected abstract void applyEffect(GameState state);
+    protected abstract void applyEffect(GameState state, List<Card> selecteCards);
 
     /**
      * Creates up to maxOffers distinct instances from the registered Tarot pool.

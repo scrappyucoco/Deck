@@ -20,7 +20,10 @@ public class TheOddOne extends Joker {
     protected void applyBaseEffect(ScoringContext ctx) {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         // Change 4.0 to tune this Joker's additive multiplier effect.
-        if (ctx.hasPlayedSuit(Suit.DIAMONDS)) {
+        boolean hasValidCard = ctx.getPlayedCards().stream()
+                .anyMatch(card -> card.getRank().isOdd());
+
+        if (hasValidCard) {
             ctx.addMult(5.0);
         }
     }

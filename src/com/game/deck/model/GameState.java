@@ -1,6 +1,7 @@
 package com.game.deck.model;
 
 import com.game.deck.equipment.Joker;
+import com.game.deck.equipment.TarotCards;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +9,8 @@ import java.util.List;
 
 /*
  * GameState is the central Model aggregate for a run and its active round.
- * It owns the deck, hand, score resources, ante progression, and owned Jokers.
+ * It owns the deck, hand, score resources, ante progression, Jokers, and Tarot
+ * consumables.
  * GameView invokes these domain methods; Shop and occurrences use the same
  * validated API without depending on JavaFX classes.
  */
@@ -41,13 +43,16 @@ public class GameState {
     private final Deck deck;
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
+    private final List<TarotCards> ownedTarotCards;
     private static final int MAX_JOKERS = 2;
+    private static final int MAX_TAROT_CARDS = 2;
 
     public GameState() {
         // --- RUN INITIALIZATION ---
         this.deck = new Deck();
         this.hand = new ArrayList<>();
         this.ownedJokers = new ArrayList<>();
+        this.ownedTarotCards = new ArrayList<>();
         this.maxHandSize = 8;
         startNewRun();
     }
@@ -60,6 +65,7 @@ public class GameState {
         this.currentScore = 0;
         this.targetScore = getTargetScoreForAnte(ante);
         this.hand.clear();
+        this.ownedTarotCards.clear();
         deck.resetFullDeck();
         System.out.println("[STATE] New run ready. Shop is open before the first round.");
     }
@@ -200,8 +206,33 @@ public class GameState {
     public boolean isRoundActive() { return roundActive; }
     public boolean isShopAccessible() { return !roundActive; }
     public int getMaxJokers() { return MAX_JOKERS; }
+    public int getMaxTarotCards() { return MAX_TAROT_CARDS; }
     public List<Joker> getOwnedJokers() {
         return Collections.unmodifiableList(ownedJokers);
+    }
+
+    public List<TarotCards> getOwnedTarotCards() {
+        return Collections.unmodifiableList(ownedTarotCards);
+    }
+
+    public boolean addTarotCard(TarotCards tarotCard) {
+        if (tarotCard == null || ownedTarotCards.size() >= MAX_TAROT_CARDS) {
+            return false;
+        }
+        ownedTarotCards.add(tarotCard);
+        System.out.println("[TAROT] Added " + tarotCard.getName() + " to consumable slot "
+                + ownedTarotCards.size() + "/" + MAX_TAROT_CARDS);
+        return true;
+    }
+
+    public boolean useTarotCard(TarotCards tarotCard, List<Card> selectedCards) {
+        if (tarotCard == null || !ownedTarotCards.contains(tarotCard)) {
+            return false;
+        }
+        tarotCard.use(this, selectedCards);
+        ownedTarotCards.remove(tarotCard);
+        System.out.println("[TAROT] Used " + tarotCard.getName() + ".");
+        return true;
     }
 
     public boolean addJoker(Joker joker) {

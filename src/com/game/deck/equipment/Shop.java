@@ -41,4 +41,33 @@ public final class Shop {
         System.out.println("[SHOP] Purchased " + joker.getName() + " for $" + cost + ".");
         return true;
     }
+
+    public static boolean purchaseTarotCard(GameState state, TarotCards tarotCard) {
+        if (state == null || !state.isShopAccessible()) {
+            System.out.println("[SHOP] Tarot purchase rejected: shop is unavailable.");
+            return false;
+        }
+        if (tarotCard == null) {
+            System.out.println("[SHOP] Tarot purchase rejected: invalid Tarot card.");
+            return false;
+        }
+        if (state.getOwnedTarotCards().size() >= state.getMaxTarotCards()) {
+            System.out.println("[SHOP] Tarot purchase rejected: consumable slots are full.");
+            return false;
+        }
+
+        int cost = tarotCard.getShopCost();
+        if (!state.deductCash(cost)) {
+            System.out.println("[SHOP] Tarot purchase rejected: insufficient cash.");
+            return false;
+        }
+        if (!state.addTarotCard(tarotCard)) {
+            state.addCash(cost);
+            System.out.println("[SHOP] Tarot purchase rejected: card could not be added.");
+            return false;
+        }
+
+        System.out.println("[SHOP] Purchased " + tarotCard.getName() + " for $" + cost + ".");
+        return true;
+    }
 }

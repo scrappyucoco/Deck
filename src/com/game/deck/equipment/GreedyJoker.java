@@ -12,7 +12,7 @@ public class GreedyJoker extends Joker {
     public GreedyJoker() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         //(name, description, assetName, shopCost, sellValue)
-        super("The Greedy", "+5 Mult when a Diamond Suit is played", "joker_2", 4, 3);
+        super("The Odd One", "+5 Mult for each Odd-Numbered Cart is played", "joker_2", 4, 3);
     }
 
     //[JOKER ABILITIES HERE]

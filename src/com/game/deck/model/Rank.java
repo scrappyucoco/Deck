@@ -49,4 +49,11 @@ public enum Rank {
     public String getAssetName() {
         return assetName;
     }
+
+    public boolean isOdd() {
+        return switch (this) {
+            case THREE, FIVE, SEVEN, NINE, JACK, QUEEN, KING, ACE -> true;
+            default -> false;
+        };
+    }
 }

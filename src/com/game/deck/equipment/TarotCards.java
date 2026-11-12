@@ -1,5 +1,10 @@
 package com.game.deck.equipment;
 
+/**
+ * Contains the TarotCards source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 import com.game.deck.model.Card;
 
@@ -39,6 +44,9 @@ public abstract class TarotCards {
         this(name, description, assetName, DEFAULT_SHOP_COST, DEFAULT_SELL_VALUE);
     }
 
+    /**
+     * Performs the taro\1 \2ards operation.
+     */
     protected TarotCards(String name, String description, String assetName, int shopCost, int sellValue) {
         this.name = name;
         this.description = description;
@@ -59,6 +67,9 @@ public abstract class TarotCards {
         applyEffect(state, selecteCards);
     }
 
+    /**
+     * Performs the appl\1 \2ffect operation.
+     */
     protected abstract void applyEffect(GameState state, List<Card> selecteCards);
 
     /**
@@ -85,11 +96,32 @@ public abstract class TarotCards {
         return List.copyOf(offers);
     }
 
+    /**
+     * Performs the ge\1 \2ame operation.
+     */
     public String getName() { return name; }
+    /**
+     * Performs the ge\1 \2escription operation.
+     */
     public String getDescription() { return description; }
+    /**
+     * Performs the ge\1 \2sse\1 \2ath operation.
+     */
     public String getAssetPath() { return assetPath; }
+    /**
+     * Performs the ge\1 \2ho\1 \2ost operation.
+     */
     public int getShopCost() { return shopCost; }
+    /**
+     * Performs the ge\1 \2el\1 \2alue operation.
+     */
     public int getSellValue() { return sellValue; }
+    /**
+     * Performs the ge\1 \2as\1 \2ho\1 \2ost operation.
+     */
     protected final int getBaseShopCost() { return baseShopCost; }
+    /**
+     * Performs the ge\1 \2as\1 \2el\1 \2alue operation.
+     */
     protected final int getBaseSellValue() { return baseSellValue; }
 }

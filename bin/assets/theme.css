@@ -1,7 +1,146 @@
 /* Poker Table Felt Background */
 .poker-table {
-    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #2c533f, #0f1f16);
-    -fx-padding: 35px;
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #1e3a8a, #0f172a);
+    -fx-padding: 40px;
+}
+
+.scoreboard-panel {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #1d4ed8;
+    -fx-border-width: 0 2px 0 0;
+    -fx-min-width: 300px;
+    -fx-padding: 20px 14px;
+    -fx-spacing: 15px;
+    -fx-pref-height: 10000px;
+    -fx-max-height: Infinity;
+}
+
+.scoreboard-card {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-border-radius: 8px;
+    -fx-padding: 12px;
+    -fx-min-width: 250px;
+}
+
+.scoreboard-caption,
+.resource-caption {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #94a3b8;
+}
+
+.score-target {
+    -fx-font-size: 23px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #60a5fa;
+}
+
+.score-current {
+    -fx-font-size: 23px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #86efac;
+}
+
+.cash-card {
+    -fx-background-color: rgba(120, 85, 0, 0.34);
+    -fx-border-color: #facc15;
+    -fx-padding: 15px 10px 25px 10px;
+}
+
+.cash-card .header-stat {
+    -fx-font-size: 22px;
+    -fx-text-fill: #fde047;
+}
+
+.resource-badge {
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 10px;
+    -fx-min-width: 100px;
+}
+
+.resource-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e2e8f0;
+}
+
+.score-preview-card {
+    -fx-background-color: rgba(0, 0, 0, 0.48);
+    -fx-background-radius: 9px;
+    -fx-border-color: #334155;
+    -fx-border-radius: 9px;
+    -fx-padding: 12px;
+}
+
+.score-preview-card .hand-type-label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #f8fafc;
+}
+
+.score-preview-card .hand-score-label {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #facc15;
+}
+
+.hand-action-bar {
+    -fx-padding: 14px 20px;
+    -fx-alignment: center;
+}
+
+.play-hand-button {
+    -fx-font-size: 18px;
+    -fx-padding: 12px 38px;
+    -fx-background-color: #16a34a;
+    -fx-min-width: 260px;
+    -fx-min-height: 58px;
+}
+
+.play-hand-button:hover {
+    -fx-background-color: #22c55e;
+}
+
+.btn-danger {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 18px;
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #ef4444;
+}
+
+.scoreboard-shop-button {
+    -fx-background-color: #facc158a;
+    -fx-text-fill: rgb(248, 248, 248);
+    -fx-font-weight: bold;
+    -fx-padding: 9px 24px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.scoreboard-shop-button:hover {
+    -fx-background-color: #ffe06683;
+}
+
+.equipment-row {
+    -fx-alignment: center;
+    -fx-spacing: 24px;
+}
+
+.equipment-slot {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-padding: 6px;
 }
 
 /* Header & Subtitle Typography */
@@ -86,7 +225,7 @@
 .btn-primary {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-color: #27ae60;
+    -fx-background-color: #1d4ed8;
     -fx-text-fill: white;
     -fx-padding: 10px 24px;
     -fx-background-radius: 6px;
@@ -95,17 +234,17 @@
 }
 
 .btn-primary:hover {
-    -fx-background-color: #2ecc71;
+    -fx-background-color: #2563eb;
 }
 
 .btn-primary:pressed {
-    -fx-background-color: #1e8449;
+    -fx-background-color: #1e40af;
 }
 
 .btn-secondary {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-background-color: #566573;
+    -fx-background-color: #334155;
     -fx-text-fill: white;
     -fx-padding: 10px 24px;
     -fx-background-radius: 6px;
@@ -113,7 +252,85 @@
 }
 
 .btn-secondary:hover {
-    -fx-background-color: #718096;
+    -fx-background-color: #475569;
+}
+
+.occurrence-modal-backdrop {
+    -fx-background-color: rgba(15, 23, 42, 0.88);
+    -fx-padding: 30px;
+}
+
+.occurrence-modal {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #1d4ed8;
+    -fx-border-width: 2px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 24, 0.3, 0, 8);
+}
+
+.occurrence-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #bfdbfe;
+}
+
+.occurrence-subtitle,
+.occurrence-description {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+}
+
+.occurrence-card {
+    -fx-padding: 18px;
+    -fx-min-width: 170px;
+    -fx-pref-width: 190px;
+    -fx-min-height: 260px;
+    -fx-pref-height: 280px;
+    -fx-background-color: #172554;
+    -fx-border-color: #334155;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.occurrence-card:hover {
+    -fx-background-color: #1e3a8a;
+    -fx-border-color: #60a5fa;
+}
+
+.occurrence-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #dbeafe;
+}
+
+.occurrence-trial {
+    -fx-background-color: #172554;
+    -fx-border-color: #3b82f6;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.occurrence-prompt {
+    -fx-font-size: 16px;
+    -fx-font-style: italic;
+    -fx-text-fill: #dbeafe;
+}
+
+.occurrence-result {
+    -fx-text-fill: #93c5fd;
+    -fx-font-weight: bold;
+}
+
+.occurrence-fragment {
+    -fx-background-color: #1e40af;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+
+.occurrence-fragment:hover {
+    -fx-background-color: #2563eb;
 }
 
 .joker-node {
@@ -166,9 +383,38 @@
 }
 
 .btn-sell {
-    -fx-font-size: 10px;
-    -fx-padding: 3px 6px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 9px 18px;
     -fx-background-color: #c0392b;
     -fx-text-fill: white;
+    -fx-background-radius: 6px;
     -fx-cursor: hand;
+}
+
+.btn-sell:hover,
+.btn-use:hover {
+    -fx-background-color: #2563eb;
+}
+
+.btn-use {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 9px 18px;
+    -fx-background-color: #1d4ed8;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+/* Hover descriptions for owned and shop equipment cards. */
+.equipment-tooltip {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8px;
+    -fx-border-color: #60a5fa;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #f8fafc;
 }

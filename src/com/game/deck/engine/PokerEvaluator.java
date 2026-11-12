@@ -1,5 +1,10 @@
 package com.game.deck.engine;
 
+/**
+ * Contains the PokerEvaluator source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.*;
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.FourFingers;
@@ -14,6 +19,9 @@ public class PokerEvaluator {
     private static int MinimumOfCards = 5;
     private static final int DEFFAULT_MINIMUM = 5;
 
+    /**
+     * Performs the evaluate operation.
+     */
     public static PokerHand evaluate(List<Card> playedCards, List<Joker> activeJokers) {
         // --- HAND CLASSIFICATION ---
         if (playedCards == null || playedCards.isEmpty()) return PokerHand.HIGH_CARD;

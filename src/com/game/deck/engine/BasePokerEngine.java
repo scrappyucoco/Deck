@@ -1,5 +1,10 @@
 package com.game.deck.engine;
 
+/**
+ * Contains the BasePokerEngine source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
@@ -31,6 +36,9 @@ public final class BasePokerEngine {
         public final double mult;
         public final long finalScore;
 
+    /**
+     * Performs the scor\1 \2esult operation.
+     */
         public ScoreResult(PokerHand handType, long baseChips, long cardChips, double mult) {
             this.handType = handType;
             this.baseChips = baseChips;
@@ -41,10 +49,16 @@ public final class BasePokerEngine {
         }
     }
 
+    /**
+     * Performs the evaluat\1 \2n\1 \2core operation.
+     */
     public static ScoreResult evaluateAndScore(List<Card> playedCards) {
         return evaluateAndScore(playedCards, null);
     }
 
+    /**
+     * Performs the evaluat\1 \2n\1 \2core operation.
+     */
     public static ScoreResult evaluateAndScore(List<Card> playedCards, GameState gameState) {
         // --- INPUT NORMALIZATION ---
         if (playedCards == null || playedCards.isEmpty()) {

@@ -1,5 +1,10 @@
 package com.game.deck.equipment;
 
+/**
+ * Contains the Shop source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 
 /*
@@ -12,6 +17,9 @@ public final class Shop {
     private Shop() {
     }
 
+    /**
+     * Performs the purchas\1 \2oker operation.
+     */
     public static boolean purchaseJoker(GameState state, Joker joker) {
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Pass any registered Joker instance; getShopCost() supplies its price.
@@ -42,6 +50,9 @@ public final class Shop {
         return true;
     }
 
+    /**
+     * Performs the purchas\1 \2aro\1 \2ard operation.
+     */
     public static boolean purchaseTarotCard(GameState state, TarotCards tarotCard) {
         if (state == null || !state.isShopAccessible()) {
             System.out.println("[SHOP] Tarot purchase rejected: shop is unavailable.");

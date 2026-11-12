@@ -1,5 +1,10 @@
 package com.game.deck.equipment;
 
+/**
+ * Contains the Joker source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.engine.ScoringContext;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,6 +73,9 @@ public abstract class Joker {
         this.sellValue = sellValue;
     }
 
+    /**
+     * Performs the socke\1 \2tem operation.
+     */
     public boolean socketItem(Item item) {
         // --- SOCKET MANAGEMENT ---
         if (sockets.size() < MAX_SOCKETS) {
@@ -79,6 +87,9 @@ public abstract class Joker {
         return false;
     }
 
+    /**
+     * Performs the evaluate operation.
+     */
     public void evaluate(ScoringContext ctx) {
         // --- AUTHORITATIVE TRIGGER ---
         int repeatTimes = 1;
@@ -205,10 +216,25 @@ public abstract class Joker {
         return value;
     }
 
+    /**
+     * Performs the appl\1 \2as\1 \2ffect operation.
+     */
     protected abstract void applyBaseEffect(ScoringContext ctx);
 
+    /**
+     * Performs the ge\1 \2ame operation.
+     */
     public String getName() { return name; }
+    /**
+     * Performs the ge\1 \2escription operation.
+     */
     public String getDescription() { return description; }
+    /**
+     * Performs the ge\1 \2ockets operation.
+     */
     public List<Item> getSockets() { return Collections.unmodifiableList(sockets); }
+    /**
+     * Performs the ge\1 \2sse\1 \2ath operation.
+     */
     public String getAssetPath() { return assetPath; }
 }

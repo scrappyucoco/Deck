@@ -1,5 +1,10 @@
 package com.game.deck.views;
 
+/**
+ * Contains the CardNode source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
 
@@ -22,17 +27,23 @@ import java.util.Objects;
  * text/enchantment state, and exposes selection state to GameView controllers.
  */
 public class CardNode extends StackPane {
-    private static final double CARD_WIDTH = 90;
-    private static final double CARD_HEIGHT = 130;
+    public static final double CARD_WIDTH = 150.0;
+    public static final double CARD_HEIGHT = 210.0;
     private static final Rectangle2D CARD_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
 
     private final Card card;
     private boolean selected;
 
+    /**
+     * Performs the car\1 \2ode operation.
+     */
     public CardNode(Card card) {
         this(card, card.getAssetPath());
     }
 
+    /**
+     * Performs the car\1 \2ode operation.
+     */
     public CardNode(Card card, String imagePath) {
         // --- CARD VISUAL CONSTRUCTION ---
         this.card = Objects.requireNonNull(card, "card");
@@ -102,10 +113,16 @@ public class CardNode extends StackPane {
         return null;
     }
 
+    /**
+     * Performs the toggl\1 \2election operation.
+     */
     public void toggleSelection() {
         setSelected(!selected);
     }
 
+    /**
+     * Performs the se\1 \2elected operation.
+     */
     public void setSelected(boolean selected) {
         // --- SELECTION STATE ---
         if (this.selected == selected) {
@@ -127,10 +144,16 @@ public class CardNode extends StackPane {
                 selected);
     }
 
+    /**
+     * Performs the ge\1 \2ard operation.
+     */
     public Card getCard() {
         return card;
     }
 
+    /**
+     * Performs the i\1 \2elected operation.
+     */
     public boolean isSelected() {
         return selected;
     }

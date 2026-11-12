@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the Enchantment source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 /*
  * Enchantment is the model registry of card modifiers and their UI metadata.
  * ScoringEngine interprets these values during the four-stage score pipeline,
@@ -27,6 +32,12 @@ public enum Enchantment {
         this.overlayAssetPath = overlayAssetPath;
     }
 
+    /**
+     * Performs the ge\1 \2escription operation.
+     */
     public String getDescription() { return description; }
+    /**
+     * Performs the ge\1 \2verla\1 \2sse\1 \2ath operation.
+     */
     public String getOverlayAssetPath() { return overlayAssetPath; }
 }

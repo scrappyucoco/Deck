@@ -1,10 +1,17 @@
 package com.game.deck.views;
 
+/**
+ * Contains the JokerNode source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -23,18 +30,35 @@ import java.net.URISyntaxException;
  * and participates in JavaFX drag-and-drop ordering managed by GameView.
  */
 public class JokerNode extends StackPane {
+    public static final double CARD_WIDTH = 150.0;
+    public static final double CARD_HEIGHT = 210.0;
+    private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
     private final Joker joker;
     private final Button sellButton;
 
+    /**
+     * Performs the joke\1 \2ode operation.
+     */
     public JokerNode(Joker joker) {
         this(joker, null);
     }
 
+    /**
+     * Performs the joke\1 \2ode operation.
+     */
     public JokerNode(Joker joker, Runnable sellAction) {
         // --- JOKER VISUAL CONSTRUCTION ---
         this.joker = joker;
-        setPrefSize(100, 130);
+        setMinSize(CARD_WIDTH, CARD_HEIGHT);
+        setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+        setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         getStyleClass().add("joker-node");
+        Tooltip tooltip = new Tooltip(joker.getName() + "\n" + joker.getDescription());
+        tooltip.setWrapText(true);
+        tooltip.setPrefWidth(240);
+        tooltip.setShowDelay(javafx.util.Duration.millis(250));
+        tooltip.getStyleClass().add("equipment-tooltip");
+        Tooltip.install(this, tooltip);
 
         Image image = loadImage(joker.getAssetPath());
         if (image == null) {
@@ -42,8 +66,9 @@ public class JokerNode extends StackPane {
         }
         if (image != null) {
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(getPrefWidth());
-            imageView.setFitHeight(getPrefHeight());
+            imageView.setViewport(SPRITE_VIEWPORT);
+            imageView.setFitWidth(CARD_WIDTH);
+            imageView.setFitHeight(CARD_HEIGHT);
             imageView.setPreserveRatio(true);
             imageView.setSmooth(false);
             getChildren().add(imageView);
@@ -174,6 +199,9 @@ public class JokerNode extends StackPane {
         }
     }
 
+    /**
+     * Performs the ge\1 \2oker operation.
+     */
     public Joker getJoker() {
         return joker;
     }

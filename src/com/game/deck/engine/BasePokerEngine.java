@@ -61,7 +61,7 @@ public final class BasePokerEngine {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
 
-        PokerHand handType = PokerEvaluator.evaluate(validCards);
+        PokerHand handType = PokerEvaluator.evaluate(validCards, gameState.getOwnedJokers());
         ScoringContext context = new ScoringContext(
                 handType.getChips(), handType.getMult(), handType, gameState, true, validCards);
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]

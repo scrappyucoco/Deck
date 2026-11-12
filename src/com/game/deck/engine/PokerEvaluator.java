@@ -1,6 +1,8 @@
 package com.game.deck.engine;
 
 import com.game.deck.model.*;
+import com.game.deck.equipment.Joker;
+import com.game.deck.equipment.FourFingers;
 import java.util.*;
 
 /*
@@ -9,8 +11,10 @@ import java.util.*;
  * ScoringEngine then applies chips, multipliers, held effects, and Jokers.
  */
 public class PokerEvaluator {
+    private static int MinimumOfCards = 5;
+    private static final int DEFFAULT_MINIMUM = 5;
 
-    public static PokerHand evaluate(List<Card> playedCards) {
+    public static PokerHand evaluate(List<Card> playedCards, List<Joker> activeJokers) {
         // --- HAND CLASSIFICATION ---
         if (playedCards == null || playedCards.isEmpty()) return PokerHand.HIGH_CARD;
 
@@ -25,6 +29,7 @@ public class PokerEvaluator {
             }
         }
 
+        CheckFourFingers(activeJokers);
         boolean isFlush = isFlush(playedCards, suitCounts);
         boolean isStraight = isStraight(playedCards);
 
@@ -48,15 +53,15 @@ public class PokerEvaluator {
     }
 
     private static boolean isFlush(List<Card> cards, Map<Suit, Integer> suitCounts) {
-        if (cards.size() < 5) return false;
+        if (cards.size() < MinimumOfCards) return false;
         int maxSuit = 0;
         for (int count : suitCounts.values()) maxSuit = Math.max(maxSuit, count);
-        return maxSuit >= 5;
+        return maxSuit >= MinimumOfCards;
     }
 
     private static boolean isStraight(List<Card> cards) {
         // Deduplicate ranks before testing consecutive values, including A-2-3-4-5.
-        if (cards.size() < 5) return false;
+        if (cards.size() < MinimumOfCards) return false;
         List<Integer> values = new ArrayList<>();
         for (Card c : cards) {
             if (c.getEnchantment() != Enchantment.STONE) {
@@ -64,12 +69,30 @@ public class PokerEvaluator {
             }
         }
         Collections.sort(values);
-        if (values.size() < 5) return false;
+        if (values.size() < MinimumOfCards) return false;
 
-        for (int i = 0; i <= values.size() - 5; i++) {
-            if (values.get(i + 4) - values.get(i) == 4) return true;
+        int minimumDifference = MinimumOfCards-1;
+        for (int i = 0; i <= values.size() - MinimumOfCards; i++) {
+            if (values.get(i + minimumDifference) - values.get(i) == minimumDifference) return true;
         }
         // Ace-low straight check (A, 2, 3, 4, 5)
-        return values.contains(14) && values.contains(2) && values.contains(3) && values.contains(4) && values.contains(5);
+        if(values.contains(14)){
+            for(int i = 1; i < values.size()-1; i++){
+                if(values.get(i) > MinimumOfCards)
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static void CheckFourFingers(List<Joker> activeJokers){
+        for(Joker joker: activeJokers){
+            if(joker instanceof FourFingers){
+                MinimumOfCards = ((FourFingers) joker).GetMinimumOfCards();
+                return;
+            }
+        }
+        MinimumOfCards = DEFFAULT_MINIMUM;
     }
 }

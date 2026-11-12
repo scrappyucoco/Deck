@@ -84,14 +84,7 @@ public class PokerEvaluator {
             if (values.get(i + minimumDifference) - values.get(i) == minimumDifference) return true;
         }
         // Ace-low straight check (A, 2, 3, 4, 5)
-        if(values.contains(14)){
-            for(int i = 1; i < values.size()-1; i++){
-                if(values.get(i) > MinimumOfCards)
-                    return false;
-            }
-            return true;
-        }
-        return false;
+        return values.get(MinimumOfCards-2) == MinimumOfCards && values.contains(14);
     }
 
     private static void CheckFourFingers(List<Joker> activeJokers){

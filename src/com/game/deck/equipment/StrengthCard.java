@@ -13,12 +13,12 @@ import java.util.List;
 /**
  * Represents the star in the game's model, engine, equipment, occurrence, or view layer.
  */
-public class Strength extends TarotCards{
+public class StrengthCard extends TarotCards{
     private final int MAX_NUMBER_CARDS = 2;
     /**
      * Performs the star operation.
      */
-    public Strength(){
+    public StrengthCard(){
         super("Strength", "Increase the rank of 2 Cards", "star_placeholder", 4, 3);
     }
 

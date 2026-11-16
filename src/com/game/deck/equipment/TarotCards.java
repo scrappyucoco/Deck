@@ -22,7 +22,8 @@ public abstract class TarotCards {
     public static final String ASSET_DIRECTORY = "assets/tarotCards/";
     private static final List<Supplier<? extends TarotCards>> AVAILABLE_TAROT_FACTORIES = List.of(
         StarCard::new,
-        StrengthCard::new
+        StrengthCard::new,
+        WeaknessCard::new
             // Register concrete Tarot cards here, for example: MyTarot::new
     );
     private static final Random SHOP_RANDOM = new Random();

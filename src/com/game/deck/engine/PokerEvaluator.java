@@ -34,6 +34,12 @@ public class PokerEvaluator {
             if (card.getEnchantment() != Enchantment.STONE) {
                 rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
                 suitCounts.put(card.getSuit(), suitCounts.getOrDefault(card.getSuit(), 0) + 1);
+                if(card.getEnchantment() == Enchantment.WILD){
+                    for(Suit suit: Suit.values()){
+                        if(suit != card.getSuit())
+                            suitCounts.put(suit, suitCounts.getOrDefault(suit, 0) + 1);
+                    }
+                }
             }
         }
 
@@ -61,6 +67,7 @@ public class PokerEvaluator {
     }
 
     private static boolean isFlush(List<Card> cards, Map<Suit, Integer> suitCounts) {
+        System.out.println(suitCounts);
         if (cards.size() < MinimumOfCards) return false;
         int maxSuit = 0;
         for (int count : suitCounts.values()) maxSuit = Math.max(maxSuit, count);

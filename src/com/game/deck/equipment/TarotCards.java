@@ -23,7 +23,8 @@ public abstract class TarotCards {
     private static final List<Supplier<? extends TarotCards>> AVAILABLE_TAROT_FACTORIES = List.of(
         StarCard::new,
         StrengthCard::new,
-        WeaknessCard::new
+        WeaknessCard::new,
+        WheelOfFortuneCard::new
             // Register concrete Tarot cards here, for example: MyTarot::new
     );
     private static final Random SHOP_RANDOM = new Random();

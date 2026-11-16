@@ -13,7 +13,7 @@ public class FourFingers extends Joker {
     public FourFingers() {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         //(name, description, assetName, shopCost, sellValue)
-        super("Four Fingers", "Straight and Flush can be made with 4 cards", "joker_2", 0, 1);
+        super("Four Fingers", "Straight and Flush can be made with 4 cards", "joker_2", 7, 5);
     }
 
     public int GetMinimumOfCards(){

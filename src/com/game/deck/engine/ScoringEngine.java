@@ -8,6 +8,7 @@ package com.game.deck.engine;
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.*;
 import java.util.List;
+import java.util.Random;
 
 /*
  * ScoringEngine is the authoritative Engine implementation of the four-stage
@@ -15,7 +16,7 @@ import java.util.List;
  * effects and equipment.Item sockets, preserving left-to-right trigger order.
  */
 public class ScoringEngine {
-
+    private static Random rand = new Random();
     /**
      * Performs the calculat\1 \2core operation.
      */
@@ -69,6 +70,15 @@ public class ScoringEngine {
                 } else if (card.getEnchantment() == Enchantment.GLASS) {
                     ctx.multiplyMult(2.0);
                     System.out.println("     [Enchantment] Glass Card -> x2 Mult");
+                } else if (card.getEnchantment() == Enchantment.LUCKY) {
+                    if(rand.nextInt(1, 6) == 1){
+                        ctx.addMult(20);
+                        System.out.println("     [Enchantment] Lucky Card -> +20 Mult");
+                    }
+                    if(rand.nextInt(1, 16) == 1){
+                        ctx.addCash(20);
+                        System.out.println("     [Enchantment] Lucky Card -> +$20 Cash");
+                    }
                 }
             }
         }

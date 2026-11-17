@@ -1,11 +1,10 @@
 package com.game.deck.equipment;
 
-import java.util.Random;
-
 import com.game.deck.model.GameState;
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
 import java.util.List;
+import java.util.Random;
 
 
 public class WheelOfFortuneCard extends TarotCards{

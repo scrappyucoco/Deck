@@ -6,6 +6,7 @@ package com.game.deck.model;
  */
 
 import java.util.Objects;
+import javafx.scene.control.Tooltip;
 
 /*
  * Card is the model entity for one playable card.
@@ -14,6 +15,7 @@ import java.util.Objects;
  * uses getAssetPath() and the display accessors to render the card.
  */
 public class Card implements Comparable<Card> {
+    private Tooltip description;
     private Rank rank;
     private Suit suit;
     private Enchantment enchantment;
@@ -69,6 +71,7 @@ public class Card implements Comparable<Card> {
      * Performs the se\1 \2nchantment operation.
      */
     public void setEnchantment(Enchantment enchantment) {
+        this.description.setText(enchantment.getDescription());
         this.enchantment = Objects.requireNonNull(enchantment, "enchantment");
     }
     /**
@@ -91,6 +94,10 @@ public class Card implements Comparable<Card> {
      * Performs the se\1 \2ebuffed operation.
      */
     public void setDebuffed(boolean debuffed) { isDebuffed = debuffed; }
+
+    public void setTooltip(Tooltip tooltip){
+        this.description = tooltip;
+    }
 
     @Override
     /**

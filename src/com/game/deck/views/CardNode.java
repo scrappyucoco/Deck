@@ -11,6 +11,7 @@ import com.game.deck.model.Enchantment;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -52,6 +53,14 @@ public class CardNode extends StackPane {
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
         setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         getStyleClass().add("card-node");
+        
+        Tooltip tooltip = new Tooltip(card.getEnchantment().getDescription());
+        tooltip.setWrapText(true);
+        tooltip.setPrefWidth(240);
+        tooltip.setShowDelay(javafx.util.Duration.millis(250));
+        tooltip.getStyleClass().add("equipment-tooltip");
+        Tooltip.install(this, tooltip);
+        card.setTooltip(tooltip);
 
         Image image = loadImage(imagePath);
         if (image != null) {

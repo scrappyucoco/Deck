@@ -15,7 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import java.util.List;
 
 /**
  * Represents the occurrence selection view in the game's model, engine, equipment, occurrence, or view layer.

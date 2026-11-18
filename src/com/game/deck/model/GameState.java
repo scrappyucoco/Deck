@@ -417,6 +417,19 @@ public class GameState {
         return joker != null && sellJoker(joker, joker.getSellValue());
     }
 
+    public boolean sellTarotCard(TarotCards tarotCards, int sellValue) {
+        if (tarotCards == null || sellValue < 0 || !ownedTarotCards.remove(tarotCards)) {
+            return false;
+        }
+        addCash(sellValue);
+        System.out.println("[JOKER] Sold " + tarotCards.getName() + " for $" + sellValue + ".");
+        return true;
+    }
+
+    public boolean sellTarotCard(TarotCards tarotCards) {
+        return tarotCards != null && sellTarotCard(tarotCards, tarotCards.getSellValue());
+    }
+
     /**
      * Performs the mov\1 \2oker operation.
      */

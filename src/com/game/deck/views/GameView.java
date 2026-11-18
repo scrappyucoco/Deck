@@ -414,7 +414,7 @@ public class GameView extends BorderPane {
 
         for (TarotCards tarotCard : gameState.getOwnedTarotCards()) {
             ownedTarotCardsContainer.getChildren().add(
-                    new TarotNode(tarotCard, () -> useTarotCard(tarotCard)));
+                    new TarotNode(tarotCard, () -> useTarotCard(tarotCard), () -> sellTarotCard(tarotCard)));
         }
     }
 
@@ -580,6 +580,12 @@ public class GameView extends BorderPane {
 
     private void sellJoker(Joker joker) {
         if (gameState.sellJoker(joker)) {
+            refreshUI();
+        }
+    }
+
+    private void sellTarotCard(TarotCards tarotCards) {
+        if (gameState.sellTarotCard(tarotCards)) {
             refreshUI();
         }
     }

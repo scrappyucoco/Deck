@@ -13,13 +13,13 @@ import java.util.List;
 /**
  * Represents the star in the game's model, engine, equipment, occurrence, or view layer.
  */
-public class Star extends TarotCards{
+public class StarCard extends TarotCards{
     private final int MAX_NUMBER_CARDS = 3;
     /**
      * Performs the star operation.
      */
-    public Star(){
-        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 5, 4);
+    public StarCard(){
+        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 4, 3);
     }
 
     @Override 

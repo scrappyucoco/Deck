@@ -15,7 +15,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -31,18 +30,19 @@ public class TarotNode extends StackPane {
     public static final double CARD_HEIGHT = 210.0;
     private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
     private final TarotCards tarotCard;
+    private final Button sellButton;
 
     /**
      * Performs the taro\1 \2ode operation.
      */
     public TarotNode(TarotCards tarotCard) {
-        this(tarotCard, null);
+        this(tarotCard, null, null);
     }
 
     /**
      * Performs the taro\1 \2ode operation.
      */
-    public TarotNode(TarotCards tarotCard, Runnable useAction) {
+    public TarotNode(TarotCards tarotCard, Runnable useAction, Runnable sellAction) {
         this.tarotCard = Objects.requireNonNull(tarotCard, "tarotCard");
         setMinSize(CARD_WIDTH, CARD_HEIGHT);
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
@@ -77,10 +77,25 @@ public class TarotNode extends StackPane {
             artwork.getChildren().add(placeholder);
         }
         Label nameLabel = new Label(tarotCard.getName());
-        nameLabel.getStyleClass().add("joker-name");
+        nameLabel.getStyleClass().add("equipment-name");
         nameLabel.setMouseTransparent(true);
         StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
         artwork.getChildren().add(nameLabel);
+
+        
+
+        sellButton = new Button("Sell");
+        sellButton.getStyleClass().add("btn-sell");
+        sellButton.setVisible(false);
+        sellButton.setManaged(false);
+        sellButton.setOnAction(event -> {
+            System.out.println("[UI] Sell clicked for " + tarotCard.getName());
+            if (sellAction != null) {
+                sellAction.run();
+            }
+        });
+        StackPane.setAlignment(sellButton, Pos.TOP_RIGHT);
+
         if (useAction != null) {
             Button useButton = new Button("Use");
             useButton.getStyleClass().add("btn-use");
@@ -88,10 +103,12 @@ public class TarotNode extends StackPane {
             useButton.setManaged(false);
             useButton.setOnAction(event -> useAction.run());
             StackPane.setAlignment(useButton, Pos.BOTTOM_CENTER);
-            getChildren().addAll(artwork, useButton);
+            getChildren().addAll(artwork, sellButton, useButton);
             setOnMouseClicked(event -> {
                 useButton.setVisible(!useButton.isVisible());
                 useButton.setManaged(useButton.isVisible());
+                sellButton.setVisible(!sellButton.isVisible());
+                sellButton.setManaged(sellButton.isVisible());
                 System.out.println("[UI] Tarot selected: " + tarotCard.getName()
                         + " | useButtonVisible=" + useButton.isVisible()
                         + " | tarotBounds=" + getBoundsInParent());
@@ -101,7 +118,7 @@ public class TarotNode extends StackPane {
                 event.consume();
             });
         } else {
-            getChildren().add(artwork);
+            getChildren().addAll(artwork, sellButton);
         }
     }
 

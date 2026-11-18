@@ -7,6 +7,7 @@ package com.game.deck;
 
 import com.game.deck.engine.ScoringEngine;
 import com.game.deck.equipment.*;
+import com.game.deck.exception.InvalidGameActionException;
 
 import com.game.deck.model.*;
 import com.game.deck.occurrences.MonologueTrial;
@@ -24,7 +25,7 @@ public class ConsoleTestRunner {
     /**
      * Performs the main operation.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InvalidGameActionException {
         // --- ENGINE INTEGRATION SCENARIO ---
         System.out.println("============================================================");
         System.out.println("      PHILOSOPHICAL DECKBUILDER ENGINE TEST HARNESS         ");

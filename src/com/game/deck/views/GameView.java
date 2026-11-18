@@ -10,6 +10,7 @@ import com.game.deck.equipment.Shop;
 import com.game.deck.equipment.TarotCards;
 import com.game.deck.engine.BasePokerEngine;
 import com.game.deck.engine.ScoringEngine;
+import com.game.deck.exception.InvalidGameActionException;
 import com.game.deck.model.Card;
 import com.game.deck.model.GameState;
 
@@ -27,7 +28,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -234,15 +234,12 @@ public class GameView extends BorderPane {
 
         sortRankButton.setOnAction(event -> {
             System.out.println("[UI] Sort Rank clicked.");
-            Collections.sort(gameState.getHand());
+            gameState.sortHandByRank();
             renderHand();
         });
         sortSuitButton.setOnAction(event -> {
             System.out.println("[UI] Sort Suit clicked.");
-            gameState.getHand().sort((first, second) -> {
-                int suitComparison = first.getSuit().compareTo(second.getSuit());
-                return suitComparison != 0 ? suitComparison : first.compareTo(second);
-            });
+            gameState.sortHandBySuit();
             renderHand();
         });
 
@@ -272,41 +269,45 @@ public class GameView extends BorderPane {
     private void handlePlayHand() {
         // --- PLAY HAND EVENT ---
         List<Card> selected = getSelectedCards();
-        if (!gameState.isRoundActive() || selected.isEmpty() || selected.size() > 5) {
-            System.out.println("[UI] Play rejected: select between 1 and 5 cards during a round.");
-            return;
-        }
+        try {
+            List<Card> held = new ArrayList<>(gameState.getHand());
+            held.removeAll(selected);
+            System.out.println("[UI] Play clicked: selected=" + selected.size() + ", held=" + held.size());
 
-        List<Card> held = new ArrayList<>(gameState.getHand());
-        held.removeAll(selected);
-        System.out.println("[UI] Play clicked: selected=" + selected.size() + ", held=" + held.size());
-        long score = ScoringEngine.calculateScore(
-                selected,
-                held,
-                gameState.getOwnedJokers(),
-                gameState);
-        gameState.addScore(score);
-        gameState.playSelectedCards(selected);
-        gameState.refillHand();
-        System.out.println("[UI] Score applied: +" + score + " | total=" + gameState.getCurrentScore());
+            // Validate and commit the play before scoring so rejected actions
+            // cannot add score or consume cards.
+            gameState.playSelectedCards(selected);
+            long score = ScoringEngine.calculateScore(
+                    selected,
+                    held,
+                    gameState.getOwnedJokers(),
+                    gameState);
+            gameState.addScore(score);
+            gameState.refillHand();
+            System.out.println("[UI] Score applied: +" + score + " | total=" + gameState.getCurrentScore());
 
-        if (gameState.isRoundWon() || gameState.isGameOver()) {
-            gameState.endRound();
-            // [HOOK: ADD CUSTOM OCCURRENCES/EVENTS]
-            // Invoke new Occurrence implementations here after endRound().
+            if (gameState.isRoundWon() || gameState.isGameOver()) {
+                gameState.endRound();
+                // [HOOK: ADD CUSTOM OCCURRENCES/EVENTS]
+                // Invoke new Occurrence implementations here after endRound().
+            }
+            refreshUI();
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Play rejected: " + exception.getMessage());
+            handTypeLabel.setText("Play rejected: " + exception.getMessage());
         }
-        refreshUI();
     }
 
     private void handleDiscard() {
         List<Card> selected = getSelectedCards();
-        if (!gameState.isRoundActive() || selected.isEmpty() || selected.size() > 5) {
-            System.out.println("[UI] Discard rejected: select between 1 and 5 cards during a round.");
-            return;
+        try {
+            System.out.println("[UI] Discard clicked: selected=" + selected.size());
+            gameState.discardSelectedCards(selected);
+            refreshUI();
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Discard rejected: " + exception.getMessage());
+            handTypeLabel.setText("Discard rejected: " + exception.getMessage());
         }
-        System.out.println("[UI] Discard clicked: selected=" + selected.size());
-        gameState.discardSelectedCards(selected);
-        refreshUI();
     }
 
     private void updateHandPreview() {
@@ -436,28 +437,41 @@ public class GameView extends BorderPane {
         if (centerLayer.getChildren().stream().anyMatch(node -> node instanceof OccurrenceSelectionView)) {
             return;
         }
-        OccurrenceSelectionView occurrenceView = new OccurrenceSelectionView(gameState, () -> {
-            centerLayer.getChildren().removeIf(node -> node instanceof OccurrenceSelectionView);
-            beginRoundAfterOccurrence();
-        });
-        centerLayer.getChildren().add(occurrenceView);
-        occurrenceView.toFront();
-        startRoundButton.setDisable(true);
+
+        // Initialize the round model before resolving the occurrence. Pre-round
+        // rewards such as extra discards or cash then apply to the live round
+        // instead of being overwritten by startRound()'s resource reset.
+        try {
+            if (!firstRoundStarted) {
+                gameState.startRound(GameState.getTargetScoreForAnte(1), 4, 3);
+                firstRoundStarted = true;
+            } else {
+                gameState.startNextRound();
+            }
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Round start rejected: " + exception.getMessage());
+            handTypeLabel.setText("Round start rejected: " + exception.getMessage());
+            startRoundButton.setDisable(false);
+            return;
+        }
+        shopOpen = false;
         shopPanel.setVisible(false);
         shopPanel.setManaged(false);
-        System.out.println("[UI] Pre-round occurrence selection opened.");
+        startRoundButton.setDisable(true);
+        refreshUI();
+
+        OccurrenceSelectionView occurrenceView =
+                new OccurrenceSelectionView(gameState, this::beginRoundAfterOccurrence);
+        centerLayer.getChildren().add(occurrenceView);
+        occurrenceView.toFront();
+        System.out.println("[UI] Round initialized; pre-round occurrence selection opened.");
     }
 
     private void beginRoundAfterOccurrence() {
-        if (!firstRoundStarted) {
-            gameState.startRound(300, 4, 3);
-            firstRoundStarted = true;
-        } else {
-            gameState.startNextRound();
-        }
+        centerLayer.getChildren().removeIf(node -> node instanceof OccurrenceSelectionView);
         shopOpen = false;
-        startRoundButton.setDisable(false);
-        System.out.println("[UI] Start Round clicked after occurrence.");
+        startRoundButton.setDisable(gameState.isRoundActive());
+        System.out.println("[UI] Pre-round occurrence resolved. Round is in progress.");
         refreshUI();
     }
 
@@ -557,24 +571,39 @@ public class GameView extends BorderPane {
 
     private void buyShopOffer(Joker offer) {
         System.out.println("[UI] Buy " + offer.getName() + " clicked.");
-        if (Shop.purchaseJoker(gameState, offer)) {
-            rerollShopOffers();
-            refreshUI();
+        try {
+            if (Shop.purchaseJoker(gameState, offer)) {
+                rerollShopOffers();
+                refreshUI();
+            }
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Joker purchase rejected: " + exception.getMessage());
+            shopMessageLabel.setText("Purchase rejected: " + exception.getMessage());
         }
     }
 
     private void buyTarotOffer(TarotCards offer) {
         System.out.println("[UI] Buy Tarot " + offer.getName() + " clicked.");
-        if (Shop.purchaseTarotCard(gameState, offer)) {
-            rerollShopOffers();
-            refreshUI();
+        try {
+            if (Shop.purchaseTarotCard(gameState, offer)) {
+                rerollShopOffers();
+                refreshUI();
+            }
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Tarot purchase rejected: " + exception.getMessage());
+            tarotShopMessageLabel.setText("Purchase rejected: " + exception.getMessage());
         }
     }
 
     private void useTarotCard(TarotCards tarotCard) {
         System.out.println("[UI] Use Tarot " + tarotCard.getName() + " clicked.");
-        if (gameState.useTarotCard(tarotCard, getSelectedCards())) {
-            refreshUI();
+        try {
+            if (gameState.useTarotCard(tarotCard, getSelectedCards())) {
+                refreshUI();
+            }
+        } catch (InvalidGameActionException exception) {
+            System.out.println("[UI] Tarot rejected: " + exception.getMessage());
+            handTypeLabel.setText("Tarot rejected: " + exception.getMessage());
         }
     }
 

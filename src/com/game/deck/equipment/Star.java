@@ -14,12 +14,13 @@ import java.util.List;
  * Represents the star in the game's model, engine, equipment, occurrence, or view layer.
  */
 public class Star extends TarotCards{
-    private final int MAX_NUMBER_CARDS = 3;
+    private static final int MAX_NUMBER_CARDS = 3;
     /**
      * Performs the star operation.
      */
     public Star(){
-        super("The Star", "Transform upto 3 Cards into a Diamond Suit", "star_placeholder", 5, 4);
+        super("The Star", "Transform up to 3 Cards into a Diamond Suit",
+                "star_placeholder", 5, 4, MAX_NUMBER_CARDS);
     }
 
     @Override 
@@ -27,11 +28,15 @@ public class Star extends TarotCards{
      * Performs the appl\1 \2ffect operation.
      */
         protected void applyEffect(GameState state, List<Card> selectedCard){
-            int i = 0;
+            int transformed = 0;
             for(Card card: selectedCard){
-                if(i == MAX_NUMBER_CARDS) break;
+                if(transformed == MAX_NUMBER_CARDS) break;
+                String previousCard = card.toString();
                 card.setSuit(Suit.DIAMONDS);
-                i++;
+                transformed++;
+                System.out.println("[TAROT] The Star transformed " + previousCard
+                        + " into " + card + ".");
             }
+            System.out.println("[TAROT] The Star transformed " + transformed + " card(s) total.");
         };
 }

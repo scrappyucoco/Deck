@@ -14,6 +14,7 @@ import com.game.deck.exception.InvalidGameActionException;
 import com.game.deck.model.Card;
 import com.game.deck.model.GameState;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -86,7 +87,16 @@ public class GameView extends BorderPane {
         buildTopBar();
         buildCenterArea();
         buildBottomArea();
+        this.gameState.addStateChangeListener(this::handleModelStateChanged);
         refreshUI();
+    }
+
+    private void handleModelStateChanged() {
+        if (Platform.isFxApplicationThread()) {
+            refreshUI();
+        } else {
+            Platform.runLater(this::refreshUI);
+        }
     }
 
     private void buildTopBar() {

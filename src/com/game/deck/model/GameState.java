@@ -44,6 +44,7 @@ public class GameState {
     private int discardsRemaining;
     private int maxHandSize;
     private int cash;
+    private int baseChipsModifier;
     private boolean inSpecialChallenge;
     private boolean roundActive;
 
@@ -51,6 +52,7 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
+    private final List<Runnable> stateChangeListeners = new ArrayList<>();
     private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
 
@@ -73,6 +75,7 @@ public class GameState {
     public void startNewRun() {
         this.ante = 1;
         this.cash = 4;
+        this.baseChipsModifier = 0;
         this.inSpecialChallenge = false;
         this.roundActive = false;
         this.currentScore = 0;
@@ -83,6 +86,7 @@ public class GameState {
         deck.resetToStandardDeck();
         System.out.println("[STATE] New run ready: jokers and Tarots cleared, "
                 + deck.totalCards() + " run cards available. Shop is open before the first round.");
+        notifyStateChanged();
     }
 
     /**
@@ -109,6 +113,7 @@ public class GameState {
         System.out.println("[STATE] Round started: ante=" + ante + ", target=" + targetScore
                 + ", hands=" + hands + ", discards=" + discards
                 + ", runDeck=" + deck.totalCards());
+        notifyStateChanged();
     }
 
     /**
@@ -140,6 +145,7 @@ public class GameState {
         hand.clear();
         roundActive = false;
         System.out.println("[STATE] Round ended. Hand cleared. Shop is now available.");
+        notifyStateChanged();
     }
 
     /**
@@ -149,6 +155,7 @@ public class GameState {
         int needed = maxHandSize - hand.size();
         if (needed > 0) {
             hand.addAll(deck.draw(needed));
+            notifyStateChanged();
         }
     }
 
@@ -171,6 +178,7 @@ public class GameState {
         deck.discard(cardsToPlay);
         handsRemaining--;
         System.out.println("[STATE] Played " + cardsToPlay.size() + " cards. Hands remaining=" + handsRemaining);
+        notifyStateChanged();
     }
 
     /**
@@ -192,6 +200,7 @@ public class GameState {
         discardsRemaining--;
         refillHand();
         System.out.println("[STATE] Discarded " + cardsToDiscard.size() + " cards. Discards remaining=" + discardsRemaining);
+        notifyStateChanged();
     }
 
     /**
@@ -201,6 +210,7 @@ public class GameState {
         // --- ECONOMY ---
         this.cash += amount;
         System.out.println("[STATE] Cash updated: +$" + amount + " | Current Balance: $" + this.cash);
+        notifyStateChanged();
     }
 
     /**
@@ -210,6 +220,7 @@ public class GameState {
         if (this.cash >= amount) {
             this.cash -= amount;
             System.out.println("[STATE] Cash deducted: -$" + amount + " | Remaining Balance: $" + this.cash);
+            notifyStateChanged();
             return true;
         }
         System.out.println("[STATE] Insufficient funds! Needed $" + amount + " but only have $" + this.cash);
@@ -242,6 +253,47 @@ public class GameState {
         }
         cash -= amount;
         System.out.println("[STATE] Cash spent: -$" + amount + " | Remaining Balance: $" + cash);
+        notifyStateChanged();
+    }
+
+    /**
+     * Returns the cumulative run-level modifier applied to every hand's base chips.
+     */
+    public int getBaseChipsModifier() {
+        return baseChipsModifier;
+    }
+
+    /**
+     * Deducts base chips from every scored hand in the current run.
+     */
+    public void deductBaseChips(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Base chip deduction cannot be negative");
+        }
+        this.baseChipsModifier -= amount;
+        System.out.println("[STATE] Base Chips deducted: -" + amount
+                + " | Net Base Chip Modifier: " + this.baseChipsModifier);
+        notifyStateChanged();
+    }
+
+    /**
+     * Adds base chips to every scored hand in the current run.
+     */
+    public void addBaseChips(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Base chip bonus cannot be negative");
+        }
+        this.baseChipsModifier += amount;
+        System.out.println("[STATE] Base Chips added: +" + amount
+                + " | Net Base Chip Modifier: " + this.baseChipsModifier);
+        notifyStateChanged();
+    }
+
+    /**
+     * Pulls one random Joker instance from the global shop pool.
+     */
+    public Joker getRandomShopJoker() {
+        return Joker.createRandomJoker();
     }
 
     /**
@@ -283,14 +335,19 @@ public class GameState {
     /**
      * Performs the ad\1 \2xtr\1 \2iscard operation.
      */
-    public void addExtraDiscard(int count) { this.discardsRemaining += count; }
+    public void addExtraDiscard(int count) {
+        this.discardsRemaining += count;
+        notifyStateChanged();
+    }
     /** Adds or removes available discards, clamped at zero. */
     public void changeDiscards(int amount) {
         discardsRemaining = Math.max(0, discardsRemaining + amount);
+        notifyStateChanged();
     }
     /** Adds or removes available hands, clamped at zero. */
     public void changeHands(int amount) {
         handsRemaining = Math.max(0, handsRemaining + amount);
+        notifyStateChanged();
     }
     /**
      * Performs the ge\1 \2arge\1 \2core operation.
@@ -327,6 +384,7 @@ public class GameState {
         this.currentScore += points;
         System.out.println("[STATE] Score changed: " + previousScore + " -> " + currentScore
                 + " (+" + points + ")");
+        notifyStateChanged();
     }
 
     /** Removes score, clamped at zero, for negative occurrence outcomes. */
@@ -335,6 +393,7 @@ public class GameState {
             throw new IllegalArgumentException("Score loss cannot be negative");
         }
         currentScore = Math.max(0, currentScore - points);
+        notifyStateChanged();
     }
     /**
      * Performs the i\1 \2oun\1 \2on operation.
@@ -449,6 +508,7 @@ public class GameState {
         ownedTarotCards.add(tarotCard);
         System.out.println("[TAROT] Added " + tarotCard.getName() + " to consumable slot "
                 + ownedTarotCards.size() + "/" + MAX_TAROT_CARDS);
+        notifyStateChanged();
         return true;
     }
 
@@ -471,6 +531,7 @@ public class GameState {
         tarotCard.use(this, selectedCards);
         ownedTarotCards.remove(tarotCard);
         System.out.println("[TAROT] Used " + tarotCard.getName() + ".");
+        notifyStateChanged();
         return true;
     }
 
@@ -486,6 +547,7 @@ public class GameState {
         }
         ownedJokers.add(joker);
         System.out.println("[JOKER] Added " + joker.getName() + " to slot " + ownedJokers.size() + "/" + MAX_JOKERS);
+        notifyStateChanged();
         return true;
     }
 
@@ -537,6 +599,30 @@ public class GameState {
         ownedJokers.remove(sourceIndex);
         ownedJokers.add(boundedIndex, joker);
         System.out.println("[JOKER] Reordered " + joker.getName() + " to slot " + (boundedIndex + 1));
+        notifyStateChanged();
+    }
+
+    /**
+     * Registers a listener invoked whenever run state mutates (cash, chips,
+     * Jokers, hand, or round resources) so bound views can update in real time.
+     */
+    public void addStateChangeListener(Runnable listener) {
+        if (listener != null && !stateChangeListeners.contains(listener)) {
+            stateChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters a previously added state change listener.
+     */
+    public void removeStateChangeListener(Runnable listener) {
+        stateChangeListeners.remove(listener);
+    }
+
+    private void notifyStateChanged() {
+        for (Runnable listener : List.copyOf(stateChangeListeners)) {
+            listener.run();
+        }
     }
     /**
      * Performs the i\1 \2\1 \2pecia\1 \2hallenge operation.

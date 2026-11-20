@@ -30,8 +30,11 @@ public class ScoringEngine {
             return 0;
         }
         PokerHand handType = PokerEvaluator.evaluate(playedCards);
+        long startingBaseChips = Math.max(
+                0,
+                handType.getChips() + (gameState == null ? 0 : gameState.getBaseChipsModifier()));
         ScoringContext ctx = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, gameState, false, playedCards);
+                startingBaseChips, handType.getMult(), handType, gameState, false, playedCards);
 
         System.out.println("\n------------------------------------------------------------");
         System.out.println("[PARSER LOG] Hand Evaluated: " + handType.getDisplayName() +

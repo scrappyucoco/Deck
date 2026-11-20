@@ -90,16 +90,10 @@ public class ConsoleTestRunner {
             System.out.println("[RESULT] DEFEAT! Score " + score + " fell short of Target " + state.getCurrentBlindTarget());
         }
 
-        // 6. Test Post-Round Monologue Trial
-        List<String> fragments = List.of("I adapt my hand", "through calculated discards", "I accept defeat");
-        MonologueTrial trial = new MonologueTrial(
-                "When probability fails, how do you respond?",
-                fragments,
-                "I adapt my hand through calculated discards",
-                true
-        );
+        // 6. Test Pre-Round Monologue Trial (Push Your Luck)
+        MonologueTrial trial = new MonologueTrial();
         trial.execute(state);
-        trial.submitSentence(List.of("I adapt my hand", "through calculated discards"), state);
+        trial.onPass(state);
 
         System.out.println("\n[ENGINE TEST COMPLETE] Ready for JavaFX Frontend Integration!");
     }

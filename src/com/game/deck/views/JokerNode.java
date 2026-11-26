@@ -5,6 +5,7 @@ package com.game.deck.views;
  * This source file participates in the modular Deck application.
  */
 
+import com.game.deck.equipment.Item;
 import com.game.deck.equipment.Joker;
 
 import javafx.geometry.Pos;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URISyntaxException;
+import java.util.List;
 
 /*
  * JokerNode is the View representation of an owned or shop-offered Joker.
@@ -33,8 +35,10 @@ public class JokerNode extends StackPane {
     public static final double CARD_WIDTH = 150.0;
     public static final double CARD_HEIGHT = 210.0;
     private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
+    private static final int MAX_SOCKETS = 2;
     private final Joker joker;
     private final Button sellButton;
+    private final ImageView[] socketNodes = new ImageView[MAX_SOCKETS];
 
     /**
      * Performs the joke\1 \2ode operation.
@@ -122,6 +126,21 @@ public class JokerNode extends StackPane {
             event.consume();
         });
         setOnDragDone(event -> setOpacity(1.0));
+
+        VBox socketGroup = new VBox();
+        for(int i = 0; i < MAX_SOCKETS; i++){
+            ImageView socket = new ImageView();
+            socketNodes[i] = socket;
+            socket.setFitWidth(CARD_WIDTH*0.25);
+            socket.setFitHeight(CARD_WIDTH*0.25);
+            socket.setPreserveRatio(true);
+            socket.setSmooth(false);
+            socketGroup.getChildren().add(socket);
+        }
+        socketGroup.setSpacing(5);
+        socketGroup.setAlignment(Pos.TOP_RIGHT);
+        getChildren().add(socketGroup);
+        updateSockets();
     }
 
     private Image loadImage(String relativePath) {
@@ -196,6 +215,14 @@ public class JokerNode extends StackPane {
             System.err.println("[WARNING] Could not resolve application asset directory: "
                     + exception.getMessage());
             return null;
+        }
+    }
+
+    private void updateSockets(){
+        List<Item> sockets = joker.getSockets();
+        for(int i = 0; i < sockets.size(); i++){
+            Image image = loadImage(sockets.get(i).getAssetPath());
+            socketNodes[i].setImage(image);
         }
     }
 

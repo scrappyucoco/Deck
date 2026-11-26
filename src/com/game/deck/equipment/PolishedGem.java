@@ -16,7 +16,7 @@ public class PolishedGem extends Item {
      * Performs the polishe\1 \2em operation.
      */
     public PolishedGem() {
-        super("Polished Gem", "+15 Flat Chips", ItemRarity.COMMON, false, "gem_polished");
+        super("Polished Gem", "+15 Flat Chips", ItemRarity.COMMON, false, "polished_gem");
     }
 
     @Override

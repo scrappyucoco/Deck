@@ -16,7 +16,7 @@ public class ShatteredTablet extends Item {
      * Performs the shattere\1 \2ablet operation.
      */
     public ShatteredTablet() {
-        super("Shattered Tablet", "Doubles Base Chips (Single-Use)", ItemRarity.RARE, true, "mirror_shattered");
+        super("Shattered Tablet", "Doubles Base Chips (Single-Use)", ItemRarity.RARE, true, "shattered_tablet");
     }
 
     @Override

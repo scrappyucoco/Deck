@@ -222,6 +222,8 @@ public class JokerNode extends StackPane {
         List<Item> sockets = joker.getSockets();
         for(int i = 0; i < sockets.size(); i++){
             Image image = loadImage(sockets.get(i).getAssetPath());
+            if(image == null)
+                image = loadImage("assets/items/ego_relic.png");
             socketNodes[i].setImage(image);
         }
     }

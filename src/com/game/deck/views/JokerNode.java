@@ -36,6 +36,7 @@ public class JokerNode extends StackPane {
     public static final double CARD_HEIGHT = 210.0;
     private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
     private static final int MAX_SOCKETS = 2;
+    private final Tooltip description;
     private final Joker joker;
     private final Button sellButton;
     private final ImageView[] socketNodes = new ImageView[MAX_SOCKETS];
@@ -63,6 +64,7 @@ public class JokerNode extends StackPane {
         tooltip.setShowDelay(javafx.util.Duration.millis(250));
         tooltip.getStyleClass().add("equipment-tooltip");
         Tooltip.install(this, tooltip);
+        this.description = tooltip;
 
         Image image = loadImage(joker.getAssetPath());
         if (image == null) {
@@ -220,12 +222,15 @@ public class JokerNode extends StackPane {
 
     private void updateSockets(){
         List<Item> sockets = joker.getSockets();
+        String strng = joker.getName() + "\n" + joker.getDescription();
         for(int i = 0; i < sockets.size(); i++){
             Image image = loadImage(sockets.get(i).getAssetPath());
             if(image == null)
                 image = loadImage("assets/items/ego_relic.png");
             socketNodes[i].setImage(image);
+            strng += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
         }
+        description.setText(strng);
     }
 
     /**

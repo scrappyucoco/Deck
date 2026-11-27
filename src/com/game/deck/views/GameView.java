@@ -29,6 +29,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class GameView extends BorderPane {
 
     /**
      * Performs the game view operation.
+     * Performs the gam\1 \2iew operation.
      */
     public GameView(GameState gameState) {
         // --- VIEW INITIALIZATION ---
@@ -349,6 +351,7 @@ public class GameView extends BorderPane {
 
     /**
      * Performs the refresh UI operation.
+     * Performs the refres\1 \2i operation.
      */
     public void refreshUI() {
         // --- VIEW STATE SYNCHRONIZATION ---
@@ -426,6 +429,7 @@ public class GameView extends BorderPane {
         for (TarotCards tarotCard : gameState.getOwnedTarotCards()) {
             ownedTarotCardsContainer.getChildren().add(
                     new TarotNode(tarotCard, () -> useTarotCard(tarotCard)));
+                    new TarotNode(tarotCard, () -> useTarotCard(tarotCard), () -> sellTarotCard(tarotCard)));
         }
     }
 
@@ -482,6 +486,28 @@ public class GameView extends BorderPane {
         shopOpen = false;
         startRoundButton.setDisable(gameState.isRoundActive());
         System.out.println("[UI] Pre-round occurrence resolved. Round is in progress.");
+        OccurrenceSelectionView occurrenceView = new OccurrenceSelectionView(gameState, () -> {
+            centerLayer.getChildren().removeIf(node -> node instanceof OccurrenceSelectionView);
+            beginRoundAfterOccurrence();
+        });
+        centerLayer.getChildren().add(occurrenceView);
+        occurrenceView.toFront();
+        startRoundButton.setDisable(true);
+        shopPanel.setVisible(false);
+        shopPanel.setManaged(false);
+        System.out.println("[UI] Pre-round occurrence selection opened.");
+    }
+
+    private void beginRoundAfterOccurrence() {
+        if (!firstRoundStarted) {
+            gameState.startRound(300, 4, 3);
+            firstRoundStarted = true;
+        } else {
+            gameState.startNextRound();
+        }
+        shopOpen = false;
+        startRoundButton.setDisable(false);
+        System.out.println("[UI] Start Round clicked after occurrence.");
         refreshUI();
     }
 
@@ -589,6 +615,9 @@ public class GameView extends BorderPane {
         } catch (InvalidGameActionException exception) {
             System.out.println("[UI] Joker purchase rejected: " + exception.getMessage());
             shopMessageLabel.setText("Purchase rejected: " + exception.getMessage());
+        if (Shop.purchaseJoker(gameState, offer)) {
+            rerollShopOffers();
+            refreshUI();
         }
     }
 
@@ -602,6 +631,9 @@ public class GameView extends BorderPane {
         } catch (InvalidGameActionException exception) {
             System.out.println("[UI] Tarot purchase rejected: " + exception.getMessage());
             tarotShopMessageLabel.setText("Purchase rejected: " + exception.getMessage());
+        if (Shop.purchaseTarotCard(gameState, offer)) {
+            rerollShopOffers();
+            refreshUI();
         }
     }
 
@@ -614,11 +646,19 @@ public class GameView extends BorderPane {
         } catch (InvalidGameActionException exception) {
             System.out.println("[UI] Tarot rejected: " + exception.getMessage());
             handTypeLabel.setText("Tarot rejected: " + exception.getMessage());
+        if (gameState.useTarotCard(tarotCard, getSelectedCards())) {
+            refreshUI();
         }
     }
 
     private void sellJoker(Joker joker) {
         if (gameState.sellJoker(joker)) {
+            refreshUI();
+        }
+    }
+
+    private void sellTarotCard(TarotCards tarotCards) {
+        if (gameState.sellTarotCard(tarotCards)) {
             refreshUI();
         }
     }

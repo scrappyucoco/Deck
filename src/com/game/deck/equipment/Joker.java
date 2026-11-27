@@ -29,6 +29,8 @@ public abstract class Joker {
     private static final List<Supplier<? extends Joker>> AVAILABLE_JOKER_FACTORIES = List.of(
             RationalistJoker::new,
             GreedyJoker::new
+            GreedyJoker::new,
+            FourFingers::new
     );
     private static final Random SHOP_RANDOM = new Random();
 

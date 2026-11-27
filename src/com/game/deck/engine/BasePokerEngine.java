@@ -81,6 +81,9 @@ public final class BasePokerEngine {
                 handType.getChips() + (gameState == null ? 0 : gameState.getBaseChipsModifier()));
         ScoringContext context = new ScoringContext(
                 startingBaseChips, handType.getMult(), handType, gameState, true, validCards);
+        PokerHand handType = PokerEvaluator.evaluate(validCards, gameState.getOwnedJokers());
+        ScoringContext context = new ScoringContext(
+                handType.getChips(), handType.getMult(), handType, gameState, true, validCards);
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Preview the same hand-base hook used by the authoritative scorer.
         if (activeJokers != null) {

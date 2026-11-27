@@ -29,7 +29,7 @@ public class AppLauncher extends Application {
         // --- APPLICATION COMPOSITION ---
         primaryStage.setTitle("Deck - Philosophical Balatro Deckbuilder");
 
-        Scene scene = new Scene(new GameView(new GameState()), 1920, 1080);
+        Scene scene = new Scene(new GameView(new GameState()), 900, 700);
         attachStylesheet(scene, "assets/theme.css");
         attachStylesheet(scene, "assets/cards.css");
 

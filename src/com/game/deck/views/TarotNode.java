@@ -43,6 +43,19 @@ public class TarotNode extends StackPane {
      * Performs the tarot node operation.
      */
     public TarotNode(TarotCards tarotCard, Runnable useAction) {
+    private final Button sellButton;
+
+    /**
+     * Performs the taro\1 \2ode operation.
+     */
+    public TarotNode(TarotCards tarotCard) {
+        this(tarotCard, null, null);
+    }
+
+    /**
+     * Performs the taro\1 \2ode operation.
+     */
+    public TarotNode(TarotCards tarotCard, Runnable useAction, Runnable sellAction) {
         this.tarotCard = Objects.requireNonNull(tarotCard, "tarotCard");
         setMinSize(CARD_WIDTH, CARD_HEIGHT);
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
@@ -81,6 +94,25 @@ public class TarotNode extends StackPane {
         nameLabel.setMouseTransparent(true);
         StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
         artwork.getChildren().add(nameLabel);
+        nameLabel.getStyleClass().add("equipment-name");
+        nameLabel.setMouseTransparent(true);
+        StackPane.setAlignment(nameLabel, Pos.BOTTOM_CENTER);
+        artwork.getChildren().add(nameLabel);
+
+        
+
+        sellButton = new Button("Sell");
+        sellButton.getStyleClass().add("btn-sell");
+        sellButton.setVisible(false);
+        sellButton.setManaged(false);
+        sellButton.setOnAction(event -> {
+            System.out.println("[UI] Sell clicked for " + tarotCard.getName());
+            if (sellAction != null) {
+                sellAction.run();
+            }
+        });
+        StackPane.setAlignment(sellButton, Pos.TOP_RIGHT);
+
         if (useAction != null) {
             Button useButton = new Button("Use");
             useButton.getStyleClass().add("btn-use");
@@ -92,6 +124,12 @@ public class TarotNode extends StackPane {
             setOnMouseClicked(event -> {
                 useButton.setVisible(!useButton.isVisible());
                 useButton.setManaged(useButton.isVisible());
+            getChildren().addAll(artwork, sellButton, useButton);
+            setOnMouseClicked(event -> {
+                useButton.setVisible(!useButton.isVisible());
+                useButton.setManaged(useButton.isVisible());
+                sellButton.setVisible(!sellButton.isVisible());
+                sellButton.setManaged(sellButton.isVisible());
                 System.out.println("[UI] Tarot selected: " + tarotCard.getName()
                         + " | useButtonVisible=" + useButton.isVisible()
                         + " | tarotBounds=" + getBoundsInParent());
@@ -102,11 +140,13 @@ public class TarotNode extends StackPane {
             });
         } else {
             getChildren().add(artwork);
+            getChildren().addAll(artwork, sellButton);
         }
     }
 
     /**
      * Performs the get tarot card operation.
+     * Performs the ge\1 \2aro\1 \2ard operation.
      */
     public TarotCards getTarotCard() {
         return tarotCard;

@@ -5,6 +5,7 @@ package com.game.deck.views;
  * This source file participates in the modular Deck application.
  */
 
+import com.game.deck.equipment.Item;
 import com.game.deck.equipment.Joker;
 
 import javafx.geometry.Pos;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URISyntaxException;
+import java.util.List;
 
 /*
  * JokerNode is the View representation of an owned or shop-offered Joker.
@@ -33,8 +35,11 @@ public class JokerNode extends StackPane {
     public static final double CARD_WIDTH = 150.0;
     public static final double CARD_HEIGHT = 210.0;
     private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
+    private static final int MAX_SOCKETS = 2;
+    private final Tooltip description;
     private final Joker joker;
     private final Button sellButton;
+    private final ImageView[] socketNodes = new ImageView[MAX_SOCKETS];
 
     /**
      * Performs the joke\1 \2ode operation.
@@ -59,6 +64,7 @@ public class JokerNode extends StackPane {
         tooltip.setShowDelay(javafx.util.Duration.millis(250));
         tooltip.getStyleClass().add("equipment-tooltip");
         Tooltip.install(this, tooltip);
+        this.description = tooltip;
 
         Image image = loadImage(joker.getAssetPath());
         if (image == null) {
@@ -80,12 +86,27 @@ public class JokerNode extends StackPane {
         }
 
         Label nameLabel = new Label(joker.getName());
-        nameLabel.getStyleClass().add("joker-name");
+        nameLabel.getStyleClass().add("equipment-name");
         nameLabel.setMouseTransparent(true);
         VBox details = new VBox(nameLabel);
         details.setAlignment(Pos.BOTTOM_CENTER);
         details.setMouseTransparent(true);
         getChildren().add(details);
+
+        VBox socketGroup = new VBox();
+        for(int i = 0; i < MAX_SOCKETS; i++){
+            ImageView socket = new ImageView();
+            socketNodes[i] = socket;
+            socket.setFitWidth(CARD_WIDTH*0.25);
+            socket.setFitHeight(CARD_WIDTH*0.25);
+            socket.setPreserveRatio(true);
+            socket.setSmooth(false);
+            socketGroup.getChildren().add(socket);
+        }
+        socketGroup.setSpacing(5);
+        socketGroup.setAlignment(Pos.BOTTOM_LEFT);
+        getChildren().add(socketGroup);
+        updateSockets();
 
         sellButton = new Button("Sell");
         sellButton.getStyleClass().add("btn-sell");
@@ -197,6 +218,19 @@ public class JokerNode extends StackPane {
                     + exception.getMessage());
             return null;
         }
+    }
+
+    private void updateSockets(){
+        List<Item> sockets = joker.getSockets();
+        String strng = joker.getName() + "\n" + joker.getDescription();
+        for(int i = 0; i < sockets.size(); i++){
+            Image image = loadImage(sockets.get(i).getAssetPath());
+            if(image == null)
+                image = loadImage("assets/items/ego_relic.png");
+            socketNodes[i].setImage(image);
+            strng += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
+        }
+        description.setText(strng);
     }
 
     /**

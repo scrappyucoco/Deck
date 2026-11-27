@@ -24,6 +24,7 @@ public abstract class Occurrence {
             MonologueTrial::new,
             CashWindfallOccurrence::new,
             PerfectShotOccurrence::new
+            CashWindfallOccurrence::new
     );
     private final String title;
     private final String description;

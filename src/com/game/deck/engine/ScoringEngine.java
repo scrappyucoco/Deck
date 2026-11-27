@@ -16,7 +16,8 @@ import java.util.Random;
  * effects and equipment.Item sockets, preserving left-to-right trigger order.
  */
 public class ScoringEngine {
-    private static Random rand = new Random();
+    private static final Random rand = new Random();
+
     /**
      * Performs the calculat\1 \2core operation.
      */
@@ -31,8 +32,11 @@ public class ScoringEngine {
             return 0;
         }
         PokerHand handType = PokerEvaluator.evaluate(playedCards, activeJokers);
+        long startingBaseChips = Math.max(
+                0,
+                handType.getChips() + (gameState == null ? 0 : gameState.getBaseChipsModifier()));
         ScoringContext ctx = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, gameState, false, playedCards);
+                startingBaseChips, handType.getMult(), handType, gameState, false, playedCards);
 
         System.out.println("\n------------------------------------------------------------");
         System.out.println("[PARSER LOG] Hand Evaluated: " + handType.getDisplayName() +

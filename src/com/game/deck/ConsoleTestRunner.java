@@ -9,7 +9,6 @@ import com.game.deck.engine.ScoringEngine;
 import com.game.deck.equipment.*;
 
 import com.game.deck.model.*;
-import com.game.deck.occurrences.MonologueTrial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class ConsoleTestRunner {
     /**
      * Performs the main operation.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // --- ENGINE INTEGRATION SCENARIO ---
         System.out.println("============================================================");
         System.out.println("      PHILOSOPHICAL DECKBUILDER ENGINE TEST HARNESS         ");
@@ -88,17 +87,6 @@ public class ConsoleTestRunner {
         } else {
             System.out.println("[RESULT] DEFEAT! Score " + score + " fell short of Target " + state.getCurrentBlindTarget());
         }
-
-        // 6. Test Post-Round Monologue Trial
-        List<String> fragments = List.of("I adapt my hand", "through calculated discards", "I accept defeat");
-        MonologueTrial trial = new MonologueTrial(
-                "When probability fails, how do you respond?",
-                fragments,
-                "I adapt my hand through calculated discards",
-                true
-        );
-        trial.execute(state);
-        trial.submitSentence(List.of("I adapt my hand", "through calculated discards"), state);
 
         System.out.println("\n[ENGINE TEST COMPLETE] Ready for JavaFX Frontend Integration!");
     }

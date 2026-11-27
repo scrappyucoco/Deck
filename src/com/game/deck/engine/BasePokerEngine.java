@@ -10,7 +10,6 @@ import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
 import com.game.deck.model.GameState;
 import com.game.deck.model.PokerHand;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,9 +74,12 @@ public final class BasePokerEngine {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
 
-        PokerHand handType = PokerEvaluator.evaluate(validCards, gameState.getOwnedJokers());
+        PokerHand handType = PokerEvaluator.evaluate(validCards, activeJokers);
+        long startingBaseChips = Math.max(
+                0,
+                handType.getChips() + (gameState == null ? 0 : gameState.getBaseChipsModifier()));
         ScoringContext context = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, gameState, true, validCards);
+                startingBaseChips, handType.getMult(), handType, gameState, true, validCards);
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Preview the same hand-base hook used by the authoritative scorer.
         if (activeJokers != null) {

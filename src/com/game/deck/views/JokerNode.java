@@ -7,7 +7,11 @@ package com.game.deck.views;
 
 import com.game.deck.equipment.Item;
 import com.game.deck.equipment.Joker;
-
+import java.io.File;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
@@ -19,12 +23,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URISyntaxException;
-import java.util.List;
 
 /*
  * JokerNode is the View representation of an owned or shop-offered Joker.
@@ -220,17 +218,18 @@ public class JokerNode extends StackPane {
         }
     }
 
-    private void updateSockets(){
+    private void updateSockets() {
         List<Item> sockets = joker.getSockets();
-        String strng = joker.getName() + "\n" + joker.getDescription();
-        for(int i = 0; i < sockets.size(); i++){
+        String text = joker.getName() + "\n" + joker.getDescription();
+        for (int i = 0; i < sockets.size(); i++) {
             Image image = loadImage(sockets.get(i).getAssetPath());
-            if(image == null)
+            if (image == null) {
                 image = loadImage("assets/items/ego_relic.png");
+            }
             socketNodes[i].setImage(image);
-            strng += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
+            text += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
         }
-        description.setText(strng);
+        description.setText(text);
     }
 
     /**

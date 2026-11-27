@@ -10,6 +10,7 @@ module com.game.deck {
     requires javafx.graphics;
 
     exports com.game.deck;
+    exports com.game.deck.exception;
     exports com.game.deck.model;
     exports com.game.deck.engine;
     exports com.game.deck.equipment;

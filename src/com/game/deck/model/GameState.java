@@ -7,9 +7,11 @@ package com.game.deck.model;
 
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.TarotCards;
+import com.game.deck.exception.InvalidGameActionException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /*
@@ -42,6 +44,7 @@ public class GameState {
     private int discardsRemaining;
     private int maxHandSize;
     private int cash;
+    private int baseChipsModifier;
     private boolean inSpecialChallenge;
     private boolean roundActive;
 
@@ -49,11 +52,12 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
+    private final List<Runnable> stateChangeListeners = new ArrayList<>();
     private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
 
     /**
-     * Performs the gam\1 \2tate operation.
+     * Performs the game state operation.
      */
     public GameState() {
         // --- RUN INITIALIZATION ---
@@ -66,104 +70,137 @@ public class GameState {
     }
 
     /**
-     * Performs the star\1 \2e\1 \2un operation.
+     * Performs the start new run operation.
      */
     public void startNewRun() {
         this.ante = 1;
-        this.cash = 20;
+        this.cash = 4;
+        this.baseChipsModifier = 0;
         this.inSpecialChallenge = false;
         this.roundActive = false;
         this.currentScore = 0;
         this.targetScore = getTargetScoreForAnte(ante);
         this.hand.clear();
+        this.ownedJokers.clear();
         this.ownedTarotCards.clear();
-        deck.resetFullDeck();
-        System.out.println("[STATE] New run ready. Shop is open before the first round.");
+        deck.resetToStandardDeck();
+        System.out.println("[STATE] New run ready: jokers and Tarots cleared, "
+                + deck.totalCards() + " run cards available. Shop is open before the first round.");
+        notifyStateChanged();
     }
 
     /**
-     * Performs the star\1 \2ound operation.
+     * Performs the start round operation.
      */
-    public void startRound(long targetScore, int hands, int discards) {
+    public void startRound(long targetScore, int hands, int discards)
+            throws InvalidGameActionException {
         // --- ROUND LIFECYCLE ---
         if (targetScore < 0 || hands < 0 || discards < 0) {
-            throw new IllegalArgumentException("Round values cannot be negative");
+            throw new InvalidGameActionException(
+                    "Cannot start a round with negative values: target=" + targetScore
+                            + ", hands=" + hands + ", discards=" + discards + ".");
         }
         this.targetScore = targetScore;
         this.currentScore = 0;
         this.handsRemaining = hands;
         this.discardsRemaining = discards;
-        this.roundActive = true;
         hand.clear();
-        deck.resetFullDeck();
+        // Reuse the persistent master deck so permanent card modifications
+        // survive across rounds and antes.
+        deck.prepareForRound();
         refillHand();
+        this.roundActive = true;
         System.out.println("[STATE] Round started: ante=" + ante + ", target=" + targetScore
-                + ", hands=" + hands + ", discards=" + discards);                
+                + ", hands=" + hands + ", discards=" + discards
+                + ", runDeck=" + deck.totalCards());
+        notifyStateChanged();
     }
 
     /**
-     * Performs the star\1 \2ex\1 \2ound operation.
+     * Performs the start next round operation.
      */
-    public void startNextRound() {
+    public void startNextRound() throws InvalidGameActionException {
         if (roundActive) {
-            throw new IllegalStateException("Cannot start another round while the current round is active");
+            throw new InvalidGameActionException(
+                    "Cannot start another round while the current round is active.");
         }
         ante++;
-        startRound(getTargetScoreForAnte(ante), 4, 3);
+        try {
+            startRound(getTargetScoreForAnte(ante), 4, 3);
+        } catch (InvalidGameActionException exception) {
+            ante--;
+            throw exception;
+        }
     }
-    
+
     /**
-     * Performs the en\1 \2ound operation.
+     * Performs the end round operation.
      */
     public void endRound() {
         // --- ROUND END ---
         int earned = 3 + handsRemaining;
         cash += earned;
+        // Drop the round hand so shop-phase Tarot or UI actions cannot reach
+        // stale cards that were already returned to the run deck.
+        hand.clear();
         roundActive = false;
-        System.out.println("[STATE] Earned $" + earned + " (3 base + " + handsRemaining + " hands remaining).");
-        System.out.println("[STATE] Round ended. Shop is now available.");
+        System.out.println("[STATE] Round ended. Hand cleared. Shop is now available.");
+        notifyStateChanged();
     }
 
     /**
-     * Performs the refil\1 \2and operation.
+     * Performs the refill hand operation.
      */
-    public void refillHand() {
+    public void refillHand() throws InvalidGameActionException {
         int needed = maxHandSize - hand.size();
         if (needed > 0) {
             hand.addAll(deck.draw(needed));
+            notifyStateChanged();
         }
     }
 
     /**
-     * Performs the pla\1 \2electe\1 \2ards operation.
+     * Performs the play selected cards operation.
+     *
+     * @throws InvalidGameActionException when the round is inactive, no hands
+     *         remain, or the selection is not 1-5 cards from the hand
      */
-    public void playSelectedCards(List<Card> selected) {
+    public void playSelectedCards(List<Card> selected) throws InvalidGameActionException {
         // --- PLAYER ACTIONS ---
-        List<Card> cardsToPlay = validCardsFromHand(selected);
-        if (!roundActive || cardsToPlay.isEmpty() || cardsToPlay.size() > 5 || handsRemaining <= 0) {
-            System.out.println("[STATE] Play rejected: round inactive, invalid hand, or no hands remaining.");
-            return;
+        if (!roundActive) {
+            throw new InvalidGameActionException("Cannot play cards while no round is active.");
         }
+        if (handsRemaining <= 0) {
+            throw new InvalidGameActionException("Cannot play cards: no hands remain in this round.");
+        }
+        List<Card> cardsToPlay = validCardsFromHand(selected, "play");
         hand.removeAll(cardsToPlay);
         deck.discard(cardsToPlay);
         handsRemaining--;
         System.out.println("[STATE] Played " + cardsToPlay.size() + " cards. Hands remaining=" + handsRemaining);
+        notifyStateChanged();
     }
 
     /**
      * Performs the discar\1 \2electe\1 \2ards operation.
+     *
+     * @throws InvalidGameActionException when the round is inactive, no
+     *         discards remain, or the selection is not 1-5 cards from the hand
      */
-    public void discardSelectedCards(List<Card> selected) {
-        List<Card> cardsToDiscard = validCardsFromHand(selected);
-        if (!roundActive || cardsToDiscard.isEmpty() || cardsToDiscard.size() > 5 || discardsRemaining <= 0) {
-            System.out.println("[STATE] Discard rejected: round inactive, invalid hand, or no discards remaining.");
-            return;
+    public void discardSelectedCards(List<Card> selected) throws InvalidGameActionException {
+        if (!roundActive) {
+            throw new InvalidGameActionException("Cannot discard cards while no round is active.");
         }
+        if (discardsRemaining <= 0) {
+            throw new InvalidGameActionException("Cannot discard cards: no discards remain in this round.");
+        }
+        List<Card> cardsToDiscard = validCardsFromHand(selected, "discard");
         hand.removeAll(cardsToDiscard);
         deck.discard(cardsToDiscard);
         discardsRemaining--;
         refillHand();
         System.out.println("[STATE] Discarded " + cardsToDiscard.size() + " cards. Discards remaining=" + discardsRemaining);
+        notifyStateChanged();
     }
 
     /**
@@ -173,6 +210,7 @@ public class GameState {
         // --- ECONOMY ---
         this.cash += amount;
         System.out.println("[STATE] Cash updated: +$" + amount + " | Current Balance: $" + this.cash);
+        notifyStateChanged();
     }
 
     /**
@@ -182,6 +220,7 @@ public class GameState {
         if (this.cash >= amount) {
             this.cash -= amount;
             System.out.println("[STATE] Cash deducted: -$" + amount + " | Remaining Balance: $" + this.cash);
+            notifyStateChanged();
             return true;
         }
         System.out.println("[STATE] Insufficient funds! Needed $" + amount + " but only have $" + this.cash);
@@ -194,6 +233,67 @@ public class GameState {
             throw new IllegalArgumentException("Cash loss cannot be negative");
         }
         deductCash(Math.min(amount, cash));
+    }
+
+    /**
+     * Spends cash for a purchase and rejects the action when funds are short.
+     * Optional scoring/occurrence effects continue to use deductCash().
+     *
+     * @throws InvalidGameActionException when the amount is negative or the
+     *         current balance cannot cover it
+     */
+    public void spendCash(int amount) throws InvalidGameActionException {
+        if (amount < 0) {
+            throw new InvalidGameActionException(
+                    "Cannot spend a negative cash amount: $" + amount + ".");
+        }
+        if (cash < amount) {
+            throw new InvalidGameActionException(
+                    "Insufficient cash: need $" + amount + " but only have $" + cash + ".");
+        }
+        cash -= amount;
+        System.out.println("[STATE] Cash spent: -$" + amount + " | Remaining Balance: $" + cash);
+        notifyStateChanged();
+    }
+
+    /**
+     * Returns the cumulative run-level modifier applied to every hand's base chips.
+     */
+    public int getBaseChipsModifier() {
+        return baseChipsModifier;
+    }
+
+    /**
+     * Deducts base chips from every scored hand in the current run.
+     */
+    public void deductBaseChips(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Base chip deduction cannot be negative");
+        }
+        this.baseChipsModifier -= amount;
+        System.out.println("[STATE] Base Chips deducted: -" + amount
+                + " | Net Base Chip Modifier: " + this.baseChipsModifier);
+        notifyStateChanged();
+    }
+
+    /**
+     * Adds base chips to every scored hand in the current run.
+     */
+    public void addBaseChips(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Base chip bonus cannot be negative");
+        }
+        this.baseChipsModifier += amount;
+        System.out.println("[STATE] Base Chips added: +" + amount
+                + " | Net Base Chip Modifier: " + this.baseChipsModifier);
+        notifyStateChanged();
+    }
+
+    /**
+     * Pulls one random Joker instance from the global shop pool.
+     */
+    public Joker getRandomShopJoker() {
+        return Joker.createRandomJoker();
     }
 
     /**
@@ -235,14 +335,19 @@ public class GameState {
     /**
      * Performs the ad\1 \2xtr\1 \2iscard operation.
      */
-    public void addExtraDiscard(int count) { this.discardsRemaining += count; }
+    public void addExtraDiscard(int count) {
+        this.discardsRemaining += count;
+        notifyStateChanged();
+    }
     /** Adds or removes available discards, clamped at zero. */
     public void changeDiscards(int amount) {
         discardsRemaining = Math.max(0, discardsRemaining + amount);
+        notifyStateChanged();
     }
     /** Adds or removes available hands, clamped at zero. */
     public void changeHands(int amount) {
         handsRemaining = Math.max(0, handsRemaining + amount);
+        notifyStateChanged();
     }
     /**
      * Performs the ge\1 \2arge\1 \2core operation.
@@ -259,9 +364,10 @@ public class GameState {
     /**
      * Performs the se\1 \2a\1 \2an\1 \2ize operation.
      */
-    public void setMaxHandSize(int maxHandSize) {
+    public void setMaxHandSize(int maxHandSize) throws InvalidGameActionException {
         if (maxHandSize < 1) {
-            throw new IllegalArgumentException("Hand size must be positive");
+            throw new InvalidGameActionException(
+                    "Hand size must be at least 1 (requested " + maxHandSize + ").");
         }
         this.maxHandSize = maxHandSize;
         refillHand();
@@ -278,6 +384,7 @@ public class GameState {
         this.currentScore += points;
         System.out.println("[STATE] Score changed: " + previousScore + " -> " + currentScore
                 + " (+" + points + ")");
+        notifyStateChanged();
     }
 
     /** Removes score, clamped at zero, for negative occurrence outcomes. */
@@ -286,6 +393,7 @@ public class GameState {
             throw new IllegalArgumentException("Score loss cannot be negative");
         }
         currentScore = Math.max(0, currentScore - points);
+        notifyStateChanged();
     }
     /**
      * Performs the i\1 \2oun\1 \2on operation.
@@ -320,9 +428,42 @@ public class GameState {
         return ANTE_TARGET_SCORES[index];
     }
     /**
-     * Performs the ge\1 \2and operation.
+     * Returns an unmodifiable view of the current hand. Ordering changes go
+     * through the sortHandByRank() and sortHandBySuit() domain methods.
      */
-    public List<Card> getHand() { return hand; }
+    public List<Card> getHand() { return Collections.unmodifiableList(hand); }
+
+    /** Sorts the hand high-to-low by rank using Card's natural ordering. */
+    public void sortHandByRank() {
+        hand.sort(Comparator.naturalOrder());
+        System.out.println("[STATE] Hand sorted by rank: " + hand);
+    }
+
+    /** Sorts the hand by suit, then by rank within each suit. */
+    public void sortHandBySuit() {
+        hand.sort((first, second) -> {
+            int suitComparison = first.getSuit().compareTo(second.getSuit());
+            return suitComparison != 0 ? suitComparison : first.compareTo(second);
+        });
+        System.out.println("[STATE] Hand sorted by suit: " + hand);
+    }
+
+    /**
+     * Permanently removes a card from the run deck and the active hand.
+     * Supports destruction effects such as Glass shatters and the Hanged Man.
+     *
+     * @return true when the card belonged to the run deck
+     */
+    public boolean removeCardFromRun(Card card) throws InvalidGameActionException {
+        if (card == null) {
+            throw new InvalidGameActionException("Cannot destroy a null card.");
+        }
+        boolean removedFromDeck = deck.removeCardFromRun(card);
+        boolean removedFromHand = hand.remove(card);
+        System.out.println("[STATE] Card removal: " + card + " | handRemoved="
+                + removedFromHand + " | runDeckRemoved=" + removedFromDeck);
+        return removedFromDeck;
+    }
     /**
      * Performs the ge\1 \2eck operation.
      */
@@ -367,19 +508,30 @@ public class GameState {
         ownedTarotCards.add(tarotCard);
         System.out.println("[TAROT] Added " + tarotCard.getName() + " to consumable slot "
                 + ownedTarotCards.size() + "/" + MAX_TAROT_CARDS);
+        notifyStateChanged();
         return true;
     }
 
     /**
      * Performs the us\1 \2aro\1 \2ard operation.
      */
-    public boolean useTarotCard(TarotCards tarotCard, List<Card> selectedCards) {
-        if (tarotCard == null || !ownedTarotCards.contains(tarotCard)) {
-            return false;
+    public boolean useTarotCard(TarotCards tarotCard, List<Card> selectedCards)
+            throws InvalidGameActionException {
+        if (tarotCard == null) {
+            throw new InvalidGameActionException("Cannot use a null Tarot card.");
         }
+        if (!ownedTarotCards.contains(tarotCard)) {
+            throw new InvalidGameActionException(
+                    "Tarot card is not owned and cannot be used: " + tarotCard.getName() + ".");
+        }
+        // TarotCards validates its targets and throws before applying any
+        // mutation, so an invalid selection never consumes the consumable.
+        System.out.println("[TAROT] Attempting " + tarotCard.getName() + " with "
+                + (selectedCards == null ? 0 : selectedCards.size()) + " selected card(s).");
         tarotCard.use(this, selectedCards);
         ownedTarotCards.remove(tarotCard);
         System.out.println("[TAROT] Used " + tarotCard.getName() + ".");
+        notifyStateChanged();
         return true;
     }
 
@@ -395,6 +547,7 @@ public class GameState {
         }
         ownedJokers.add(joker);
         System.out.println("[JOKER] Added " + joker.getName() + " to slot " + ownedJokers.size() + "/" + MAX_JOKERS);
+        notifyStateChanged();
         return true;
     }
 
@@ -446,6 +599,30 @@ public class GameState {
         ownedJokers.remove(sourceIndex);
         ownedJokers.add(boundedIndex, joker);
         System.out.println("[JOKER] Reordered " + joker.getName() + " to slot " + (boundedIndex + 1));
+        notifyStateChanged();
+    }
+
+    /**
+     * Registers a listener invoked whenever run state mutates (cash, chips,
+     * Jokers, hand, or round resources) so bound views can update in real time.
+     */
+    public void addStateChangeListener(Runnable listener) {
+        if (listener != null && !stateChangeListeners.contains(listener)) {
+            stateChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters a previously added state change listener.
+     */
+    public void removeStateChangeListener(Runnable listener) {
+        stateChangeListeners.remove(listener);
+    }
+
+    private void notifyStateChanged() {
+        for (Runnable listener : List.copyOf(stateChangeListeners)) {
+            listener.run();
+        }
     }
     /**
      * Performs the i\1 \2\1 \2pecia\1 \2hallenge operation.
@@ -456,15 +633,38 @@ public class GameState {
      */
     public void setInSpecialChallenge(boolean active) { this.inSpecialChallenge = active; }
 
-    private List<Card> validCardsFromHand(List<Card> selected) {
+    /**
+     * Validates a selected hand subset for a play or discard action.
+     *
+     * @throws InvalidGameActionException when the selection is null, empty,
+     *         larger than 5, contains null/duplicate cards, or contains a card
+     *         that is not currently in the hand
+     */
+    private List<Card> validCardsFromHand(List<Card> selected, String action)
+            throws InvalidGameActionException {
         if (selected == null || selected.isEmpty()) {
-            return List.of();
+            throw new InvalidGameActionException(
+                    "Cannot " + action + " cards: select between 1 and 5 cards.");
+        }
+        if (selected.size() > 5) {
+            throw new InvalidGameActionException(
+                    "Cannot " + action + " " + selected.size() + " cards: the maximum is 5.");
         }
         List<Card> validCards = new ArrayList<>();
         for (Card card : selected) {
-            if (card != null && hand.contains(card) && !validCards.contains(card)) {
-                validCards.add(card);
+            if (card == null) {
+                throw new InvalidGameActionException(
+                        "Cannot " + action + " a null card.");
             }
+            if (!hand.contains(card)) {
+                throw new InvalidGameActionException(
+                        "Cannot " + action + " " + card + " because it is not in your hand.");
+            }
+            if (validCards.contains(card)) {
+                throw new InvalidGameActionException(
+                        "Cannot " + action + " the same card more than once: " + card + ".");
+            }
+            validCards.add(card);
         }
         return validCards;
     }

@@ -5,6 +5,7 @@ package com.game.deck.equipment;
  * This source file participates in the modular Deck application.
  */
 
+import com.game.deck.exception.InvalidGameActionException;
 import com.game.deck.model.GameState;
 
 /*
@@ -20,31 +21,31 @@ public final class Shop {
     /**
      * Performs the purchas\1 \2oker operation.
      */
-    public static boolean purchaseJoker(GameState state, Joker joker) {
+    public static boolean purchaseJoker(GameState state, Joker joker)
+            throws InvalidGameActionException {
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Pass any registered Joker instance; getShopCost() supplies its price.
-        if (state == null || !state.isShopAccessible()) {
-            System.out.println("[SHOP] Purchase rejected: shop is unavailable.");
-            return false;
+        if (state == null) {
+            throw new InvalidGameActionException("Cannot buy a Joker without an active game state.");
+        }
+        if (!state.isShopAccessible()) {
+            throw new InvalidGameActionException("The shop is only available between rounds.");
         }
         if (joker == null) {
-            System.out.println("[SHOP] Purchase rejected: invalid Joker.");
-            return false;
+            throw new InvalidGameActionException("Cannot buy a null Joker.");
         }
         int cost = joker.getShopCost();
         if (state.getOwnedJokers().size() >= state.getMaxJokers()) {
-            System.out.println("[SHOP] Purchase rejected: joker slots are full.");
-            return false;
+            throw new InvalidGameActionException(
+                    "Cannot buy " + joker.getName() + ": Joker slots are full ("
+                            + state.getMaxJokers() + " maximum).");
         }
-        if (!state.deductCash(cost)) {
-            System.out.println("[SHOP] Purchase rejected: insufficient cash.");
-            return false;
-        }
+        state.spendCash(cost);
 
         if (!state.addJoker(joker)) {
             state.addCash(cost);
-            System.out.println("[SHOP] Purchase rejected: Joker could not be added.");
-            return false;
+            throw new InvalidGameActionException(
+                    "Could not add " + joker.getName() + " to the Joker slots; purchase refunded.");
         }
         System.out.println("[SHOP] Purchased " + joker.getName() + " for $" + cost + ".");
         return true;
@@ -53,29 +54,30 @@ public final class Shop {
     /**
      * Performs the purchas\1 \2aro\1 \2ard operation.
      */
-    public static boolean purchaseTarotCard(GameState state, TarotCards tarotCard) {
-        if (state == null || !state.isShopAccessible()) {
-            System.out.println("[SHOP] Tarot purchase rejected: shop is unavailable.");
-            return false;
+    public static boolean purchaseTarotCard(GameState state, TarotCards tarotCard)
+            throws InvalidGameActionException {
+        if (state == null) {
+            throw new InvalidGameActionException(
+                    "Cannot buy a Tarot card without an active game state.");
+        }
+        if (!state.isShopAccessible()) {
+            throw new InvalidGameActionException("The shop is only available between rounds.");
         }
         if (tarotCard == null) {
-            System.out.println("[SHOP] Tarot purchase rejected: invalid Tarot card.");
-            return false;
+            throw new InvalidGameActionException("Cannot buy a null Tarot card.");
         }
         if (state.getOwnedTarotCards().size() >= state.getMaxTarotCards()) {
-            System.out.println("[SHOP] Tarot purchase rejected: consumable slots are full.");
-            return false;
+            throw new InvalidGameActionException(
+                    "Cannot buy " + tarotCard.getName() + ": consumable slots are full ("
+                            + state.getMaxTarotCards() + " maximum).");
         }
 
         int cost = tarotCard.getShopCost();
-        if (!state.deductCash(cost)) {
-            System.out.println("[SHOP] Tarot purchase rejected: insufficient cash.");
-            return false;
-        }
+        state.spendCash(cost);
         if (!state.addTarotCard(tarotCard)) {
             state.addCash(cost);
-            System.out.println("[SHOP] Tarot purchase rejected: card could not be added.");
-            return false;
+            throw new InvalidGameActionException(
+                    "Could not add " + tarotCard.getName() + " to the consumable slots; purchase refunded.");
         }
 
         System.out.println("[SHOP] Purchased " + tarotCard.getName() + " for $" + cost + ".");

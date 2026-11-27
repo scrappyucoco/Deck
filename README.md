@@ -178,14 +178,9 @@ jpackage --type exe `
 The generated installer will be placed in `output/`. If JavaFX is not included in the JAR, add the JavaFX modules and the `lib` directory from the Liberica JDK installation:
 
 ```powershell
-jpackage --type exe `
-  --name DeckGame `
-  --input dist `
-  --main-jar Deck.jar `
-  --main-class com.game.deck.AppLauncher `
-  --module-path "$env:JAVA_HOME\lib" `
-  --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media `
-  --dest output
+
+C:\jdk21\bin\jpackage --type app-image --name "BalatroDeckGame" --app-version "1.0.0" --input C:\build --main-jar 28.jar --main-class com.game.deck.AppLauncher --dest C:\dist_win
+
 ```
 
 Use the first command when the JAR already contains the application's dependencies. Use the second command when JavaFX is available as separate modules in the Liberica JDK installation.

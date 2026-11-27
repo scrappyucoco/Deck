@@ -22,7 +22,8 @@ public abstract class Occurrence {
     private static final Random RANDOM = new Random();
     private static final List<Supplier<? extends Occurrence>> OCCURRENCE_POOL = List.of(
             MonologueTrial::new,
-            CashWindfallOccurrence::new
+            CashWindfallOccurrence::new,
+            PerfectShotOccurrence::new
     );
     private final String title;
     private final String description;

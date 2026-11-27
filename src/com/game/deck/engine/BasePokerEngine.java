@@ -1,8 +1,14 @@
 package com.game.deck.engine;
 
+/**
+ * Contains the BasePokerEngine source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 import com.game.deck.model.Card;
 import com.game.deck.model.Enchantment;
+import com.game.deck.model.GameState;
 import com.game.deck.model.PokerHand;
 
 import java.util.ArrayList;
@@ -30,6 +36,9 @@ public final class BasePokerEngine {
         public final double mult;
         public final long finalScore;
 
+    /**
+     * Performs the scor\1 \2esult operation.
+     */
         public ScoreResult(PokerHand handType, long baseChips, long cardChips, double mult) {
             this.handType = handType;
             this.baseChips = baseChips;
@@ -40,16 +49,22 @@ public final class BasePokerEngine {
         }
     }
 
+    /**
+     * Performs the evaluat\1 \2n\1 \2core operation.
+     */
     public static ScoreResult evaluateAndScore(List<Card> playedCards) {
-        return evaluateAndScore(playedCards, List.of());
+        return evaluateAndScore(playedCards, null);
     }
 
-    public static ScoreResult evaluateAndScore(List<Card> playedCards, List<Joker> activeJokers) {
+    /**
+     * Performs the evaluat\1 \2n\1 \2core operation.
+     */
+    public static ScoreResult evaluateAndScore(List<Card> playedCards, GameState gameState) {
         // --- INPUT NORMALIZATION ---
         if (playedCards == null || playedCards.isEmpty()) {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
-
+        List<Joker> activeJokers = (gameState == null) ? List.of() : gameState.getOwnedJokers();
         List<Card> validCards = new ArrayList<>();
         for (Card card : playedCards) {
             if (card != null) {
@@ -60,9 +75,9 @@ public final class BasePokerEngine {
             return new ScoreResult(PokerHand.HIGH_CARD, 0, 0, 0);
         }
 
-        PokerHand handType = PokerEvaluator.evaluate(validCards);
+        PokerHand handType = PokerEvaluator.evaluate(validCards, gameState.getOwnedJokers());
         ScoringContext context = new ScoringContext(
-                handType.getChips(), handType.getMult(), handType, null, true);
+                handType.getChips(), handType.getMult(), handType, gameState, true, validCards);
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Preview the same hand-base hook used by the authoritative scorer.
         if (activeJokers != null) {

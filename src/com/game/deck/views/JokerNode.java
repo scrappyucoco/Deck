@@ -1,10 +1,18 @@
 package com.game.deck.views;
 
+/**
+ * Contains the JokerNode source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
+import com.game.deck.equipment.Item;
 import com.game.deck.equipment.Joker;
 
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -15,6 +23,8 @@ import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URISyntaxException;
+import java.util.List;
 
 /*
  * JokerNode is the View representation of an owned or shop-offered Joker.
@@ -22,27 +32,49 @@ import java.net.URL;
  * and participates in JavaFX drag-and-drop ordering managed by GameView.
  */
 public class JokerNode extends StackPane {
+    public static final double CARD_WIDTH = 150.0;
+    public static final double CARD_HEIGHT = 210.0;
+    private static final Rectangle2D SPRITE_VIEWPORT = new Rectangle2D(38, 0, 180, 256);
+    private static final int MAX_SOCKETS = 2;
+    private final Tooltip description;
     private final Joker joker;
     private final Button sellButton;
+    private final ImageView[] socketNodes = new ImageView[MAX_SOCKETS];
 
+    /**
+     * Performs the joke\1 \2ode operation.
+     */
     public JokerNode(Joker joker) {
         this(joker, null);
     }
 
+    /**
+     * Performs the joke\1 \2ode operation.
+     */
     public JokerNode(Joker joker, Runnable sellAction) {
         // --- JOKER VISUAL CONSTRUCTION ---
         this.joker = joker;
-        setPrefSize(100, 130);
+        setMinSize(CARD_WIDTH, CARD_HEIGHT);
+        setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+        setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         getStyleClass().add("joker-node");
+        Tooltip tooltip = new Tooltip(joker.getName() + "\n" + joker.getDescription());
+        tooltip.setWrapText(true);
+        tooltip.setPrefWidth(240);
+        tooltip.setShowDelay(javafx.util.Duration.millis(250));
+        tooltip.getStyleClass().add("equipment-tooltip");
+        Tooltip.install(this, tooltip);
+        this.description = tooltip;
 
         Image image = loadImage(joker.getAssetPath());
         if (image == null) {
-            image = loadImage("assets/cards/joker_1.png");
+            image = loadImage(Joker.DEFAULT_ASSET_PATH);
         }
         if (image != null) {
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(getPrefWidth());
-            imageView.setFitHeight(getPrefHeight());
+            imageView.setViewport(SPRITE_VIEWPORT);
+            imageView.setFitWidth(CARD_WIDTH);
+            imageView.setFitHeight(CARD_HEIGHT);
             imageView.setPreserveRatio(true);
             imageView.setSmooth(false);
             getChildren().add(imageView);
@@ -54,12 +86,27 @@ public class JokerNode extends StackPane {
         }
 
         Label nameLabel = new Label(joker.getName());
-        nameLabel.getStyleClass().add("joker-name");
+        nameLabel.getStyleClass().add("equipment-name");
         nameLabel.setMouseTransparent(true);
         VBox details = new VBox(nameLabel);
         details.setAlignment(Pos.BOTTOM_CENTER);
         details.setMouseTransparent(true);
         getChildren().add(details);
+
+        VBox socketGroup = new VBox();
+        for(int i = 0; i < MAX_SOCKETS; i++){
+            ImageView socket = new ImageView();
+            socketNodes[i] = socket;
+            socket.setFitWidth(CARD_WIDTH*0.25);
+            socket.setFitHeight(CARD_WIDTH*0.25);
+            socket.setPreserveRatio(true);
+            socket.setSmooth(false);
+            socketGroup.getChildren().add(socket);
+        }
+        socketGroup.setSpacing(5);
+        socketGroup.setAlignment(Pos.BOTTOM_LEFT);
+        getChildren().add(socketGroup);
+        updateSockets();
 
         sellButton = new Button("Sell");
         sellButton.getStyleClass().add("btn-sell");
@@ -102,22 +149,57 @@ public class JokerNode extends StackPane {
         String withSlash = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
         String withoutSlash = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
         try {
+            // --- CLASSPATH/JAR RESOLUTION ---
             URL url = getClass().getResource(withSlash);
             if (url != null) {
-                return new Image(url.toExternalForm());
+                Image image = new Image(url.toExternalForm());
+                if (!image.isError()) {
+                    return image;
+                }
             }
             try (InputStream stream = getClass().getClassLoader().getResourceAsStream(withoutSlash)) {
                 if (stream != null) {
-                    return new Image(stream);
+                    Image image = new Image(stream);
+                    if (!image.isError()) {
+                        return image;
+                    }
                 }
             }
-            File rootFile = new File(withoutSlash);
-            if (rootFile.isFile()) {
-                return new Image(rootFile.toURI().toString());
+
+            // --- IDE/LOOSE RESOURCE RESOLUTION ---
+            // Eclipse may leave resources under resources/ instead of copying
+            // them into bin/, so check project and application layouts.
+            File applicationDirectory = getApplicationDirectory();
+            File[] projectCandidates = {
+                    new File(withoutSlash),
+                    new File("resources", withoutSlash),
+                    new File("src", withoutSlash),
+                    new File("src", "resources/" + withoutSlash)
+            };
+            for (File candidate : projectCandidates) {
+                if (candidate.isFile()) {
+                    Image image = new Image(candidate.toURI().toString());
+                    if (!image.isError()) {
+                        System.out.println("[ASSET] Loaded Joker image: " + candidate.getPath());
+                        return image;
+                    }
+                }
             }
-            File sourceFile = new File("src", withoutSlash);
-            if (sourceFile.isFile()) {
-                return new Image(sourceFile.toURI().toString());
+
+            if (applicationDirectory != null) {
+                File[] applicationCandidates = {
+                        new File(applicationDirectory, withoutSlash),
+                        new File(applicationDirectory, "resources/" + withoutSlash)
+                };
+                for (File candidate : applicationCandidates) {
+                    if (candidate.isFile()) {
+                        Image image = new Image(candidate.toURI().toString());
+                        if (!image.isError()) {
+                            System.out.println("[ASSET] Loaded Joker image: " + candidate.getPath());
+                            return image;
+                        }
+                    }
+                }
             }
         } catch (Exception exception) {
             System.err.println("[WARNING] Could not load joker image " + relativePath
@@ -126,6 +208,34 @@ public class JokerNode extends StackPane {
         return null;
     }
 
+    private File getApplicationDirectory() {
+        try {
+            URL codeSource = getClass().getProtectionDomain().getCodeSource().getLocation();
+            File location = new File(codeSource.toURI());
+            return location.isFile() ? location.getParentFile() : location;
+        } catch (URISyntaxException | SecurityException | NullPointerException exception) {
+            System.err.println("[WARNING] Could not resolve application asset directory: "
+                    + exception.getMessage());
+            return null;
+        }
+    }
+
+    private void updateSockets(){
+        List<Item> sockets = joker.getSockets();
+        String strng = joker.getName() + "\n" + joker.getDescription();
+        for(int i = 0; i < sockets.size(); i++){
+            Image image = loadImage(sockets.get(i).getAssetPath());
+            if(image == null)
+                image = loadImage("assets/items/ego_relic.png");
+            socketNodes[i].setImage(image);
+            strng += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
+        }
+        description.setText(strng);
+    }
+
+    /**
+     * Performs the ge\1 \2oker operation.
+     */
     public Joker getJoker() {
         return joker;
     }

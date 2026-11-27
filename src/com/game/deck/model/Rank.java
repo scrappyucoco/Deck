@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the Rank source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 /*
  * Rank is the model registry for ordering, display labels, chip values, and
  * asset suffixes. Card, Deck, PokerEvaluator, and CardNode all consume it.
@@ -34,18 +39,30 @@ public enum Rank {
         this.assetName = assetName;
     }
 
+    /**
+     * Performs the ge\1 \2ispla\1 \2ame operation.
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     * Performs the ge\1 \2alue operation.
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Performs the ge\1 \2as\1 \2hips operation.
+     */
     public int getBaseChips() {
         return baseChips;
     }
 
+    /**
+     * Performs the ge\1 \2sse\1 \2ame operation.
+     */
     public String getAssetName() {
         return assetName;
     }

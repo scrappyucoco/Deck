@@ -1,5 +1,10 @@
 package com.game.deck.occurrences;
 
+/**
+ * Contains the RandomEvent source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.model.GameState;
 
 /*
@@ -8,11 +13,17 @@ import com.game.deck.model.GameState;
  * contract and can be registered by a future event/occurrence controller.
  */
 public class RandomEvent extends Occurrence {
+    /**
+     * Performs the rando\1 \2vent operation.
+     */
     public RandomEvent() {
         super("Chance Encounter", "A mysterious event alters your upcoming round.");
     }
 
     @Override
+    /**
+     * Performs the execute operation.
+     */
     public void execute(GameState state) {
         // --- EVENT RESOLUTION ---
         double roll = Math.random();

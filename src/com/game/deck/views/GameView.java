@@ -1,7 +1,13 @@
 package com.game.deck.views;
 
+/**
+ * Contains the GameView source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.Shop;
+import com.game.deck.equipment.TarotCards;
 import com.game.deck.engine.BasePokerEngine;
 import com.game.deck.engine.ScoringEngine;
 import com.game.deck.model.Card;
@@ -17,10 +23,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /*
@@ -29,11 +39,17 @@ import java.util.Objects;
  * scoring to engine.ScoringEngine, and delegates purchases to equipment.Shop.
  */
 public class GameView extends BorderPane {
+    private static final int MAX_SHOP_OFFERS = 3;
+
     private final GameState gameState;
     private final List<CardNode> activeCardNodes = new ArrayList<>();
+    private final List<Joker> shopOffers = new ArrayList<>();
+    private final List<TarotCards> tarotShopOffers = new ArrayList<>();
+    private final Map<Joker, Button> shopBuyButtons = new LinkedHashMap<>();
+    private final Map<TarotCards, Button> tarotBuyButtons = new LinkedHashMap<>();
     private boolean firstRoundStarted;
     private boolean shopOpen = true;
-    private Joker shopOffer;
+    private StackPane centerLayer;
 
     private final Label scoreLabel = createHeaderLabel("");
     private final Label targetLabel = createHeaderLabel("");
@@ -44,22 +60,26 @@ public class GameView extends BorderPane {
     private final Label handTypeLabel = new Label();
     private final Label handScorePreviewLabel = new Label();
     private final Label shopMessageLabel = new Label();
+    private final Label tarotShopMessageLabel = new Label();
     private final HBox handContainer = new HBox(10);
     private final HBox ownedJokersContainer = new HBox(15);
+    private final HBox ownedTarotCardsContainer = new HBox(12);
     private final HBox shopOfferContainer = new HBox(12);
+    private final HBox tarotShopOfferContainer = new HBox(12);
     private final VBox shopPanel = new VBox(8);
     private final Button shopButton = new Button("Shop");
     private final Button startRoundButton = new Button("Start Round");
-    private final Button buyJokerButton = new Button();
     private final Button playButton = new Button("Play Hand");
     private final Button discardButton = new Button("Discard");
     private final Button sortRankButton = new Button("Sort Rank");
     private final Button sortSuitButton = new Button("Sort Suit");
 
+    /**
+     * Performs the gam\1 \2iew operation.
+     */
     public GameView(GameState gameState) {
         // --- VIEW INITIALIZATION ---
         this.gameState = Objects.requireNonNull(gameState, "gameState");
-        this.shopOffer = Joker.createRandomJoker();
         getStyleClass().add("poker-table");
         setPadding(new Insets(15));
 
@@ -70,67 +90,143 @@ public class GameView extends BorderPane {
     }
 
     private void buildTopBar() {
-        // --- STATUS BAR ---
-        shopButton.getStyleClass().add("btn-secondary");
+        // --- SCOREBOARD SIDEBAR ---
+        shopButton.getStyleClass().add("scoreboard-shop-button");
         shopButton.setOnAction(event -> toggleShop());
 
-        HBox scoreBox = new HBox(18, anteLabel, targetLabel, scoreLabel, cashLabel, shopButton);
-        scoreBox.setAlignment(Pos.CENTER);
-        scoreBox.getStyleClass().add("status-bar");
-        scoreBox.setPadding(new Insets(10));
-        setTop(scoreBox);
+
+        VBox anteBox = new VBox(4, anteLabel);
+        anteBox.getStyleClass().add("scoreboard-card");
+
+        VBox targetBox = createScoreCard("Target Score", targetLabel, "assets/chips/Blue_Side.png",
+                "score-target");
+        VBox currentBox = createScoreCard("Current Score", scoreLabel, "assets/chips/Green.png",
+                "score-current");
+
+        Label cashCaption = new Label("Economy");
+        cashCaption.getStyleClass().add("scoreboard-caption");
+        HBox cashRow = new HBox(40, cashLabel, shopButton);
+        cashRow.setAlignment(Pos.CENTER_LEFT);
+        VBox cashBox = new VBox(cashCaption, cashRow);
+        cashBox.getStyleClass().addAll("scoreboard-card", "cash-card");
+
+        Label roundCaption = new Label("ROUND");
+        roundCaption.getStyleClass().add("scoreboard-caption");
+        HBox resources = new HBox(8, createResourceBadge(handsLabel, "Hands"),
+                createResourceBadge(discardsLabel, "Discards"));
+        VBox resourceBox = new VBox(6, roundCaption, resources);
+        resourceBox.getStyleClass().add("scoreboard-card");
+
+        VBox previewCard = new VBox(5, handTypeLabel, handScorePreviewLabel);
+        previewCard.getStyleClass().add("score-preview-card");
+        handTypeLabel.getStyleClass().add("hand-type-label");
+        handScorePreviewLabel.getStyleClass().add("hand-score-label");
+
+        startRoundButton.getStyleClass().add("btn-primary");
+        startRoundButton.setOnAction(event -> startRound());
+        VBox scoreboard = new VBox(15, anteBox, targetBox, currentBox, previewCard,
+                resourceBox, cashBox, startRoundButton);
+        scoreboard.setAlignment(Pos.TOP_CENTER);
+        scoreboard.getStyleClass().add("scoreboard-panel");
+        setLeft(scoreboard);
+    }
+
+    private VBox createScoreCard(String caption, Label value, String iconPath, String valueClass) {
+        Label title = new Label(caption);
+        title.getStyleClass().add("scoreboard-caption");
+        Image iconImage = loadScoreIcon(iconPath);
+        ImageView icon = new ImageView(iconImage);
+        icon.setFitWidth(24);
+        icon.setFitHeight(24);
+        value.getStyleClass().add(valueClass);
+        HBox row = new HBox(8, icon, value);
+        row.setAlignment(Pos.CENTER_LEFT);
+        VBox card = new VBox(4, title, row);
+        card.getStyleClass().add("scoreboard-card");
+        return card;
+    }
+
+    private Image loadScoreIcon(String path) {
+        var url = getClass().getResource("/" + path);
+        if (url == null) {
+            throw new IllegalStateException("Missing scoreboard asset: " + path);
+        }
+        return new Image(url.toExternalForm());
+    }
+
+    private VBox createResourceBadge(Label value, String caption) {
+        Label title = new Label(caption);
+        title.getStyleClass().add("resource-caption");
+        value.getStyleClass().add("resource-value");
+        VBox badge = new VBox(3, title, value);
+        badge.getStyleClass().add("resource-badge");
+        return badge;
     }
 
     private void buildCenterArea() {
         // --- CENTER PLAY AREA ---
-        Label jokerTitle = new Label("Jokers (drag to reorder)");
+        Label jokerTitle = new Label("Jokers");
         jokerTitle.getStyleClass().add("section-title");
         ownedJokersContainer.setAlignment(Pos.CENTER);
-        ownedJokersContainer.setMinHeight(135);
+        configureEquipmentSlot(ownedJokersContainer, 3);
 
-        handTypeLabel.getStyleClass().add("hand-type-label");
-        handScorePreviewLabel.getStyleClass().add("hand-score-label");
-        VBox preview = new VBox(6, handTypeLabel, handScorePreviewLabel);
-        preview.setAlignment(Pos.CENTER);
+        Label tarotTitle = new Label("Tarots");
+        tarotTitle.getStyleClass().add("section-title");
+        ownedTarotCardsContainer.setAlignment(Pos.CENTER);
+        configureEquipmentSlot(ownedTarotCardsContainer, 2);
 
         handContainer.setAlignment(Pos.CENTER);
-        handContainer.setMinHeight(160);
+        handContainer.setSpacing(-15);
+        handContainer.setMinHeight(CardNode.CARD_HEIGHT + 20);
 
         shopPanel.getStyleClass().add("shop-panel");
         buildShopPanel();
 
-        VBox playArea = new VBox(10, jokerTitle, ownedJokersContainer, preview, handContainer);
+        VBox jokerColumn = new VBox(8, jokerTitle, ownedJokersContainer);
+        VBox tarotColumn = new VBox(8, tarotTitle, ownedTarotCardsContainer);
+        HBox equipmentRow = new HBox(24, jokerColumn, tarotColumn);
+        equipmentRow.getStyleClass().add("equipment-row");
+        equipmentRow.setTranslateY(-35);
+        VBox playArea = new VBox(30, equipmentRow, handContainer);
         playArea.setAlignment(Pos.CENTER);
 
-        StackPane centerLayer = new StackPane(playArea, shopPanel);
+        centerLayer = new StackPane(playArea, shopPanel);
         centerLayer.setAlignment(Pos.CENTER);
         shopPanel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         setCenter(centerLayer);
     }
 
+    private void configureEquipmentSlot(HBox slot, int capacity) {
+        double width = capacity * CardNode.CARD_WIDTH + (capacity - 1) * 12;
+        slot.setMinSize(width, CardNode.CARD_HEIGHT);
+        slot.setPrefSize(width, CardNode.CARD_HEIGHT);
+        slot.setMaxSize(width, CardNode.CARD_HEIGHT);
+        slot.setSpacing(12);
+        slot.setAlignment(Pos.CENTER);
+        slot.getStyleClass().add("equipment-slot");
+    }
+
     private void buildShopPanel() {
-        // --- SHOP OFFER REGISTRATION ---
-        // [CUSTOMIZATION: ADD NEW JOKERS HERE]
-        // Add a MyJoker::new factory to Joker's in-memory pool; this panel
-        // renders whichever fresh instance createRandomJoker() selects.
+        // --- SHOP OFFER RENDERING ---
         Label title = new Label("SHOP");
         title.getStyleClass().add("shop-title");
         shopMessageLabel.getStyleClass().add("shop-message");
+        Label tarotTitle = new Label("TAROT CONSUMABLES");
+        tarotTitle.getStyleClass().add("shop-title");
+        tarotShopMessageLabel.getStyleClass().add("shop-message");
 
-        buyJokerButton.getStyleClass().add("btn-primary");
-        buyJokerButton.setOnAction(event -> buyShopOffer());
         shopOfferContainer.setAlignment(Pos.CENTER);
-        renderShopOffer();
-        shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer);
+        tarotShopOfferContainer.setAlignment(Pos.CENTER);
+        rerollShopOffers();
+        shopPanel.getChildren().addAll(title, shopMessageLabel, shopOfferContainer,
+                tarotTitle, tarotShopMessageLabel, tarotShopOfferContainer);
     }
 
     private void buildBottomArea() {
-        // --- ACTION BAR ---
-        HBox stats = new HBox(20, handsLabel, discardsLabel);
-        stats.setAlignment(Pos.CENTER);
-
+        // --- LOWER HAND ACTION BAR ---
         playButton.getStyleClass().add("btn-primary");
-        discardButton.getStyleClass().add("btn-secondary");
+        playButton.getStyleClass().add("play-hand-button");
+        discardButton.getStyleClass().add("btn-danger");
         sortRankButton.getStyleClass().add("btn-secondary");
         sortSuitButton.getStyleClass().add("btn-secondary");
         playButton.setOnAction(event -> handlePlayHand());
@@ -150,16 +246,14 @@ public class GameView extends BorderPane {
             renderHand();
         });
 
-        startRoundButton.getStyleClass().add("btn-primary");
-        startRoundButton.setOnAction(event -> startRound());
-
-        HBox actions = new HBox(15, startRoundButton, playButton, discardButton, sortRankButton, sortSuitButton);
-        actions.setAlignment(Pos.CENTER);
-
-        VBox bottom = new VBox(12, stats, actions);
-        bottom.setAlignment(Pos.CENTER);
-        bottom.setPadding(new Insets(10));
-        setBottom(bottom);
+        VBox actionBar = new VBox(10);
+        actionBar.setAlignment(Pos.CENTER);
+        HBox rightActions = new HBox(8, discardButton, sortRankButton, sortSuitButton);
+        rightActions.setAlignment(Pos.CENTER);
+        actionBar.setAlignment(Pos.CENTER);
+        actionBar.getChildren().addAll(playButton, rightActions);
+        actionBar.getStyleClass().add("hand-action-bar");
+        setBottom(actionBar);
     }
 
     private void handleCardSelection(CardNode node) {
@@ -220,7 +314,7 @@ public class GameView extends BorderPane {
         List<Card> selected = getSelectedCards();
         if (selected.isEmpty()) {
             handTypeLabel.setText(gameState.isRoundActive() ? "Select 1 to 5 cards" : "Start a round to play");
-            handScorePreviewLabel.setText("[ 0 Chips  x  0 Mult = 0 ]");
+            handScorePreviewLabel.setText("0 Chips  x  0 Mult = 0 ");
             System.out.println("[PREVIEW] selected=0 | chips=0 | mult=0.0 | score=0");
             return;
         }
@@ -231,7 +325,7 @@ public class GameView extends BorderPane {
         }
 
         BasePokerEngine.ScoreResult result =
-                BasePokerEngine.evaluateAndScore(selected, gameState.getOwnedJokers());
+                BasePokerEngine.evaluateAndScore(selected, gameState);
         handTypeLabel.setText(result.handType.getDisplayName());
         handScorePreviewLabel.setText(String.format(
                 "[ %d Chips  x  %.1f Mult = %d ]",
@@ -242,6 +336,9 @@ public class GameView extends BorderPane {
                 result.cardChips, result.totalChips, result.mult, result.finalScore);
     }
 
+    /**
+     * Performs the refres\1 \2i operation.
+     */
     public void refreshUI() {
         // --- VIEW STATE SYNCHRONIZATION ---
         anteLabel.setText("Ante: " + gameState.getAnte());
@@ -252,6 +349,7 @@ public class GameView extends BorderPane {
         discardsLabel.setText("Discards: " + gameState.getDiscardsRemaining());
         renderHand();
         renderJokers();
+        renderTarotCards();
         updateHandPreview();
         updateShop();
         updateRoundState();
@@ -304,6 +402,22 @@ public class GameView extends BorderPane {
         }
     }
 
+    private void renderTarotCards() {
+        ownedTarotCardsContainer.getChildren().clear();
+        if (gameState.getOwnedTarotCards().isEmpty()) {
+            Label empty = new Label("No Tarot cards | "
+                    + gameState.getOwnedTarotCards().size() + "/" + gameState.getMaxTarotCards() + " slots");
+            empty.getStyleClass().add("empty-jokers");
+            ownedTarotCardsContainer.getChildren().add(empty);
+            return;
+        }
+
+        for (TarotCards tarotCard : gameState.getOwnedTarotCards()) {
+            ownedTarotCardsContainer.getChildren().add(
+                    new TarotNode(tarotCard, () -> useTarotCard(tarotCard), () -> sellTarotCard(tarotCard)));
+        }
+    }
+
     private List<Card> getSelectedCards() {
         List<Card> selected = new ArrayList<>();
         for (CardNode node : activeCardNodes) {
@@ -311,7 +425,6 @@ public class GameView extends BorderPane {
                 selected.add(node.getCard());
             }
         }
-        ScoringEngine.PlayedCards = selected;
         return selected;
     }
 
@@ -320,6 +433,22 @@ public class GameView extends BorderPane {
         if (gameState.isRoundActive()) {
             return;
         }
+        if (centerLayer.getChildren().stream().anyMatch(node -> node instanceof OccurrenceSelectionView)) {
+            return;
+        }
+        OccurrenceSelectionView occurrenceView = new OccurrenceSelectionView(gameState, () -> {
+            centerLayer.getChildren().removeIf(node -> node instanceof OccurrenceSelectionView);
+            beginRoundAfterOccurrence();
+        });
+        centerLayer.getChildren().add(occurrenceView);
+        occurrenceView.toFront();
+        startRoundButton.setDisable(true);
+        shopPanel.setVisible(false);
+        shopPanel.setManaged(false);
+        System.out.println("[UI] Pre-round occurrence selection opened.");
+    }
+
+    private void beginRoundAfterOccurrence() {
         if (!firstRoundStarted) {
             gameState.startRound(300, 4, 3);
             firstRoundStarted = true;
@@ -327,7 +456,8 @@ public class GameView extends BorderPane {
             gameState.startNextRound();
         }
         shopOpen = false;
-        System.out.println("[UI] Start Round clicked.");
+        startRoundButton.setDisable(false);
+        System.out.println("[UI] Start Round clicked after occurrence.");
         refreshUI();
     }
 
@@ -348,33 +478,114 @@ public class GameView extends BorderPane {
         shopPanel.setVisible(visible);
         shopPanel.setManaged(visible);
         shopButton.setDisable(!accessible);
-        int offerCost = shopOffer.getShopCost();
-        buyJokerButton.setText("Buy " + shopOffer.getName() + " ($" + offerCost + ")");
-        buyJokerButton.setDisable(
-                !accessible
-                        || gameState.getCash() < offerCost
-                        || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
-        shopMessageLabel.setText(shopOffer.getName() + ": " + shopOffer.getDescription() + " | "
+        for (Map.Entry<Joker, Button> entry : shopBuyButtons.entrySet()) {
+            Joker offer = entry.getKey();
+            int offerCost = offer.getShopCost();
+            Button buyButton = entry.getValue();
+            buyButton.setText("Buy " + offer.getName() + " ($" + offerCost + ")");
+            buyButton.setDisable(
+                    !accessible
+                            || gameState.getCash() < offerCost
+                            || gameState.getOwnedJokers().size() >= gameState.getMaxJokers());
+        }
+        for (Map.Entry<TarotCards, Button> entry : tarotBuyButtons.entrySet()) {
+            TarotCards offer = entry.getKey();
+            int offerCost = offer.getShopCost();
+            Button buyButton = entry.getValue();
+            buyButton.setText("Buy " + offer.getName() + " ($" + offerCost + ")");
+            buyButton.setDisable(
+                    !accessible
+                            || gameState.getCash() < offerCost
+                            || gameState.getOwnedTarotCards().size() >= gameState.getMaxTarotCards());
+        }
+        shopMessageLabel.setText("Choose an offer | "
                 + gameState.getOwnedJokers().size() + "/" + gameState.getMaxJokers() + " slots used");
+        tarotShopMessageLabel.setText(tarotShopOffers.isEmpty()
+                ? "No Tarot cards are registered yet."
+                : "Choose an offer | " + gameState.getOwnedTarotCards().size()
+                        + "/" + gameState.getMaxTarotCards() + " slots used");
     }
 
-    private void renderShopOffer() {
-        // Rebuild only the offer area so the purchased instance is never reused.
+    private void rerollShopOffers() {
+        shopOffers.clear();
+        shopOffers.addAll(Joker.createShopOffers(MAX_SHOP_OFFERS));
+        tarotShopOffers.clear();
+        tarotShopOffers.addAll(TarotCards.createShopOffers(MAX_SHOP_OFFERS));
+        renderShopOffers();
+    }
+
+    private void renderShopOffers() {
+        // Rebuild the offer cards from the registered equipment data.
         shopOfferContainer.getChildren().clear();
-        shopOfferContainer.getChildren().addAll(new JokerNode(shopOffer), buyJokerButton);
+        shopBuyButtons.clear();
+        for (Joker offer : shopOffers) {
+            Label description = new Label(offer.getDescription());
+            description.getStyleClass().add("shop-message");
+            description.setWrapText(true);
+            description.setMaxWidth(150);
+
+            Button buyButton = new Button();
+            buyButton.getStyleClass().add("btn-primary");
+            buyButton.setOnAction(event -> buyShopOffer(offer));
+            shopBuyButtons.put(offer, buyButton);
+
+            VBox offerCard = new VBox(6, new JokerNode(offer), description, buyButton);
+            offerCard.getStyleClass().add("shop-offer");
+            offerCard.setAlignment(Pos.CENTER);
+            shopOfferContainer.getChildren().add(offerCard);
+        }
+
+        tarotShopOfferContainer.getChildren().clear();
+        tarotBuyButtons.clear();
+        for (TarotCards offer : tarotShopOffers) {
+            Label description = new Label(offer.getDescription());
+            description.getStyleClass().add("shop-message");
+            description.setWrapText(true);
+            description.setMaxWidth(150);
+
+            Button buyButton = new Button();
+            buyButton.getStyleClass().add("btn-primary");
+            buyButton.setOnAction(event -> buyTarotOffer(offer));
+            tarotBuyButtons.put(offer, buyButton);
+
+            VBox offerCard = new VBox(6, new TarotNode(offer), description, buyButton);
+            offerCard.getStyleClass().add("shop-offer");
+            offerCard.setAlignment(Pos.CENTER);
+            tarotShopOfferContainer.getChildren().add(offerCard);
+        }
     }
 
-    private void buyShopOffer() {
-        System.out.println("[UI] Buy " + shopOffer.getName() + " clicked.");
-        if (Shop.purchaseJoker(gameState, shopOffer)) {
-            shopOffer = Joker.createRandomJoker();
-            renderShopOffer();
+    private void buyShopOffer(Joker offer) {
+        System.out.println("[UI] Buy " + offer.getName() + " clicked.");
+        if (Shop.purchaseJoker(gameState, offer)) {
+            rerollShopOffers();
+            refreshUI();
+        }
+    }
+
+    private void buyTarotOffer(TarotCards offer) {
+        System.out.println("[UI] Buy Tarot " + offer.getName() + " clicked.");
+        if (Shop.purchaseTarotCard(gameState, offer)) {
+            rerollShopOffers();
+            refreshUI();
+        }
+    }
+
+    private void useTarotCard(TarotCards tarotCard) {
+        System.out.println("[UI] Use Tarot " + tarotCard.getName() + " clicked.");
+        if (gameState.useTarotCard(tarotCard, getSelectedCards())) {
             refreshUI();
         }
     }
 
     private void sellJoker(Joker joker) {
         if (gameState.sellJoker(joker)) {
+            refreshUI();
+        }
+    }
+
+    private void sellTarotCard(TarotCards tarotCards) {
+        if (gameState.sellTarotCard(tarotCards)) {
             refreshUI();
         }
     }

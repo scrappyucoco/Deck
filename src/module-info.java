@@ -1,3 +1,8 @@
+/**
+ * Declares the Deck application module and the JavaFX/JDK modules it requires.
+ * The exported packages form the public boundaries between the model, engine,
+ * equipment, occurrence, and view layers.
+ */
 module com.game.deck {
     requires java.base;
     requires java.desktop;

@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the Suit source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 /*
  * Suit is the model registry for display symbols, resource prefixes, and color.
  * Card uses assetName for paths; PokerEvaluator uses the enum as a flush key;
@@ -23,18 +28,30 @@ public enum Suit {
         this.red = red;
     }
 
+    /**
+     * Performs the ge\1 \2ispla\1 \2ame operation.
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     * Performs the ge\1 \2ymbol operation.
+     */
     public String getSymbol() {
         return symbol;
     }
 
+    /**
+     * Performs the ge\1 \2sse\1 \2ame operation.
+     */
     public String getAssetName() {
         return assetName;
     }
 
+    /**
+     * Performs the i\1 \2ed operation.
+     */
     public boolean isRed() {
         return red;
     }

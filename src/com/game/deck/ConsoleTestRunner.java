@@ -1,5 +1,10 @@
 package com.game.deck;
 
+/**
+ * Contains the ConsoleTestRunner source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 import com.game.deck.engine.ScoringEngine;
 import com.game.deck.equipment.*;
 
@@ -16,6 +21,9 @@ import java.util.List;
  */
 public class ConsoleTestRunner {
 
+    /**
+     * Performs the main operation.
+     */
     public static void main(String[] args) {
         // --- ENGINE INTEGRATION SCENARIO ---
         System.out.println("============================================================");
@@ -48,6 +56,9 @@ public class ConsoleTestRunner {
 
         Joker flatJoker = new Joker("Solar Rune", "+4 Flat Mult", "joker_flat") {
             @Override
+    /**
+     * Performs the appl\1 \2as\1 \2ffect operation.
+     */
             protected void applyBaseEffect(com.game.deck.engine.ScoringContext ctx) {
                 ctx.addMult(4.0);
             }
@@ -57,6 +68,9 @@ public class ConsoleTestRunner {
 
         Joker xJoker = new Joker("Void Prism", "x1.5 Mult", "joker_xmult") {
             @Override
+    /**
+     * Performs the appl\1 \2as\1 \2ffect operation.
+     */
             protected void applyBaseEffect(com.game.deck.engine.ScoringContext ctx) {
                 ctx.multiplyMult(1.5);
             }

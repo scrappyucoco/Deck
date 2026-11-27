@@ -22,7 +22,7 @@
 1. **4-Stage Scoring Engine:** Calculates points via $\text{Score} = \text{Chips} \times \text{Mult}$. Evaluates played cards, held card passives (Steel/Gold), and left-to-right Joker multipliers in strict sequential order.
 2. **Socket Equipment Engine:** Equip up to 3 Jokers, each featuring **2 Item Sockets** (6 total sockets). Socketable items dynamically retrigger, double, or amplify parent Joker effects.
 3. **Monologue Narrative Trials:** Post-round dialogue minigames where players debate existential prompts using sentence fragment blocks. Correct logical alignment grants high-tier rewards; failure incurs penalties.
-4. **Custom CSS & Pixel Art UI:** Polished JavaFX interface powered by external CSS stylesheets (`assets/ui/`) and crisp 8x pixel art assets.
+4. **Custom CSS & Pixel Art UI:** Polished JavaFX interface powered by external CSS stylesheets (`resources/assets/`) and crisp 8x pixel art assets.
 
 ---
 
@@ -52,7 +52,7 @@ Deck/
 │       ├── occurrences/             # Occurrence, MonologueTrial, RandomEvents
 │       ├── shop/                    # ShopManager, TarotCard, TomeOfMastery
 │       └── views/                   # CardNode, GameScene, UI Controllers
-└── assets/
+└── resources/assets/
     ├── cards/                       # 52 Playing Card Textures (e.g., spades_ace.png)
     ├── enhancements/                # Card Frame Overlays (bonus_shield.png, etc.)
     ├── jokers/                      # Joker Artwork Tiles
@@ -106,10 +106,12 @@ git clone https://github.com/scrappyucoco/Deck.git
 * Choose **Alternate JRE** and point it to your installed **Liberica JDK 21 Full** (or Zulu JDK 21 FX).
 
 
-5. **Mark `assets` as a Resource Folder** *(Crucial for CSS and Image loading!)*:
+5. **Mark `resources` as a Resource Folder** *(Crucial for CSS and Image loading!)*:
 * Still in **Java Build Path**, go to the **Source** tab.
-* Click **Add Folder...** on the right $\rightarrow$ check the box for `assets` $\rightarrow$ click **OK**.
+* Click **Add Folder...** on the right $\rightarrow$ check the box for `resources` $\rightarrow$ click **OK**.
 * Click **Apply and Close**.
+* If assets were added outside Eclipse, right-click the project and choose
+  **Refresh** (or press **F5**) before running **Project $\rightarrow$ Clean**.
 
 
 
@@ -143,8 +145,9 @@ git clone https://github.com/scrappyucoco/Deck.git
 # Compile source files into bin/
 javac -d bin --module-source-path src $(find src -name "*.java")
 
-# Copy assets to bin root so they package inside the JAR
-cp -r assets bin/
+# Copy every resource, including resources/assets/jokers/, into Eclipse's bin output
+mkdir -p bin/assets
+cp -r resources/assets/. bin/assets/
 
 # Create runnable JAR
 jar --create --file Deck.jar --main-class com.game.deck.AppLauncher -C bin .
@@ -191,11 +194,12 @@ Use the first command when the JAR already contains the application's dependenci
 
 ## Asset Naming Conventions
 
-When contributing new graphics or custom styles to `assets/`, please follow these exact naming patterns:
+When contributing new graphics or custom styles to `resources/assets/`, please follow these exact naming patterns:
 
-* **Cards (`assets/cards/`)**: `{suit}_{rank}.png` (e.g., `spades_ace.png`, `hearts_king.png`, `diamonds_10.png`, `clubs_2.png`).
-* **Items (`assets/items/`)**: `{tier}_{name}.png` (e.g., `gem_polished.png`, `mirror_shattered.png`, `relic_ego.png`).
-* **UI Styles (`assets/ui/`)**: Modify `theme.css` for table backgrounds and buttons; modify `cards.css` for card frames and selection glows.
+* **Cards (`resources/assets/cards/`)**: `{suit}_{rank}.png` (e.g., `spade_A.png`, `heart_K.png`, `diamond_10.png`, `club_2.png`).
+* **Jokers (`resources/assets/jokers/`)**: use the asset filename stem passed to `Joker` (for example, `joker_1` resolves to `joker_1.png`).
+* **Items (`resources/assets/items/`)**: `{tier}_{name}.png` (e.g., `gem_polished.png`, `mirror_shattered.png`, `relic_ego.png`).
+* **UI Styles (`resources/assets/`)**: Modify `theme.css` for table backgrounds and buttons; modify `cards.css` for card frames and selection glows.
 
 ---
 

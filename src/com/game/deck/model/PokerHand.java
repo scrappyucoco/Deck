@@ -1,5 +1,10 @@
 package com.game.deck.model;
 
+/**
+ * Contains the PokerHand source type for the Deck game.
+ * This source file participates in the modular Deck application.
+ */
+
 /*
  * PokerHand is the model catalog of recognized poker combinations.
  * PokerEvaluator selects an entry; scoring engines read its base chips/mult;
@@ -37,9 +42,24 @@ public enum PokerHand {
 
     // [CONFIG: TWEAK SCORE VALUES HERE]
     // Change the per-level chip/multiplier increments here to tune progression.
+    /**
+     * Performs the ge\1 \2hips operation.
+     */
     public int getChips() { return baseChips + ((level - 1) * 15); }
+    /**
+     * Performs the ge\1 \2ult operation.
+     */
     public int getMult() { return baseMult + ((level - 1) * 2); }
+    /**
+     * Performs the leve\1 \2p operation.
+     */
     public void levelUp() { this.level++; }
+    /**
+     * Performs the ge\1 \2evel operation.
+     */
     public int getLevel() { return level; }
+    /**
+     * Performs the ge\1 \2ispla\1 \2ame operation.
+     */
     public String getDisplayName() { return displayName; }
 }

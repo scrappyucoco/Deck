@@ -4,3 +4,4 @@ implement.md
 *.log
 *.class
 .settings/
+bin

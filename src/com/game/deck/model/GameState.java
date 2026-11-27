@@ -57,7 +57,7 @@ public class GameState {
     private static final int MAX_TAROT_CARDS = 2;
 
     /**
-     * Performs the gam\1 \2tate operation.
+     * Performs the game state operation.
      */
     public GameState() {
         // --- RUN INITIALIZATION ---
@@ -70,7 +70,7 @@ public class GameState {
     }
 
     /**
-     * Performs the star\1 \2e\1 \2un operation.
+     * Performs the start new run operation.
      */
     public void startNewRun() {
         this.ante = 1;
@@ -90,7 +90,7 @@ public class GameState {
     }
 
     /**
-     * Performs the star\1 \2ound operation.
+     * Performs the start round operation.
      */
     public void startRound(long targetScore, int hands, int discards)
             throws InvalidGameActionException {
@@ -117,7 +117,7 @@ public class GameState {
     }
 
     /**
-     * Performs the star\1 \2ex\1 \2ound operation.
+     * Performs the start next round operation.
      */
     public void startNextRound() throws InvalidGameActionException {
         if (roundActive) {
@@ -134,7 +134,7 @@ public class GameState {
     }
     
     /**
-     * Performs the en\1 \2ound operation.
+     * Performs the end round operation.
      */
     public void endRound() {
         // --- ROUND END ---
@@ -149,7 +149,7 @@ public class GameState {
     }
 
     /**
-     * Performs the refil\1 \2and operation.
+     * Performs the refill hand operation.
      */
     public void refillHand() throws InvalidGameActionException {
         int needed = maxHandSize - hand.size();
@@ -160,7 +160,7 @@ public class GameState {
     }
 
     /**
-     * Performs the pla\1 \2electe\1 \2ards operation.
+     * Performs the play selected cards operation.
      *
      * @throws InvalidGameActionException when the round is inactive, no hands
      *         remain, or the selection is not 1-5 cards from the hand

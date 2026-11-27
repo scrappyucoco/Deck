@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /*
- * GameView is the primary JavaFX View/controller surface for one run.
+ * GameView is the main JavaFX View/controller surface for one run.
  * It binds GameState model data to CardNode/JokerNode controls, delegates
  * scoring to engine.ScoringEngine, and delegates purchases to equipment.Shop.
  */
@@ -76,7 +76,7 @@ public class GameView extends BorderPane {
     private final Button sortSuitButton = new Button("Sort Suit");
 
     /**
-     * Performs the gam\1 \2iew operation.
+     * Performs the game view operation.
      */
     public GameView(GameState gameState) {
         // --- VIEW INITIALIZATION ---
@@ -348,7 +348,7 @@ public class GameView extends BorderPane {
     }
 
     /**
-     * Performs the refres\1 \2i operation.
+     * Performs the refresh UI operation.
      */
     public void refreshUI() {
         // --- VIEW STATE SYNCHRONIZATION ---

@@ -33,14 +33,14 @@ public class TarotNode extends StackPane {
     private final TarotCards tarotCard;
 
     /**
-     * Performs the taro\1 \2ode operation.
+     * Performs the tarot node operation.
      */
     public TarotNode(TarotCards tarotCard) {
         this(tarotCard, null);
     }
 
     /**
-     * Performs the taro\1 \2ode operation.
+     * Performs the tarot node operation.
      */
     public TarotNode(TarotCards tarotCard, Runnable useAction) {
         this.tarotCard = Objects.requireNonNull(tarotCard, "tarotCard");
@@ -106,7 +106,7 @@ public class TarotNode extends StackPane {
     }
 
     /**
-     * Performs the ge\1 \2aro\1 \2ard operation.
+     * Performs the get tarot card operation.
      */
     public TarotCards getTarotCard() {
         return tarotCard;

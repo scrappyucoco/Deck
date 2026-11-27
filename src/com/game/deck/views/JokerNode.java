@@ -93,6 +93,21 @@ public class JokerNode extends StackPane {
         details.setMouseTransparent(true);
         getChildren().add(details);
 
+        VBox socketGroup = new VBox();
+        for(int i = 0; i < MAX_SOCKETS; i++){
+            ImageView socket = new ImageView();
+            socketNodes[i] = socket;
+            socket.setFitWidth(CARD_WIDTH*0.25);
+            socket.setFitHeight(CARD_WIDTH*0.25);
+            socket.setPreserveRatio(true);
+            socket.setSmooth(false);
+            socketGroup.getChildren().add(socket);
+        }
+        socketGroup.setSpacing(5);
+        socketGroup.setAlignment(Pos.BOTTOM_LEFT);
+        getChildren().add(socketGroup);
+        updateSockets();
+
         sellButton = new Button("Sell");
         sellButton.getStyleClass().add("btn-sell");
         sellButton.setVisible(false);
@@ -128,21 +143,6 @@ public class JokerNode extends StackPane {
             event.consume();
         });
         setOnDragDone(event -> setOpacity(1.0));
-
-        VBox socketGroup = new VBox();
-        for(int i = 0; i < MAX_SOCKETS; i++){
-            ImageView socket = new ImageView();
-            socketNodes[i] = socket;
-            socket.setFitWidth(CARD_WIDTH*0.25);
-            socket.setFitHeight(CARD_WIDTH*0.25);
-            socket.setPreserveRatio(true);
-            socket.setSmooth(false);
-            socketGroup.getChildren().add(socket);
-        }
-        socketGroup.setSpacing(5);
-        socketGroup.setAlignment(Pos.TOP_RIGHT);
-        getChildren().add(socketGroup);
-        updateSockets();
     }
 
     private Image loadImage(String relativePath) {

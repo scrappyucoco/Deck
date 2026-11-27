@@ -60,7 +60,6 @@ public class CardNode extends StackPane {
         tooltip.setShowDelay(javafx.util.Duration.millis(250));
         tooltip.getStyleClass().add("equipment-tooltip");
         Tooltip.install(this, tooltip);
-        card.setTooltip(tooltip);
 
         Image image = loadImage(imagePath);
         if (image != null) {

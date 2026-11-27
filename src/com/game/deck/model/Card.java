@@ -76,14 +76,12 @@ public class Card implements Comparable<Card> {
      */
     public void setSuit(Suit suit){
         this.suit = Objects.requireNonNull(suit, "suit");
-        this.suit = suit;
     }
     /**
      * Performs the se\1 \2ank operation.
      */
     public void setRank(Rank rank){
         this.rank = Objects.requireNonNull(rank, "rank");
-        this.rank = rank;
     }
     /**
      * Performs the i\1 \2ebuffed operation.

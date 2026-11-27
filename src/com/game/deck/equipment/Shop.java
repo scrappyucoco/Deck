@@ -23,7 +23,6 @@ public final class Shop {
      */
     public static boolean purchaseJoker(GameState state, Joker joker)
             throws InvalidGameActionException {
-    public static boolean purchaseJoker(GameState state, Joker joker) {
         // [CUSTOMIZATION: ADD NEW JOKERS HERE]
         // Pass any registered Joker instance; getShopCost() supplies its price.
         if (state == null) {
@@ -79,29 +78,6 @@ public final class Shop {
             state.addCash(cost);
             throw new InvalidGameActionException(
                     "Could not add " + tarotCard.getName() + " to the consumable slots; purchase refunded.");
-    public static boolean purchaseTarotCard(GameState state, TarotCards tarotCard) {
-        if (state == null || !state.isShopAccessible()) {
-            System.out.println("[SHOP] Tarot purchase rejected: shop is unavailable.");
-            return false;
-        }
-        if (tarotCard == null) {
-            System.out.println("[SHOP] Tarot purchase rejected: invalid Tarot card.");
-            return false;
-        }
-        if (state.getOwnedTarotCards().size() >= state.getMaxTarotCards()) {
-            System.out.println("[SHOP] Tarot purchase rejected: consumable slots are full.");
-            return false;
-        }
-
-        int cost = tarotCard.getShopCost();
-        if (!state.deductCash(cost)) {
-            System.out.println("[SHOP] Tarot purchase rejected: insufficient cash.");
-            return false;
-        }
-        if (!state.addTarotCard(tarotCard)) {
-            state.addCash(cost);
-            System.out.println("[SHOP] Tarot purchase rejected: card could not be added.");
-            return false;
         }
 
         System.out.println("[SHOP] Purchased " + tarotCard.getName() + " for $" + cost + ".");

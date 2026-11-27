@@ -5,8 +5,8 @@ package com.game.deck.views;
  * This source file participates in the modular Deck application.
  */
 
-import com.game.deck.equipment.Item;
 import com.game.deck.equipment.Joker;
+import com.game.deck.equipment.Item;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -220,17 +220,18 @@ public class JokerNode extends StackPane {
         }
     }
 
-    private void updateSockets(){
+    private void updateSockets() {
         List<Item> sockets = joker.getSockets();
-        String strng = joker.getName() + "\n" + joker.getDescription();
-        for(int i = 0; i < sockets.size(); i++){
+        String text = joker.getName() + "\n" + joker.getDescription();
+        for (int i = 0; i < sockets.size(); i++) {
             Image image = loadImage(sockets.get(i).getAssetPath());
-            if(image == null)
+            if (image == null) {
                 image = loadImage("assets/items/ego_relic.png");
+            }
             socketNodes[i].setImage(image);
-            strng += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
+            text += "\n\n" + sockets.get(i).getName() + "\n" + sockets.get(i).getDescription();
         }
-        description.setText(strng);
+        description.setText(text);
     }
 
     /**

@@ -1,0 +1,46 @@
+/* Base Card Container Node */
+.card-node {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 6, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+/* Selected Card Glow State */
+.card-node-selected {
+    -fx-border-color: #f1c40f;
+    -fx-border-width: 3.5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(241, 196, 15, 0.85), 14, 0, 0, 0);
+}
+
+/* Suit Color Themes */
+.card-red-suit {
+    -fx-text-fill: #e74c3c;
+}
+
+.card-black-suit {
+    -fx-text-fill: #2c3e50;
+}
+
+/* Inner Text & Typography */
+.card-rank-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.card-suit-text {
+    -fx-font-size: 12px;
+}
+
+.card-enhancement-badge,
+.card-Enchantment-badge {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #27ae60;
+    -fx-background-color: #e8f8f5;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 4px;
+}

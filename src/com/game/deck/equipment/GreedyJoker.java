@@ -21,8 +21,6 @@ public class GreedyJoker extends Joker {
         // [CONFIG: TWEAK SCORE VALUES HERE]
         //(name, description, assetName, shopCost, sellValue)
         super("The Greedy", "+5 Mult when a Diamond Suit is played", "joker_2", 4, 3);
-        socketItem(new ShatteredTablet()); // testing, remove later
-        socketItem(new PolishedGem()); // testing, remove later
     }
 
     //[JOKER ABILITIES HERE]

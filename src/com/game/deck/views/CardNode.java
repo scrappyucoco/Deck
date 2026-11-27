@@ -37,7 +37,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the card node operation.
-     * Performs the car\1 \2ode operation.
      */
     public CardNode(Card card) {
         this(card, card.getAssetPath());
@@ -45,7 +44,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the card node operation.
-     * Performs the car\1 \2ode operation.
      */
     public CardNode(Card card, String imagePath) {
         // --- CARD VISUAL CONSTRUCTION ---
@@ -125,7 +123,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the toggle selection operation.
-     * Performs the toggl\1 \2election operation.
      */
     public void toggleSelection() {
         setSelected(!selected);
@@ -133,7 +130,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the selected operation.
-     * Performs the se\1 \2elected operation.
      */
     public void setSelected(boolean selected) {
         // --- SELECTION STATE ---
@@ -158,7 +154,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the get card operation.
-     * Performs the ge\1 \2ard operation.
      */
     public Card getCard() {
         return card;
@@ -166,7 +161,6 @@ public class CardNode extends StackPane {
 
     /**
      * Performs the is selected operation.
-     * Performs the i\1 \2elected operation.
      */
     public boolean isSelected() {
         return selected;

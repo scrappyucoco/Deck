@@ -27,7 +27,6 @@ public class Deck {
 
     /**
      * Creates a new run deck and prepares its first active draw pile.
-     * Performs the deck operation.
      */
     public Deck() {
         resetToStandardDeck();
@@ -37,7 +36,6 @@ public class Deck {
      * Rebuilds the run deck for a brand-new run.
      * Only a new-run transition should call this method; round transitions use
      * prepareForRound() so permanent card modifications are preserved.
-     * Performs the rese\1 \2\1 \2tandar\1 \2eck operation.
      */
     public final void resetToStandardDeck() {
         masterDeck.clear();
@@ -74,13 +72,6 @@ public class Deck {
     }
 
     /**
-     * Performs the rese\1 \2ul\1 \2eck operation.
-     */
-    public final void resetFullDeck() {
-        resetToStandardDeck();
-    }
-
-    /**
      * Performs the shuffle operation.
      */
     public void shuffle() {
@@ -94,11 +85,6 @@ public class Deck {
      *         or both the draw and discard piles are empty
      */
     public List<Card> draw(int count) throws InvalidGameActionException {
-     * Performs the draw operation.
-     */
-    public List<Card> draw(int count) {
-        // Recycle discarded cards only when the draw pile is exhausted.
-        List<Card> drawn = new ArrayList<>();
         if (count <= 0) {
             throw new InvalidGameActionException(
                     "Cannot draw cards: the requested count must be at least 1 (requested " + count + ").");
@@ -129,9 +115,6 @@ public class Deck {
      * @throws InvalidGameActionException when a null or duplicate card is discarded
      */
     public void discard(List<Card> discardedCards) throws InvalidGameActionException {
-     * Performs the discard operation.
-     */
-    public void discard(List<Card> discardedCards) {
         if (discardedCards == null) {
             throw new InvalidGameActionException("Cannot discard a null card list.");
         }
@@ -207,7 +190,6 @@ public class Deck {
     public int discardedCardsCount() { return discardPile.size(); }
     /**
      * Returns an unmodifiable view of the active draw pile.
-     * Performs the ge\1 \2ards operation.
      */
     public List<Card> getCards() { return Collections.unmodifiableList(cards); }
     /**

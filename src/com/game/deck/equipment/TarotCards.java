@@ -15,11 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 /**
@@ -29,7 +24,6 @@ import java.util.function.Supplier;
 public abstract class TarotCards {
     public static final String ASSET_DIRECTORY = "assets/tarotCards/";
     private static final List<Supplier<? extends TarotCards>> AVAILABLE_TAROT_FACTORIES = List.of(
-        Star::new
         StarCard::new,
         StrengthCard::new,
         WeaknessCard::new,
@@ -71,13 +65,6 @@ public abstract class TarotCards {
      */
     protected TarotCards(String name, String description, String assetName,
             int shopCost, int sellValue, int maxTargetCards) {
-        this(name, description, assetName, DEFAULT_SHOP_COST, DEFAULT_SELL_VALUE);
-    }
-
-    /**
-     * Performs the taro\1 \2ards operation.
-     */
-    protected TarotCards(String name, String description, String assetName, int shopCost, int sellValue) {
         this.name = name;
         this.description = description;
         this.assetPath = ASSET_DIRECTORY + assetName + ".png";
@@ -153,15 +140,6 @@ public abstract class TarotCards {
         System.out.println("[TAROT] " + name + " rejected: " + reason);
         return new InvalidGameActionException(name + ": " + reason);
     }
-     */
-    public final void use(GameState state, List<Card> selecteCards) {
-        applyEffect(state, selecteCards);
-    }
-
-    /**
-     * Performs the appl\1 \2ffect operation.
-     */
-    protected abstract void applyEffect(GameState state, List<Card> selecteCards);
 
     /**
      * Creates up to maxOffers distinct instances from the registered Tarot pool.

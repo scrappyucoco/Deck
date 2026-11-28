@@ -10,6 +10,8 @@ import java.net.URL;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.TransferMode;
 
 public class ItemNode extends ImageView{
     public static final double ITEM_SIZE = 37.5;
@@ -35,6 +37,16 @@ public class ItemNode extends ImageView{
         tooltip.setShowDelay(javafx.util.Duration.millis(250));
         tooltip.getStyleClass().add("equipment-tooltip");
         Tooltip.install(this, tooltip);
+
+        setOnDragDetected(event -> {
+            // Drag payload is the item name; GameView resolves the source node.
+            ClipboardContent content = new ClipboardContent();
+            content.putString(item.getName());
+            startDragAndDrop(TransferMode.MOVE).setContent(content);
+            setOpacity(0.7);
+            event.consume();
+        });
+        setOnDragDone(event -> setOpacity(1.0));
     }
 
     private Image loadImage(String relativePath) {
@@ -111,4 +123,6 @@ public class ItemNode extends ImageView{
             return null;
         }
     }
+
+    public Item getItem(){ return item;}
 }

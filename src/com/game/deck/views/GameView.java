@@ -413,7 +413,10 @@ public class GameView extends BorderPane {
             JokerNode node = new JokerNode(joker,
                     () -> sellJoker(joker));
             node.setOnDragOver(event -> {
-                if (event.getGestureSource() instanceof JokerNode source && source != node) {
+                if (
+                    event.getGestureSource() instanceof JokerNode source && source != node ||
+                    event.getGestureSource() instanceof ItemNode
+                ) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -424,6 +427,12 @@ public class GameView extends BorderPane {
                     gameState.moveJoker(source.getJoker(), targetIndex);
                     System.out.println("[UI] Joker dragged to slot " + (targetIndex + 1));
                     renderJokers();
+                    event.setDropCompleted(true);
+                }
+                else if (event.getGestureSource() instanceof ItemNode source) {
+                    gameState.socketItemToJoker(source.getItem(), node.getJoker());
+                    renderJokers();
+                    renderItems();
                     event.setDropCompleted(true);
                 } else {
                     event.setDropCompleted(false);

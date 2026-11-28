@@ -617,6 +617,12 @@ public class GameState {
         notifyStateChanged();
     }
 
+    public void socketItemToJoker(Item item, Joker joker){
+        if(joker.socketItem(item)){
+            ownedItems.remove(ownedItems.indexOf(item));
+        }
+    }
+
     /**
      * Registers a listener invoked whenever run state mutates (cash, chips,
      * Jokers, hand, or round resources) so bound views can update in real time.

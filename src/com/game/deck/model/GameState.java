@@ -7,8 +7,8 @@ package com.game.deck.model;
 
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.TarotCards;
+import com.game.deck.equipment.Item;
 import com.game.deck.exception.InvalidGameActionException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,9 +52,11 @@ public class GameState {
     private final List<Card> hand;
     private final List<Joker> ownedJokers;
     private final List<TarotCards> ownedTarotCards;
+    private final List<Item> ownedItems;
     private final List<Runnable> stateChangeListeners = new ArrayList<>();
     private static final int MAX_JOKERS = 3;
     private static final int MAX_TAROT_CARDS = 2;
+    private static final int MAX_ITEMS = 6;
 
     /**
      * Performs the game state operation.
@@ -65,6 +67,7 @@ public class GameState {
         this.hand = new ArrayList<>();
         this.ownedJokers = new ArrayList<>();
         this.ownedTarotCards = new ArrayList<>();
+        this.ownedItems = new ArrayList<>();
         this.maxHandSize = 8;
         startNewRun();
     }
@@ -83,6 +86,7 @@ public class GameState {
         this.hand.clear();
         this.ownedJokers.clear();
         this.ownedTarotCards.clear();
+        this.ownedItems.clear();
         deck.resetToStandardDeck();
         System.out.println("[STATE] New run ready: jokers and Tarots cleared, "
                 + deck.totalCards() + " run cards available. Shop is open before the first round.");
@@ -485,6 +489,10 @@ public class GameState {
      */
     public int getMaxTarotCards() { return MAX_TAROT_CARDS; }
     /**
+     * Performs the ge\1 \2a\1 \2aro\1 \2ards operation.
+     */
+    public int getMaxItems() { return MAX_ITEMS; }
+    /**
      * Performs the ge\1 \2wne\1 \2okers operation.
      */
     public List<Joker> getOwnedJokers() {
@@ -496,6 +504,13 @@ public class GameState {
      */
     public List<TarotCards> getOwnedTarotCards() {
         return Collections.unmodifiableList(ownedTarotCards);
+    }
+
+    /**
+     * Performs the ge\1 \2wne\1 \2aro\1 \2ards operation.
+     */
+    public List<Item> getOwnedItems() {
+        return Collections.unmodifiableList(ownedItems);
     }
 
     /**

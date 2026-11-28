@@ -95,8 +95,8 @@ public class JokerNode extends StackPane {
         for(int i = 0; i < MAX_SOCKETS; i++){
             ImageView socket = new ImageView();
             socketNodes[i] = socket;
-            socket.setFitWidth(CARD_WIDTH*0.25);
-            socket.setFitHeight(CARD_WIDTH*0.25);
+            socket.setFitWidth(ItemNode.ITEM_SIZE);
+            socket.setFitHeight(ItemNode.ITEM_SIZE);
             socket.setPreserveRatio(true);
             socket.setSmooth(false);
             socketGroup.getChildren().add(socket);

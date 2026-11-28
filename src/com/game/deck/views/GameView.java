@@ -8,6 +8,7 @@ package com.game.deck.views;
 import com.game.deck.equipment.Joker;
 import com.game.deck.equipment.Shop;
 import com.game.deck.equipment.TarotCards;
+import com.game.deck.equipment.Item;
 import com.game.deck.engine.BasePokerEngine;
 import com.game.deck.engine.ScoringEngine;
 import com.game.deck.exception.InvalidGameActionException;
@@ -16,6 +17,7 @@ import com.game.deck.model.GameState;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,6 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -65,6 +68,7 @@ public class GameView extends BorderPane {
     private final HBox handContainer = new HBox(10);
     private final HBox ownedJokersContainer = new HBox(15);
     private final HBox ownedTarotCardsContainer = new HBox(12);
+    private final FlowPane ownedItemsContainer = new FlowPane(Orientation.HORIZONTAL, 10, 15);
     private final HBox shopOfferContainer = new HBox(12);
     private final HBox tarotShopOfferContainer = new HBox(12);
     private final VBox shopPanel = new VBox(8);
@@ -185,6 +189,11 @@ public class GameView extends BorderPane {
         ownedTarotCardsContainer.setAlignment(Pos.CENTER);
         configureEquipmentSlot(ownedTarotCardsContainer, 2);
 
+        Label itemTitle = new Label("Items");
+        itemTitle.getStyleClass().add("section-title");
+        ownedItemsContainer.setAlignment(Pos.CENTER);
+        configureEquipmentSlot(ownedItemsContainer, 2, 3);
+
         handContainer.setAlignment(Pos.CENTER);
         handContainer.setSpacing(-15);
         handContainer.setMinHeight(CardNode.CARD_HEIGHT + 20);
@@ -194,7 +203,8 @@ public class GameView extends BorderPane {
 
         VBox jokerColumn = new VBox(8, jokerTitle, ownedJokersContainer);
         VBox tarotColumn = new VBox(8, tarotTitle, ownedTarotCardsContainer);
-        HBox equipmentRow = new HBox(24, jokerColumn, tarotColumn);
+        VBox itemColumn = new VBox(8, itemTitle, ownedItemsContainer);
+        HBox equipmentRow = new HBox(24, jokerColumn, itemColumn, tarotColumn);
         equipmentRow.getStyleClass().add("equipment-row");
         equipmentRow.setTranslateY(-35);
         VBox playArea = new VBox(30, equipmentRow, handContainer);
@@ -212,6 +222,16 @@ public class GameView extends BorderPane {
         slot.setPrefSize(width, CardNode.CARD_HEIGHT);
         slot.setMaxSize(width, CardNode.CARD_HEIGHT);
         slot.setSpacing(12);
+        slot.setAlignment(Pos.CENTER);
+        slot.getStyleClass().add("equipment-slot");
+    }
+
+    private void configureEquipmentSlot(FlowPane slot, int hCapacity, int vCapacity) {
+        double width = hCapacity * ItemNode.ITEM_SIZE + (hCapacity - 1) * 10 + 25;
+        double height = vCapacity * ItemNode.ITEM_SIZE + (vCapacity - 1) * 15 + 25;
+        slot.setMinSize(width, height);
+        slot.setPrefSize(width, height);
+        slot.setMaxSize(width, height);
         slot.setAlignment(Pos.CENTER);
         slot.getStyleClass().add("equipment-slot");
     }
@@ -361,6 +381,7 @@ public class GameView extends BorderPane {
         renderHand();
         renderJokers();
         renderTarotCards();
+        renderItems();
         updateHandPreview();
         updateShop();
         updateRoundState();
@@ -426,6 +447,22 @@ public class GameView extends BorderPane {
         for (TarotCards tarotCard : gameState.getOwnedTarotCards()) {
             ownedTarotCardsContainer.getChildren().add(
                     new TarotNode(tarotCard, () -> useTarotCard(tarotCard), () -> sellTarotCard(tarotCard)));
+        }
+    }
+
+    private void renderItems() {
+        ownedItemsContainer.getChildren().clear();
+        if (gameState.getOwnedItems().isEmpty()) {
+            Label empty = new Label("No Items \n"
+                    + gameState.getOwnedItems().size() + "/" + gameState.getMaxItems() + " slots");
+            empty.getStyleClass().add("empty-jokers");
+            ownedItemsContainer.getChildren().add(empty);
+            return;
+        }
+
+        for (Item item : gameState.getOwnedItems()) {
+            ItemNode node = new ItemNode(item);
+            ownedItemsContainer.getChildren().add(node);
         }
     }
 
